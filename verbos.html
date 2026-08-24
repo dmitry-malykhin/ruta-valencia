@@ -350,9 +350,11 @@ function rTable(){
     if(i<0) return;
     var inp=inputs[i], tr=inp.parentNode.parentNode;
     note(v.v+"|"+i,false); S.wrong++;
-    inp.value=v.f[i]; tr.classList.add("bad"); speak(v.f[i]); inp.blur();
-    setTimeout(function(){ tr.classList.remove("bad"); inp.value="";
-      inp.placeholder="было: "+v.f[i]; inp.focus() },2500);
+    speak(v.f[i]);
+    inp.value=""; inp.placeholder="перепишите: "+v.f[i]; inp.focus();
+    tr.classList.add("bad");
+    el("stage").querySelector(".tip").innerHTML=
+      'Наберите <b>'+v.f[i]+'</b> целиком, так форма запомнится. Подсказка держится, пока не наберёте.';
   };
   el("done").onclick=function(){S.vi++;rTable()};
   inputs[0].focus();
