@@ -97,8 +97,19 @@ font-size:11px;display:flex;align-items:center;justify-content:center;color:var(
 .dot.now{border-color:var(--naranja);color:var(--naranja);font-weight:700}
 .warn{background:var(--naranja-soft);color:var(--naranja);border-radius:10px;padding:11px 14px;
 font-size:13.5px;margin-bottom:12px}
-.spk{background:var(--surface-2);border:1px solid var(--line);color:var(--ink-soft);
-border-radius:999px;width:44px;height:44px;font-size:19px;cursor:pointer}
+.audio{background:var(--cobalt-soft);border:1px solid transparent;color:var(--cobalt);
+border-radius:999px;width:62px;height:62px;font-size:25px;cursor:pointer;display:flex;
+align-items:center;justify-content:center;transition:transform .12s}
+.audio:hover{transform:scale(1.06)}
+.audio:active{transform:scale(.94)}
+.audio.playing{background:var(--cobalt);color:#fff}
+.card{position:relative}
+.reveal{width:100%;margin-top:12px}
+.kbd{font-family:"IBM Plex Mono",monospace;background:var(--surface-2);border:1px solid var(--line);
+border-radius:5px;padding:1px 6px;font-size:11.5px}
+.tip{font-size:12.5px;color:var(--ink-faint);text-align:center;margin-top:12px}
+.auto{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-soft);cursor:pointer}
+.auto input{width:16px;height:16px;accent-color:var(--cobalt)}
 footer{margin-top:24px;font-size:12.5px;color:var(--ink-faint);text-align:center}
 a{color:var(--cobalt)}
 @media (max-width:520px){.opts{grid-template-columns:1fr}}
@@ -113,7 +124,7 @@ a{color:var(--cobalt)}
     <div class="bar">
       <span style="font-weight:600" id="setname">—</span>
       <span class="row"><select id="daysel"></select><span class="mono" id="progress"></span>
-      <button class="btn ghost sm" id="skip">Пропустить круг</button></span>
+      <label class="auto"><input type="checkbox" id="auto" checked>Автозвук</label><button class="btn ghost sm" id="skip">Пропустить круг</button></span>
     </div>
     <div class="rounds" id="rounds"></div>
     <div class="days" id="days"></div>
@@ -208,53 +219,84 @@ function step(){
   if(k==="listen") return rListen();
 }
 function roundDone(){
+  keys({});
   el("stage").innerHTML='<div class="panel done"><div class="big">✓</div><h2>'+ROUNDS[S.round].t+
     ' пройден</h2><p class="hint" style="margin:8px 0 16px">Верно '+S.ok+', ошибок '+S.wrong+'</p>'+
     '<button class="btn" id="go">Дальше</button> <button class="btn ghost" id="re">Ещё раз</button></div>';
   el("go").onclick=nextRound; el("re").onclick=startRound;
 }
 
+/* ---------- общее ---------- */
+function autoOn(){ return ls("esp_auto")!=="0" }
+function audioBtn(word,id){
+  return '<button class="audio" id="'+(id||"spk")+'" aria-label="Послушать">🔊</button>';
+}
+function bindAudio(word,id){
+  var b=el(id||"spk"); if(!b) return;
+  b.onclick=function(){ b.classList.add("playing");
+    setTimeout(function(){b.classList.remove("playing")},700); speak(word); };
+}
+var keyHandler=null;
+function keys(map){
+  if(keyHandler) document.removeEventListener("keydown",keyHandler);
+  keyHandler=function(e){
+    if(/input|textarea/i.test((e.target.tagName||""))) return;
+    var k=e.key==="\u0020"?"space":e.key.toLowerCase();
+    if(map[k]){ e.preventDefault(); map[k](); }
+  };
+  document.addEventListener("keydown",keyHandler);
+}
+
 /* ---------- круг 1: карточки ---------- */
 function rCards(){
   var w=S.queue[S.idx];
   el("stage").innerHTML=head()+
-   '<div class="card"><div class="es">'+w[0]+'</div><div class="hint" id="b">переведите вслух, потом проверьте</div></div>'+
-   '<div class="acts"><button class="btn ghost" id="spk">🔊 Послушать</button>'+
-   '<button class="btn" id="show">Показать перевод</button></div>';
-  el("spk").onclick=function(){speak(w[0])};
-  el("show").onclick=function(){
-    el("b").outerHTML='<div class="ru">'+w[1]+'</div>'; speak(w[0]);
-    el("stage").querySelector(".acts").outerHTML=
-      '<div class="acts"><button class="btn ghost" id="spk2">🔊</button>'+
+   '<div class="card"><div class="es">'+w[0]+'</div>'+audioBtn(w[0])+
+   '<div class="ru" id="ru" style="display:none">'+w[1]+'</div></div>'+
+   '<button class="btn reveal" id="show">Показать перевод</button>'+
+   '<p class="tip"><span class="kbd">Пробел</span> показать перевод · <span class="kbd">R</span> послушать</p>';
+  bindAudio(w[0]);
+  if(autoOn()) speak(w[0]);
+  function reveal(){
+    if(el("ru").style.display!=="none") return;
+    el("ru").style.display="block"; speak(w[0]);
+    el("show").outerHTML='<div class="acts" id="acts">'+
       '<button class="btn no" id="n">Не вспомнил</button>'+
       '<button class="btn yes" id="y">Знаю</button></div>';
-    el("spk2").onclick=function(){speak(w[0])};
     el("n").onclick=function(){S.wrong++;S.queue.push(w);S.idx++;step()};
     el("y").onclick=function(){S.ok++;S.idx++;step()};
-  };
+    keys({r:function(){speak(w[0])},
+          "1":function(){el("n").click()},"2":function(){el("y").click()}});
+    el("stage").querySelector(".tip").innerHTML=
+      '<span class="kbd">1</span> не вспомнил · <span class="kbd">2</span> знаю · <span class="kbd">R</span> послушать';
+  }
+  el("show").onclick=reveal;
+  keys({space:reveal,enter:reveal,r:function(){speak(w[0])}});
 }
+
 /* ---------- круг 2: выбор перевода ---------- */
 function rChoose(){
   var all=setFor(S.day).w, w=S.queue[S.idx];
   var wrong=sh(all.filter(function(x){return x[1]!==w[1]})).slice(0,3).map(function(x){return x[1]});
   var opts=sh(wrong.concat([w[1]]));
-  var h=head()+'<div class="card"><div class="es">'+w[0]+'</div></div>'+
-    '<div class="acts"><button class="btn ghost" id="spk">🔊 Послушать ещё раз</button></div>'+
-    '<div class="opts">';
-  opts.forEach(function(o,i){h+='<button class="opt" data-o="'+i+'">'+o+'</button>'});
-  el("stage").innerHTML=h+'</div>';
-  el("spk").onclick=function(){speak(w[0])};
-  speak(w[0]);
-  var btns=el("stage").querySelectorAll(".opt");
-  Array.prototype.forEach.call(btns,function(b,i){
-    b.onclick=function(){
-      if(opts[i]===w[1]){b.classList.add("ok");S.ok++;S.idx++;setTimeout(step,420)}
-      else{b.classList.add("bad");S.wrong++;S.queue.push(w);
-        Array.prototype.forEach.call(btns,function(x,j){if(opts[j]===w[1])x.classList.add("ok")});
-        S.idx++;setTimeout(step,900)}
-    };
-  });
+  var h=head()+'<div class="card"><div class="es">'+w[0]+'</div>'+audioBtn(w[0])+'</div><div class="opts">';
+  opts.forEach(function(o,i){h+='<button class="opt" data-o="'+i+'">'+(i+1)+'. '+o+'</button>'});
+  el("stage").innerHTML=h+'</div><p class="tip"><span class="kbd">1</span>–<span class="kbd">4</span> выбрать · <span class="kbd">R</span> послушать</p>';
+  bindAudio(w[0]); if(autoOn()) speak(w[0]);
+  var btns=el("stage").querySelectorAll(".opt"), locked=false;
+  function pick(i){
+    if(locked) return; locked=true;
+    var b=btns[i];
+    if(opts[i]===w[1]){ b.classList.add("ok"); S.ok++; S.idx++; setTimeout(step,420); }
+    else{ b.classList.add("bad"); S.wrong++; S.queue.push(w);
+      Array.prototype.forEach.call(btns,function(x,j){if(opts[j]===w[1])x.classList.add("ok")});
+      speak(w[0]); S.idx++; setTimeout(step,1400); }
+  }
+  Array.prototype.forEach.call(btns,function(b,i){ b.onclick=function(){pick(i)} });
+  keys({"1":function(){pick(0)},"2":function(){pick(1)},"3":function(){pick(2)},
+        "4":function(){pick(3)},r:function(){speak(w[0])}});
 }
+
 /* ---------- круг 3: пишу сам ---------- */
 function rType(){
   var w=S.queue[S.idx];
@@ -262,49 +304,49 @@ function rType(){
     '<div class="card"><div class="hint">напишите по-испански</div><div class="ask">'+w[1]+'</div></div>'+
     '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
     'placeholder="слово по-испански"><button class="btn" id="ok">Проверить</button></div>'+
-    '<div id="v"></div>';
+    '<div id="v"></div><p class="tip"><span class="kbd">Enter</span> проверить</p>';
+  keys({});
   var inp=el("inp"); inp.focus();
+  var doneOnce=false;
   function check(){
-    var a=norm(inp.value); if(!a) return;
-    if(a===norm(w[0])){
-      S.ok++; el("v").innerHTML='<div class="verdict ok">Верно: <b>'+w[0]+'</b></div>';
-      speak(w[0]); S.idx++; setTimeout(step,750);
-    } else {
-      S.wrong++; S.queue.push(w);
+    if(doneOnce) return; var a=norm(inp.value); if(!a) return; doneOnce=true;
+    var good=a===norm(w[0]);
+    if(good){ S.ok++; el("v").innerHTML='<div class="verdict ok">Верно: <b>'+w[0]+'</b></div>'; }
+    else{ S.wrong++; S.queue.push(w);
       el("v").innerHTML='<div class="verdict bad">Правильно: <b>'+w[0]+'</b><br>'+
-        '<span style="font-size:13.5px">Вы написали: '+inp.value+'</span></div>';
-      speak(w[0]); S.idx++; setTimeout(step,1900);
-    }
-    inp.disabled=true; el("ok").disabled=true;
+      '<span style="font-size:13.5px">вы написали: '+inp.value+'</span></div>'; }
+    speak(w[0]); inp.disabled=true; el("ok").disabled=true;
+    setTimeout(step,good?800:2100);
   }
   el("ok").onclick=check;
-  inp.onkeydown=function(e){if(e.key==="Enter")check()};
+  inp.onkeydown=function(e){ if(e.key==="Enter") check() };
 }
+
 /* ---------- круг 4: на слух ---------- */
 function rListen(){
   var w=S.queue[S.idx];
   el("stage").innerHTML=head()+
     '<div class="card"><div class="hint">послушайте и напишите по-испански</div>'+
-    '<button class="spk" id="spk" style="width:64px;height:64px;font-size:26px">🔊</button>'+
-    '<div class="hint">можно слушать сколько угодно раз</div></div>'+
+    audioBtn(w[0])+'<div class="hint">слушать можно сколько угодно раз</div></div>'+
     '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
     'placeholder="что услышали"><button class="btn" id="ok">Проверить</button></div>'+
-    '<div id="v"></div>';
-  el("spk").onclick=function(){speak(w[0])};
-  speak(w[0]);
-  var inp=el("inp"); inp.focus();
+    '<div id="v"></div><p class="tip"><span class="kbd">Enter</span> проверить · кнопка 🔊 повторяет</p>';
+  bindAudio(w[0]); keys({}); speak(w[0]);
+  var inp=el("inp"); inp.focus(); var doneOnce=false;
   function check(){
-    var a=norm(inp.value); if(!a) return;
+    if(doneOnce) return; var a=norm(inp.value); if(!a) return; doneOnce=true;
     var good=a===norm(w[0]);
     if(good){S.ok++} else {S.wrong++;S.queue.push(w)}
     el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+w[0]+'</b> — '+w[1]+'</div>';
-    inp.disabled=true; el("ok").disabled=true; S.idx++; setTimeout(step,good?800:1900);
+    speak(w[0]); inp.disabled=true; el("ok").disabled=true; setTimeout(step,good?900:2100);
   }
   el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
 }
+
 /* ---------- круг 5: подбор ---------- */
 var M={sel:null,left:0};
 function renderMatch(){
+  keys({});
   var pick=sh(setFor(S.day).w).slice(0,8), tiles=[];
   pick.forEach(function(p,i){tiles.push({k:i,t:p[0]});tiles.push({k:i,t:p[1]})});
   tiles=sh(tiles); M.sel=null; M.left=pick.length;
@@ -324,6 +366,7 @@ function renderMatch(){
   };
 }
 function finish(){
+  keys({});
   mark(S.day); renderDays(); S.round=ROUNDS.length; renderRounds();
   el("stage").innerHTML='<div class="panel done"><div class="big">🍊</div><h2>День '+S.day+' закрыт</h2>'+
     '<p class="hint" style="margin:8px 0 16px">Отметьте блок «Слова» в своей таблице</p>'+
@@ -339,6 +382,8 @@ function boot(){
     S.who=b.dataset.who;ls("esp_who",S.who);renderWho();startDay(today())};
   el("daysel").onchange=function(){startDay(parseInt(this.value,10))};
   el("days").onclick=function(e){var d=e.target.closest(".dot");if(d)startDay(parseInt(d.dataset.day,10))};
+  el("auto").checked=autoOn();
+  el("auto").onchange=function(){ls("esp_auto",this.checked?"1":"0")};
   el("skip").onclick=function(){nextRound()};
   initVoice(); startDay(today());
 }
