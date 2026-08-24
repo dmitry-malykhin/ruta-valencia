@@ -129,192 +129,320 @@ footer{margin-top:24px;font-size:12.5px;color:var(--ink-faint);text-align:center
 a{color:var(--cobalt)}
 @media (max-width:520px){.opts{grid-template-columns:1fr}}
 
+.big-v{font-size:clamp(28px,5.5vw,42px);font-weight:650}
+.conj{width:100%;border-collapse:separate;border-spacing:0 8px}
+.conj td{vertical-align:middle}
+.conj td.p{width:40%;padding-right:10px;font-size:15px;color:var(--ink-soft)}
+.conj td.p b{color:var(--ink);font-weight:600}
+.conj input{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;
+padding:11px 13px;font-size:17px;color:var(--ink)}
+.conj input:focus{outline:2px solid var(--cobalt);outline-offset:1px}
+.conj tr.ok input{background:var(--verde-soft);border-color:transparent;color:var(--verde);font-weight:600}
+.conj tr.bad input{border-color:var(--naranja);background:var(--naranja-soft)}
+.conj td.a{width:52px;padding-left:8px;text-align:right}
+.mini{background:var(--surface-2);border:1px solid var(--line);color:var(--ink-soft);
+border-radius:999px;width:38px;height:38px;font-size:16px;cursor:pointer}
+.mini.on{background:var(--cobalt);color:#fff;border-color:transparent}
+.mini:disabled{opacity:.3;cursor:default}
+.formlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:6px;margin-top:16px;width:100%}
+.formlist div{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;
+padding:8px 10px;font-size:15px;text-align:left}
+.formlist span{color:var(--ink-faint);font-size:11.5px;display:block}
 .vtable{width:100%;border-collapse:collapse;font-size:14.5px}
-.vtable th{text-align:left;font-weight:600;font-size:12px;color:var(--ink-faint);
-padding:6px 8px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05em}
-.vtable td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+.vtable th{text-align:left;font-size:12px;color:var(--ink-faint);padding:6px 8px;
+border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05em}
+.vtable td{padding:8px;border-bottom:1px solid var(--line)}
 .vtable td.v{font-weight:600;white-space:nowrap}
 .vtable td.f{font-family:"IBM Plex Mono",monospace;font-size:13.5px;color:var(--ink-soft)}
 .vtable tr.irr td.v{color:var(--naranja)}
-.vtable tr:hover td{background:var(--surface-2)}
-.legend{font-size:12.5px;color:var(--ink-faint);margin:8px 0 14px}
-.legend b{color:var(--naranja)}
-.pron{font-size:15px;color:var(--ink-faint);margin-top:4px}
-.big-v{font-size:clamp(30px,6vw,44px);font-weight:650}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
-.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);
-border-radius:999px;padding:6px 13px;font-size:13.5px;cursor:pointer}
-.chip.on{background:var(--cobalt);color:#fff;border-color:transparent;font-weight:600}
 </style>
 <div class="wrap">
   <p class="eyebrow"><a href="./" style="text-decoration:none">← Ruta Valencia</a> ·
      <a href="./trainer.html" style="text-decoration:none">тренажёр слов</a></p>
   <h1>Спряжение глаголов</h1>
-  <p style="color:var(--ink-soft);margin-top:6px">Presente de indicativo. Сначала таблица, потом ввод с клавиатуры.</p>
+  <p style="color:var(--ink-soft);margin-top:6px">Пять глаголов дня: сначала слушаем и запоминаем, потом заполняем таблицу, потом на слух и игра.</p>
   <div class="who" id="who"></div>
   <div class="panel">
-    <div class="chips" id="chips"></div>
-    <div class="tools">
-      <span class="lab" style="font-size:12.5px;color:var(--ink-faint)">День</span>
-      <select id="daysel"></select>
-      <label class="auto"><input type="checkbox" id="passed" checked>Только пройденные</label>
-      <button class="btn ghost" id="tblbtn">Таблица</button>
-      <button class="btn" id="drillbtn">Тренировать</button>
+    <div class="bar">
+      <span style="font-weight:600" id="setname">—</span>
+      <span class="row"><select id="daysel"></select>
+        <button class="btn ghost sm" id="ref">Справочник</button>
+        <button class="btn ghost sm" id="restart">Начать день заново</button></span>
     </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:10px;
+      padding-top:10px;border-top:1px dashed var(--line)">
+      <span class="hint">Голос</span><select id="voice" style="flex:1;max-width:380px"></select>
+    </div>
+    <div class="rounds" id="rounds"></div>
   </div>
   <div id="stage"></div>
   <footer>Прогресс и ошибки хранятся в этом браузере, у каждого свои.</footer>
 </div>
 <script>
-var V=[{"v": "ser", "ru": "быть (кто/какой)", "f": ["soy", "eres", "es", "somos", "sois", "son"], "irr": true, "rank": 1, "ex": "Soy de Rusia.", "day": 1}, {"v": "estar", "ru": "быть (где/как)", "f": ["estoy", "estás", "está", "estamos", "estáis", "están"], "irr": true, "rank": 2, "ex": "Estoy en casa.", "day": 1}, {"v": "tener", "ru": "иметь", "f": ["tengo", "tienes", "tiene", "tenemos", "tenéis", "tienen"], "irr": true, "rank": 3, "ex": "Tengo dos hijos.", "day": 1}, {"v": "hacer", "ru": "делать", "f": ["hago", "haces", "hace", "hacemos", "hacéis", "hacen"], "irr": true, "rank": 4, "ex": "¿Qué haces?", "day": 1}, {"v": "poder", "ru": "мочь", "f": ["puedo", "puedes", "puede", "podemos", "podéis", "pueden"], "irr": true, "rank": 5, "ex": "¿Puede repetir?", "day": 1}, {"v": "decir", "ru": "говорить, сказать", "f": ["digo", "dices", "dice", "decimos", "decís", "dicen"], "irr": true, "rank": 6, "ex": "¿Qué dices?", "day": 2}, {"v": "haber", "ru": "иметься (hay)", "f": ["he", "has", "ha", "hemos", "habéis", "han"], "irr": true, "rank": 7, "ex": "Hay un banco aquí.", "day": 2}, {"v": "ir", "ru": "идти, ехать", "f": ["voy", "vas", "va", "vamos", "vais", "van"], "irr": true, "rank": 8, "ex": "Voy al banco.", "day": 2}, {"v": "dar", "ru": "давать", "f": ["doy", "das", "da", "damos", "dais", "dan"], "irr": true, "rank": 9, "ex": "¿Me da el ticket?", "day": 2}, {"v": "ver", "ru": "видеть", "f": ["veo", "ves", "ve", "vemos", "veis", "ven"], "irr": true, "rank": 10, "ex": "No lo veo.", "day": 2}, {"v": "saber", "ru": "знать (факт)", "f": ["sé", "sabes", "sabe", "sabemos", "sabéis", "saben"], "irr": true, "rank": 11, "ex": "No sé.", "day": 3}, {"v": "querer", "ru": "хотеть", "f": ["quiero", "quieres", "quiere", "queremos", "queréis", "quieren"], "irr": true, "rank": 12, "ex": "Quiero un café.", "day": 3}, {"v": "llegar", "ru": "приезжать", "f": ["llego", "llegas", "llega", "llegamos", "llegáis", "llegan"], "irr": false, "rank": 13, "ex": "Llego mañana.", "day": 3}, {"v": "pasar", "ru": "проходить, случаться", "f": ["paso", "pasas", "pasa", "pasamos", "pasáis", "pasan"], "irr": false, "rank": 14, "ex": "¿Qué pasa?", "day": 3}, {"v": "deber", "ru": "быть должным", "f": ["debo", "debes", "debe", "debemos", "debéis", "deben"], "irr": false, "rank": 15, "ex": "Debo pagar.", "day": 3}, {"v": "dejar", "ru": "оставлять, позволять", "f": ["dejo", "dejas", "deja", "dejamos", "dejáis", "dejan"], "irr": false, "rank": 16, "ex": "Deja las llaves.", "day": 4}, {"v": "llevar", "ru": "нести, носить", "f": ["llevo", "llevas", "lleva", "llevamos", "lleváis", "llevan"], "irr": false, "rank": 17, "ex": "Llevo dos años aquí.", "day": 4}, {"v": "encontrar", "ru": "находить", "f": ["encuentro", "encuentras", "encuentra", "encontramos", "encontráis", "encuentran"], "irr": true, "rank": 18, "ex": "No encuentro la calle.", "day": 4}, {"v": "seguir", "ru": "продолжать, следовать", "f": ["sigo", "sigues", "sigue", "seguimos", "seguís", "siguen"], "irr": true, "rank": 19, "ex": "Siga todo recto.", "day": 4}, {"v": "poner", "ru": "класть, ставить", "f": ["pongo", "pones", "pone", "ponemos", "ponéis", "ponen"], "irr": true, "rank": 20, "ex": "¿Qué le pongo?", "day": 4}, {"v": "parecer", "ru": "казаться", "f": ["parezco", "pareces", "parece", "parecemos", "parecéis", "parecen"], "irr": true, "rank": 21, "ex": "Me parece bien.", "day": 5}, {"v": "hablar", "ru": "говорить", "f": ["hablo", "hablas", "habla", "hablamos", "habláis", "hablan"], "irr": false, "rank": 22, "ex": "Hablo un poco.", "day": 5}, {"v": "pensar", "ru": "думать", "f": ["pienso", "piensas", "piensa", "pensamos", "pensáis", "piensan"], "irr": true, "rank": 23, "ex": "Pienso que sí.", "day": 5}, {"v": "volver", "ru": "возвращаться", "f": ["vuelvo", "vuelves", "vuelve", "volvemos", "volvéis", "vuelven"], "irr": true, "rank": 24, "ex": "Vuelvo luego.", "day": 5}, {"v": "conocer", "ru": "быть знакомым", "f": ["conozco", "conoces", "conoce", "conocemos", "conocéis", "conocen"], "irr": true, "rank": 25, "ex": "No conozco la ciudad.", "day": 5}, {"v": "salir", "ru": "выходить", "f": ["salgo", "sales", "sale", "salimos", "salís", "salen"], "irr": true, "rank": 26, "ex": "Salgo a las ocho.", "day": 6}, {"v": "venir", "ru": "приходить", "f": ["vengo", "vienes", "viene", "venimos", "venís", "vienen"], "irr": true, "rank": 27, "ex": "Vengo de Rusia.", "day": 6}, {"v": "tomar", "ru": "брать, выпить", "f": ["tomo", "tomas", "toma", "tomamos", "tomáis", "toman"], "irr": false, "rank": 28, "ex": "Tomo un café.", "day": 6}, {"v": "tratar", "ru": "обращаться, пытаться", "f": ["trato", "tratas", "trata", "tratamos", "tratáis", "tratan"], "irr": false, "rank": 29, "ex": "", "day": 6}, {"v": "contar", "ru": "считать, рассказывать", "f": ["cuento", "cuentas", "cuenta", "contamos", "contáis", "cuentan"], "irr": true, "rank": 30, "ex": "Cuéntame.", "day": 6}, {"v": "mirar", "ru": "смотреть", "f": ["miro", "miras", "mira", "miramos", "miráis", "miran"], "irr": false, "rank": 31, "ex": "Mira aquí.", "day": 7}, {"v": "esperar", "ru": "ждать, надеяться", "f": ["espero", "esperas", "espera", "esperamos", "esperáis", "esperan"], "irr": false, "rank": 32, "ex": "Espere un momento.", "day": 7}, {"v": "buscar", "ru": "искать", "f": ["busco", "buscas", "busca", "buscamos", "buscáis", "buscan"], "irr": false, "rank": 33, "ex": "Busco un piso.", "day": 7}, {"v": "existir", "ru": "существовать", "f": ["existo", "existes", "existe", "existimos", "existís", "existen"], "irr": false, "rank": 34, "ex": "", "day": 7}, {"v": "entrar", "ru": "входить", "f": ["entro", "entras", "entra", "entramos", "entráis", "entran"], "irr": false, "rank": 35, "ex": "¿Puedo entrar?", "day": 7}, {"v": "trabajar", "ru": "работать", "f": ["trabajo", "trabajas", "trabaja", "trabajamos", "trabajáis", "trabajan"], "irr": false, "rank": 36, "ex": "Trabajo en casa.", "day": 8}, {"v": "escribir", "ru": "писать", "f": ["escribo", "escribes", "escribe", "escribimos", "escribís", "escriben"], "irr": false, "rank": 37, "ex": "¿Lo puede escribir?", "day": 8}, {"v": "perder", "ru": "терять", "f": ["pierdo", "pierdes", "pierde", "perdemos", "perdéis", "pierden"], "irr": true, "rank": 38, "ex": "He perdido el móvil.", "day": 8}, {"v": "producir", "ru": "производить", "f": ["produzco", "produces", "produce", "producimos", "producís", "producen"], "irr": true, "rank": 39, "ex": "", "day": 8}, {"v": "ocurrir", "ru": "происходить", "f": ["ocurro", "ocurres", "ocurre", "ocurrimos", "ocurrís", "ocurren"], "irr": false, "rank": 40, "ex": "", "day": 8}, {"v": "entender", "ru": "понимать", "f": ["entiendo", "entiendes", "entiende", "entendemos", "entendéis", "entienden"], "irr": true, "rank": 41, "ex": "No entiendo.", "day": 9}, {"v": "pedir", "ru": "просить", "f": ["pido", "pides", "pide", "pedimos", "pedís", "piden"], "irr": true, "rank": 42, "ex": "Quiero pedir cita.", "day": 9}, {"v": "recibir", "ru": "получать", "f": ["recibo", "recibes", "recibe", "recibimos", "recibís", "reciben"], "irr": false, "rank": 43, "ex": "He recibido el correo.", "day": 9}, {"v": "recordar", "ru": "помнить", "f": ["recuerdo", "recuerdas", "recuerda", "recordamos", "recordáis", "recuerdan"], "irr": true, "rank": 44, "ex": "No recuerdo.", "day": 9}, {"v": "terminar", "ru": "заканчивать", "f": ["termino", "terminas", "termina", "terminamos", "termináis", "terminan"], "irr": false, "rank": 45, "ex": "He terminado.", "day": 9}, {"v": "permitir", "ru": "разрешать", "f": ["permito", "permites", "permite", "permitimos", "permitís", "permiten"], "irr": false, "rank": 46, "ex": "", "day": 10}, {"v": "aparecer", "ru": "появляться", "f": ["aparezco", "apareces", "aparece", "aparecemos", "aparecéis", "aparecen"], "irr": true, "rank": 47, "ex": "", "day": 10}, {"v": "conseguir", "ru": "добиваться", "f": ["consigo", "consigues", "consigue", "conseguimos", "conseguís", "consiguen"], "irr": true, "rank": 48, "ex": "", "day": 10}, {"v": "comenzar", "ru": "начинать", "f": ["comienzo", "comienzas", "comienza", "comenzamos", "comenzáis", "comienzan"], "irr": true, "rank": 49, "ex": "", "day": 10}, {"v": "servir", "ru": "служить, годиться", "f": ["sirvo", "sirves", "sirve", "servimos", "servís", "sirven"], "irr": true, "rank": 50, "ex": "", "day": 10}, {"v": "sacar", "ru": "доставать, вынимать", "f": ["saco", "sacas", "saca", "sacamos", "sacáis", "sacan"], "irr": false, "rank": 51, "ex": "", "day": 11}, {"v": "necesitar", "ru": "нуждаться", "f": ["necesito", "necesitas", "necesita", "necesitamos", "necesitáis", "necesitan"], "irr": false, "rank": 52, "ex": "Necesito ayuda.", "day": 11}, {"v": "mantener", "ru": "поддерживать", "f": ["manteno", "mantenes", "mantene", "mantenemos", "mantenéis", "mantenen"], "irr": false, "rank": 53, "ex": "", "day": 11}, {"v": "resultar", "ru": "оказываться", "f": ["resulto", "resultas", "resulta", "resultamos", "resultáis", "resultan"], "irr": false, "rank": 54, "ex": "", "day": 11}, {"v": "leer", "ru": "читать", "f": ["leo", "lees", "lee", "leemos", "leéis", "leen"], "irr": false, "rank": 55, "ex": "", "day": 11}, {"v": "caer", "ru": "падать", "f": ["caigo", "caes", "cae", "caemos", "caéis", "caen"], "irr": true, "rank": 56, "ex": "", "day": 12}, {"v": "cambiar", "ru": "менять", "f": ["cambio", "cambias", "cambia", "cambiamos", "cambiáis", "cambian"], "irr": false, "rank": 57, "ex": "", "day": 12}, {"v": "presentar", "ru": "представлять", "f": ["presento", "presentas", "presenta", "presentamos", "presentáis", "presentan"], "irr": false, "rank": 58, "ex": "", "day": 12}, {"v": "crear", "ru": "создавать", "f": ["creo", "creas", "crea", "creamos", "creáis", "crean"], "irr": false, "rank": 59, "ex": "", "day": 12}, {"v": "abrir", "ru": "открывать", "f": ["abro", "abres", "abre", "abrimos", "abrís", "abren"], "irr": false, "rank": 60, "ex": "¿A qué hora abren?", "day": 12}, {"v": "considerar", "ru": "считать, рассматривать", "f": ["considero", "consideras", "considera", "consideramos", "consideráis", "consideran"], "irr": false, "rank": 61, "ex": "", "day": 13}, {"v": "oír", "ru": "слышать", "f": ["oigo", "oyes", "oye", "oímos", "oís", "oyen"], "irr": true, "rank": 62, "ex": "", "day": 13}, {"v": "acabar", "ru": "заканчивать", "f": ["acabo", "acabas", "acaba", "acabamos", "acabáis", "acaban"], "irr": false, "rank": 63, "ex": "", "day": 13}, {"v": "convertir", "ru": "превращать", "f": ["convierto", "conviertes", "convierte", "convertimos", "convertís", "convierten"], "irr": true, "rank": 64, "ex": "", "day": 13}, {"v": "ganar", "ru": "выигрывать", "f": ["gano", "ganas", "gana", "ganamos", "ganáis", "ganan"], "irr": false, "rank": 65, "ex": "", "day": 13}, {"v": "formar", "ru": "формировать", "f": ["formo", "formas", "forma", "formamos", "formáis", "forman"], "irr": false, "rank": 66, "ex": "", "day": 14}, {"v": "traer", "ru": "приносить", "f": ["traigo", "traes", "trae", "traemos", "traéis", "traen"], "irr": true, "rank": 67, "ex": "", "day": 14}, {"v": "partir", "ru": "отправляться", "f": ["parto", "partes", "parte", "partimos", "partís", "parten"], "irr": false, "rank": 68, "ex": "", "day": 14}, {"v": "aceptar", "ru": "принимать", "f": ["acepto", "aceptas", "acepta", "aceptamos", "aceptáis", "aceptan"], "irr": false, "rank": 69, "ex": "", "day": 14}, {"v": "realizar", "ru": "осуществлять", "f": ["realizo", "realizas", "realiza", "realizamos", "realizáis", "realizan"], "irr": false, "rank": 70, "ex": "", "day": 14}, {"v": "suponer", "ru": "предполагать", "f": ["supono", "supones", "supone", "suponemos", "suponéis", "suponen"], "irr": false, "rank": 71, "ex": "", "day": 15}, {"v": "comprender", "ru": "понимать", "f": ["comprendo", "comprendes", "comprende", "comprendemos", "comprendéis", "comprenden"], "irr": false, "rank": 72, "ex": "", "day": 15}, {"v": "lograr", "ru": "добиваться", "f": ["logro", "logras", "logra", "logramos", "lográis", "logran"], "irr": false, "rank": 73, "ex": "", "day": 15}, {"v": "explicar", "ru": "объяснять", "f": ["explico", "explicas", "explica", "explicamos", "explicáis", "explican"], "irr": false, "rank": 74, "ex": "", "day": 15}, {"v": "preguntar", "ru": "спрашивать", "f": ["pregunto", "preguntas", "pregunta", "preguntamos", "preguntáis", "preguntan"], "irr": false, "rank": 75, "ex": "Le pregunto una cosa.", "day": 15}, {"v": "tocar", "ru": "трогать, играть (на инструменте)", "f": ["toco", "tocas", "toca", "tocamos", "tocáis", "tocan"], "irr": false, "rank": 76, "ex": "", "day": 16}, {"v": "reconocer", "ru": "узнавать, признавать", "f": ["reconozco", "reconoces", "reconoce", "reconocemos", "reconocéis", "reconocen"], "irr": true, "rank": 77, "ex": "", "day": 16}, {"v": "estudiar", "ru": "учить, учиться", "f": ["estudio", "estudias", "estudia", "estudiamos", "estudiáis", "estudian"], "irr": false, "rank": 78, "ex": "", "day": 16}, {"v": "alcanzar", "ru": "достигать", "f": ["alcanzo", "alcanzas", "alcanza", "alcanzamos", "alcanzáis", "alcanzan"], "irr": false, "rank": 79, "ex": "", "day": 16}, {"v": "nacer", "ru": "рождаться", "f": ["nazco", "naces", "nace", "nacemos", "nacéis", "nacen"], "irr": true, "rank": 80, "ex": "", "day": 16}, {"v": "correr", "ru": "бегать", "f": ["corro", "corres", "corre", "corremos", "corréis", "corren"], "irr": false, "rank": 81, "ex": "", "day": 17}, {"v": "utilizar", "ru": "использовать", "f": ["utilizo", "utilizas", "utiliza", "utilizamos", "utilizáis", "utilizan"], "irr": false, "rank": 82, "ex": "", "day": 17}, {"v": "pagar", "ru": "платить", "f": ["pago", "pagas", "paga", "pagamos", "pagáis", "pagan"], "irr": false, "rank": 83, "ex": "", "day": 17}, {"v": "ayudar", "ru": "помогать", "f": ["ayudo", "ayudas", "ayuda", "ayudamos", "ayudáis", "ayudan"], "irr": false, "rank": 84, "ex": "¿Me ayuda?", "day": 17}, {"v": "gustar", "ru": "нравиться", "f": ["me gusta", "te gusta", "le gusta", "nos gusta", "os gusta", "les gusta"], "irr": true, "rank": 85, "ex": "", "day": 17}, {"v": "jugar", "ru": "играть", "f": ["juego", "juegas", "juega", "jugamos", "jugáis", "juegan"], "irr": true, "rank": 86, "ex": "", "day": 18}, {"v": "escuchar", "ru": "слушать", "f": ["escucho", "escuchas", "escucha", "escuchamos", "escucháis", "escuchan"], "irr": false, "rank": 87, "ex": "", "day": 18}, {"v": "cumplir", "ru": "выполнять, исполняться", "f": ["cumplo", "cumples", "cumple", "cumplimos", "cumplís", "cumplen"], "irr": false, "rank": 88, "ex": "", "day": 18}, {"v": "ofrecer", "ru": "предлагать", "f": ["ofrezco", "ofreces", "ofrece", "ofrecemos", "ofrecéis", "ofrecen"], "irr": true, "rank": 89, "ex": "", "day": 18}, {"v": "descubrir", "ru": "открывать, обнаруживать", "f": ["descubro", "descubres", "descubre", "descubrimos", "descubrís", "descubren"], "irr": false, "rank": 90, "ex": "", "day": 18}, {"v": "levantar", "ru": "поднимать", "f": ["levanto", "levantas", "levanta", "levantamos", "levantáis", "levantan"], "irr": false, "rank": 91, "ex": "", "day": 19}, {"v": "intentar", "ru": "пытаться", "f": ["intento", "intentas", "intenta", "intentamos", "intentáis", "intentan"], "irr": false, "rank": 92, "ex": "", "day": 19}, {"v": "usar", "ru": "использовать", "f": ["uso", "usas", "usa", "usamos", "usáis", "usan"], "irr": false, "rank": 93, "ex": "", "day": 19}, {"v": "decidir", "ru": "решать", "f": ["decido", "decides", "decide", "decidimos", "decidís", "deciden"], "irr": false, "rank": 94, "ex": "", "day": 19}, {"v": "vivir", "ru": "жить", "f": ["vivo", "vives", "vive", "vivimos", "vivís", "viven"], "irr": false, "rank": 95, "ex": "Vivo en Valencia.", "day": 19}, {"v": "comer", "ru": "есть, обедать", "f": ["como", "comes", "come", "comemos", "coméis", "comen"], "irr": false, "rank": 96, "ex": "", "day": 0}, {"v": "beber", "ru": "пить", "f": ["bebo", "bebes", "bebe", "bebemos", "bebéis", "beben"], "irr": false, "rank": 97, "ex": "", "day": 0}, {"v": "comprar", "ru": "покупать", "f": ["compro", "compras", "compra", "compramos", "compráis", "compran"], "irr": false, "rank": 98, "ex": "", "day": 20}, {"v": "vender", "ru": "продавать", "f": ["vendo", "vendes", "vende", "vendemos", "vendéis", "venden"], "irr": false, "rank": 99, "ex": "", "day": 20}, {"v": "empezar", "ru": "начинать", "f": ["empiezo", "empiezas", "empieza", "empezamos", "empezáis", "empiezan"], "irr": true, "rank": 100, "ex": "Empieza a las nueve.", "day": 20}, {"v": "mostrar", "ru": "показывать", "f": ["muestro", "muestras", "muestra", "mostramos", "mostráis", "muestran"], "irr": true, "rank": 101, "ex": "", "day": 20}, {"v": "mover", "ru": "двигать", "f": ["muevo", "mueves", "mueve", "movemos", "movéis", "mueven"], "irr": true, "rank": 102, "ex": "", "day": 20}, {"v": "guardar", "ru": "хранить, беречь", "f": ["guardo", "guardas", "guarda", "guardamos", "guardáis", "guardan"], "irr": false, "rank": 103, "ex": "", "day": 21}, {"v": "meter", "ru": "засовывать, помещать", "f": ["meto", "metes", "mete", "metemos", "metéis", "meten"], "irr": false, "rank": 104, "ex": "", "day": 21}, {"v": "quitar", "ru": "убирать, снимать", "f": ["quito", "quitas", "quita", "quitamos", "quitáis", "quitan"], "irr": false, "rank": 105, "ex": "", "day": 21}, {"v": "tirar", "ru": "бросать, выбрасывать", "f": ["tiro", "tiras", "tira", "tiramos", "tiráis", "tiran"], "irr": false, "rank": 106, "ex": "", "day": 21}, {"v": "echar", "ru": "бросать, наливать", "f": ["echo", "echas", "echa", "echamos", "echáis", "echan"], "irr": false, "rank": 107, "ex": "", "day": 21}, {"v": "visitar", "ru": "навещать, посещать", "f": ["visito", "visitas", "visita", "visitamos", "visitáis", "visitan"], "irr": false, "rank": 108, "ex": "", "day": 22}, {"v": "invitar", "ru": "приглашать", "f": ["invito", "invitas", "invita", "invitamos", "invitáis", "invitan"], "irr": false, "rank": 109, "ex": "", "day": 22}, {"v": "cantar", "ru": "петь", "f": ["canto", "cantas", "canta", "cantamos", "cantáis", "cantan"], "irr": false, "rank": 110, "ex": "", "day": 22}, {"v": "bailar", "ru": "танцевать", "f": ["bailo", "bailas", "baila", "bailamos", "bailáis", "bailan"], "irr": false, "rank": 111, "ex": "", "day": 0}, {"v": "llorar", "ru": "плакать", "f": ["lloro", "lloras", "llora", "lloramos", "lloráis", "lloran"], "irr": false, "rank": 112, "ex": "", "day": 0}, {"v": "reír", "ru": "смеяться", "f": ["río", "ríes", "ríe", "reímos", "reís", "ríen"], "irr": true, "rank": 113, "ex": "", "day": 0}, {"v": "soñar", "ru": "мечтать, видеть сон", "f": ["sueño", "sueñas", "sueña", "soñamos", "soñáis", "sueñan"], "irr": true, "rank": 114, "ex": "", "day": 0}, {"v": "volar", "ru": "летать", "f": ["vuelo", "vuelas", "vuela", "volamos", "voláis", "vuelan"], "irr": true, "rank": 115, "ex": "", "day": 0}, {"v": "cargar", "ru": "грузить, заряжать", "f": ["cargo", "cargas", "carga", "cargamos", "cargáis", "cargan"], "irr": false, "rank": 116, "ex": "", "day": 0}, {"v": "prestar", "ru": "одалживать", "f": ["presto", "prestas", "presta", "prestamos", "prestáis", "prestan"], "irr": false, "rank": 117, "ex": "", "day": 0}, {"v": "alquilar", "ru": "снимать, сдавать (жильё)", "f": ["alquilo", "alquilas", "alquila", "alquilamos", "alquiláis", "alquilan"], "irr": false, "rank": 118, "ex": "", "day": 0}, {"v": "cobrar", "ru": "получать деньги, взимать", "f": ["cobro", "cobras", "cobra", "cobramos", "cobráis", "cobran"], "irr": false, "rank": 119, "ex": "", "day": 0}, {"v": "gastar", "ru": "тратить", "f": ["gasto", "gastas", "gasta", "gastamos", "gastáis", "gastan"], "irr": false, "rank": 120, "ex": "", "day": 0}, {"v": "ahorrar", "ru": "копить, экономить", "f": ["ahorro", "ahorras", "ahorra", "ahorramos", "ahorráis", "ahorran"], "irr": false, "rank": 121, "ex": "", "day": 0}, {"v": "durar", "ru": "длиться", "f": ["duro", "duras", "dura", "duramos", "duráis", "duran"], "irr": false, "rank": 122, "ex": "", "day": 0}, {"v": "continuar", "ru": "продолжать", "f": ["continúo", "continúas", "continúa", "continuamos", "continuáis", "continúan"], "irr": true, "rank": 123, "ex": "", "day": 0}, {"v": "traducir", "ru": "переводить", "f": ["traduzco", "traduces", "traduce", "traducimos", "traducís", "traducen"], "irr": true, "rank": 124, "ex": "", "day": 0}, {"v": "imaginar", "ru": "представлять", "f": ["imagino", "imaginas", "imagina", "imaginamos", "imagináis", "imaginan"], "irr": false, "rank": 125, "ex": "", "day": 0}, {"v": "secar", "ru": "сушить", "f": ["seco", "secas", "seca", "secamos", "secáis", "secan"], "irr": false, "rank": 126, "ex": "", "day": 0}, {"v": "barrer", "ru": "подметать", "f": ["barro", "barres", "barre", "barremos", "barréis", "barren"], "irr": false, "rank": 127, "ex": "", "day": 0}, {"v": "hervir", "ru": "кипятить", "f": ["hervo", "herves", "herve", "hervimos", "hervís", "herven"], "irr": false, "rank": 128, "ex": "", "day": 0}, {"v": "oler", "ru": "пахнуть", "f": ["huelo", "hueles", "huele", "olemos", "oléis", "huelen"], "irr": true, "rank": 130, "ex": "", "day": 0}, {"v": "sentir", "ru": "чувствовать", "f": ["siento", "sientes", "siente", "sentimos", "sentís", "sienten"], "irr": true, "rank": 131, "ex": "", "day": 0}, {"v": "saltar", "ru": "прыгать", "f": ["salto", "saltas", "salta", "saltamos", "saltáis", "saltan"], "irr": false, "rank": 132, "ex": "", "day": 0}, {"v": "detener", "ru": "задерживать, останавливать", "f": ["deteno", "detenes", "detene", "detenemos", "detenéis", "detenen"], "irr": false, "rank": 133, "ex": "", "day": 0}, {"v": "obtener", "ru": "получать", "f": ["obteno", "obtenes", "obtene", "obtenemos", "obtenéis", "obtenen"], "irr": false, "rank": 134, "ex": "", "day": 0}, {"v": "sostener", "ru": "держать", "f": ["sosteno", "sostenes", "sostene", "sostenemos", "sostenéis", "sostenen"], "irr": false, "rank": 135, "ex": "", "day": 0}, {"v": "significar", "ru": "означать", "f": ["significo", "significas", "significa", "significamos", "significáis", "significan"], "irr": false, "rank": 136, "ex": "", "day": 0}, {"v": "notar", "ru": "замечать", "f": ["noto", "notas", "nota", "notamos", "notáis", "notan"], "irr": false, "rank": 137, "ex": "", "day": 0}, {"v": "observar", "ru": "наблюдать", "f": ["observo", "observas", "observa", "observamos", "observáis", "observan"], "irr": false, "rank": 138, "ex": "", "day": 0}, {"v": "sufrir", "ru": "страдать", "f": ["sufro", "sufres", "sufre", "sufrimos", "sufrís", "sufren"], "irr": false, "rank": 139, "ex": "", "day": 0}, {"v": "soportar", "ru": "терпеть", "f": ["soporto", "soportas", "soporta", "soportamos", "soportáis", "soportan"], "irr": false, "rank": 140, "ex": "", "day": 0}, {"v": "disfrutar", "ru": "наслаждаться", "f": ["disfruto", "disfrutas", "disfruta", "disfrutamos", "disfrutáis", "disfrutan"], "irr": false, "rank": 141, "ex": "", "day": 0}, {"v": "cortar", "ru": "резать", "f": ["corto", "cortas", "corta", "cortamos", "cortáis", "cortan"], "irr": false, "rank": 142, "ex": "", "day": 0}, {"v": "romper", "ru": "ломать, рвать", "f": ["rompo", "rompes", "rompe", "rompemos", "rompéis", "rompen"], "irr": false, "rank": 143, "ex": "", "day": 0}, {"v": "llenar", "ru": "наполнять", "f": ["lleno", "llenas", "llena", "llenamos", "llenáis", "llenan"], "irr": false, "rank": 144, "ex": "", "day": 0}, {"v": "morir", "ru": "умирать", "f": ["muero", "mueres", "muere", "morimos", "morís", "mueren"], "irr": true, "rank": 145, "ex": "", "day": 0}, {"v": "cocinar", "ru": "готовить", "f": ["cocino", "cocinas", "cocina", "cocinamos", "cocináis", "cocinan"], "irr": false, "rank": 146, "ex": "", "day": 0}, {"v": "limpiar", "ru": "убирать", "f": ["limpio", "limpias", "limpia", "limpiamos", "limpiáis", "limpian"], "irr": false, "rank": 147, "ex": "", "day": 0}, {"v": "lavar", "ru": "мыть, стирать", "f": ["lavo", "lavas", "lava", "lavamos", "laváis", "lavan"], "irr": false, "rank": 148, "ex": "", "day": 0}, {"v": "enviar", "ru": "отправлять", "f": ["envío", "envías", "envía", "enviamos", "enviáis", "envían"], "irr": true, "rank": 149, "ex": "", "day": 0}, {"v": "mandar", "ru": "посылать", "f": ["mando", "mandas", "manda", "mandamos", "mandáis", "mandan"], "irr": false, "rank": 150, "ex": "", "day": 0}, {"v": "avisar", "ru": "предупреждать", "f": ["aviso", "avisas", "avisa", "avisamos", "avisáis", "avisan"], "irr": false, "rank": 151, "ex": "", "day": 0}, {"v": "firmar", "ru": "подписывать", "f": ["firmo", "firmas", "firma", "firmamos", "firmáis", "firman"], "irr": false, "rank": 152, "ex": "", "day": 0}, {"v": "rellenar", "ru": "заполнять", "f": ["relleno", "rellenas", "rellena", "rellenamos", "rellenáis", "rellenan"], "irr": false, "rank": 153, "ex": "", "day": 0}, {"v": "entregar", "ru": "сдавать, вручать", "f": ["entrego", "entregas", "entrega", "entregamos", "entregáis", "entregan"], "irr": false, "rank": 154, "ex": "", "day": 0}, {"v": "colgar", "ru": "вешать, класть трубку", "f": ["cuelgo", "cuelgas", "cuelga", "colgamos", "colgáis", "cuelgan"], "irr": true, "rank": 155, "ex": "", "day": 0}, {"v": "marcar", "ru": "набирать номер", "f": ["marco", "marcas", "marca", "marcamos", "marcáis", "marcan"], "irr": false, "rank": 156, "ex": "", "day": 0}, {"v": "contestar", "ru": "отвечать", "f": ["contesto", "contestas", "contesta", "contestamos", "contestáis", "contestan"], "irr": false, "rank": 157, "ex": "", "day": 0}, {"v": "responder", "ru": "отвечать", "f": ["respondo", "respondes", "responde", "respondemos", "respondéis", "responden"], "irr": false, "rank": 158, "ex": "", "day": 0}, {"v": "repetir", "ru": "повторять", "f": ["repito", "repites", "repite", "repetimos", "repetís", "repiten"], "irr": true, "rank": 159, "ex": "", "day": 0}, {"v": "deletrear", "ru": "диктовать по буквам", "f": ["deletreo", "deletreas", "deletrea", "deletreamos", "deletreáis", "deletrean"], "irr": false, "rank": 160, "ex": "", "day": 0}, {"v": "apuntar", "ru": "записывать", "f": ["apunto", "apuntas", "apunta", "apuntamos", "apuntáis", "apuntan"], "irr": false, "rank": 161, "ex": "", "day": 0}, {"v": "comprobar", "ru": "проверять", "f": ["comprobo", "comprobas", "comproba", "comprobamos", "comprobáis", "comproban"], "irr": false, "rank": 162, "ex": "", "day": 0}, {"v": "confirmar", "ru": "подтверждать", "f": ["confirmo", "confirmas", "confirma", "confirmamos", "confirmáis", "confirman"], "irr": false, "rank": 163, "ex": "", "day": 0}, {"v": "cancelar", "ru": "отменять", "f": ["cancelo", "cancelas", "cancela", "cancelamos", "canceláis", "cancelan"], "irr": false, "rank": 164, "ex": "", "day": 0}, {"v": "solicitar", "ru": "запрашивать", "f": ["solicito", "solicitas", "solicita", "solicitamos", "solicitáis", "solicitan"], "irr": false, "rank": 165, "ex": "", "day": 0}, {"v": "tardar", "ru": "занимать время", "f": ["tardo", "tardas", "tarda", "tardamos", "tardáis", "tardan"], "irr": false, "rank": 166, "ex": "", "day": 0}, {"v": "faltar", "ru": "не хватать", "f": ["falto", "faltas", "falta", "faltamos", "faltáis", "faltan"], "irr": false, "rank": 167, "ex": "", "day": 0}, {"v": "depender", "ru": "зависеть", "f": ["dependo", "dependes", "depende", "dependemos", "dependéis", "dependen"], "irr": false, "rank": 168, "ex": "", "day": 0}, {"v": "crecer", "ru": "расти", "f": ["crezco", "creces", "crece", "crecemos", "crecéis", "crecen"], "irr": true, "rank": 169, "ex": "", "day": 0}, {"v": "divertirse", "ru": "развлекаться", "f": ["me divierto", "te diviertes", "se divierte", "nos divertimos", "os divertís", "se divierten"], "irr": false, "rank": 170, "ex": "", "day": 0}, {"v": "enfadarse", "ru": "сердиться", "f": ["me enfado", "te enfadas", "se enfada", "nos enfadamos", "os enfadáis", "se enfadan"], "irr": false, "rank": 171, "ex": "", "day": 0}, {"v": "preocuparse", "ru": "беспокоиться", "f": ["me preocupo", "te preocupas", "se preocupa", "nos preocupamos", "os preocupáis", "se preocupan"], "irr": false, "rank": 172, "ex": "", "day": 0}, {"v": "alegrarse", "ru": "радоваться", "f": ["me alegro", "te alegras", "se alegra", "nos alegramos", "os alegráis", "se alegran"], "irr": false, "rank": 173, "ex": "", "day": 0}, {"v": "acordarse", "ru": "вспоминать", "f": ["me acuerdo", "te acuerdas", "se acuerda", "nos acordamos", "os acordáis", "se acuerdan"], "irr": false, "rank": 174, "ex": "", "day": 0}, {"v": "levantarse", "ru": "вставать", "f": ["me levanto", "te levantas", "se levanta", "nos levantamos", "os levantáis", "se levantan"], "irr": false, "rank": 175, "ex": "", "day": 0}, {"v": "ducharse", "ru": "принимать душ", "f": ["me ducho", "te duchas", "se ducha", "nos duchamos", "os ducháis", "se duchan"], "irr": false, "rank": 176, "ex": "", "day": 0}, {"v": "acostarse", "ru": "ложиться спать", "f": ["me acuesto", "te acuestas", "se acuesta", "nos acostamos", "os acostáis", "se acuestan"], "irr": false, "rank": 177, "ex": "", "day": 0}, {"v": "sentarse", "ru": "садиться", "f": ["me siento", "te sientas", "se sienta", "nos sentamos", "os sentáis", "se sientan"], "irr": false, "rank": 178, "ex": "", "day": 0}, {"v": "quedarse", "ru": "оставаться", "f": ["me quedo", "te quedas", "se queda", "nos quedamos", "os quedáis", "se quedan"], "irr": false, "rank": 179, "ex": "", "day": 0}, {"v": "perderse", "ru": "заблудиться", "f": ["me pierdo", "te pierdes", "se pierde", "nos perdemos", "os perdéis", "se pierden"], "irr": false, "rank": 180, "ex": "", "day": 0}, {"v": "vestirse", "ru": "одеваться", "f": ["me visto", "te vistes", "se viste", "nos vestimos", "os vestís", "se visten"], "irr": false, "rank": 181, "ex": "", "day": 0}, {"v": "dormir", "ru": "спать", "f": ["duermo", "duermes", "duerme", "dormimos", "dormís", "duermen"], "irr": true, "rank": 182, "ex": "", "day": 0}, {"v": "descansar", "ru": "отдыхать", "f": ["descanso", "descansas", "descansa", "descansamos", "descansáis", "descansan"], "irr": false, "rank": 183, "ex": "", "day": 0}, {"v": "viajar", "ru": "путешествовать", "f": ["viajo", "viajas", "viaja", "viajamos", "viajáis", "viajan"], "irr": false, "rank": 184, "ex": "", "day": 0}, {"v": "nadar", "ru": "плавать", "f": ["nado", "nadas", "nada", "nadamos", "nadáis", "nadan"], "irr": false, "rank": 185, "ex": "", "day": 0}, {"v": "pasear", "ru": "гулять", "f": ["paseo", "paseas", "pasea", "paseamos", "paseáis", "pasean"], "irr": false, "rank": 186, "ex": "", "day": 0}, {"v": "ordenar", "ru": "наводить порядок", "f": ["ordeno", "ordenas", "ordena", "ordenamos", "ordenáis", "ordenan"], "irr": false, "rank": 187, "ex": "", "day": 0}, {"v": "arreglar", "ru": "чинить", "f": ["arreglo", "arreglas", "arregla", "arreglamos", "arregláis", "arreglan"], "irr": false, "rank": 188, "ex": "", "day": 0}, {"v": "apagar", "ru": "выключать", "f": ["apago", "apagas", "apaga", "apagamos", "apagáis", "apagan"], "irr": false, "rank": 191, "ex": "", "day": 0}, {"v": "encender", "ru": "включать", "f": ["enciendo", "enciendes", "enciende", "encendemos", "encendéis", "encienden"], "irr": true, "rank": 192, "ex": "", "day": 0}, {"v": "abrazar", "ru": "обнимать", "f": ["abrazo", "abrazas", "abraza", "abrazamos", "abrazáis", "abrazan"], "irr": false, "rank": 193, "ex": "", "day": 0}, {"v": "besar", "ru": "целовать", "f": ["beso", "besas", "besa", "besamos", "besáis", "besan"], "irr": false, "rank": 194, "ex": "", "day": 0}, {"v": "amar", "ru": "любить", "f": ["amo", "amas", "ama", "amamos", "amáis", "aman"], "irr": false, "rank": 195, "ex": "", "day": 0}, {"v": "montar", "ru": "садиться верхом, собирать", "f": ["monto", "montas", "monta", "montamos", "montáis", "montan"], "irr": false, "rank": 196, "ex": "", "day": 0}, {"v": "prohibir", "ru": "запрещать", "f": ["prohibo", "prohibes", "prohibe", "prohibimos", "prohibís", "prohiben"], "irr": false, "rank": 197, "ex": "", "day": 0}, {"v": "enchufar", "ru": "включать в розетку", "f": ["enchufo", "enchufas", "enchufa", "enchufamos", "enchufáis", "enchufan"], "irr": false, "rank": 198, "ex": "", "day": 0}, {"v": "planchar", "ru": "гладить", "f": ["plancho", "planchas", "plancha", "planchamos", "plancháis", "planchan"], "irr": false, "rank": 199, "ex": "", "day": 0}];
+var V=[{"v": "ser", "ru": "быть (кто/какой)", "f": ["soy", "eres", "es", "somos", "sois", "son"], "irr": true, "rank": 1, "ex": "Soy de Rusia.", "day": 1}, {"v": "estar", "ru": "быть (где/как)", "f": ["estoy", "estás", "está", "estamos", "estáis", "están"], "irr": true, "rank": 2, "ex": "Estoy en casa.", "day": 1}, {"v": "tener", "ru": "иметь", "f": ["tengo", "tienes", "tiene", "tenemos", "tenéis", "tienen"], "irr": true, "rank": 3, "ex": "Tengo dos hijos.", "day": 1}, {"v": "hacer", "ru": "делать", "f": ["hago", "haces", "hace", "hacemos", "hacéis", "hacen"], "irr": true, "rank": 4, "ex": "¿Qué haces?", "day": 1}, {"v": "poder", "ru": "мочь", "f": ["puedo", "puedes", "puede", "podemos", "podéis", "pueden"], "irr": true, "rank": 5, "ex": "¿Puede repetir?", "day": 1}, {"v": "decir", "ru": "говорить, сказать", "f": ["digo", "dices", "dice", "decimos", "decís", "dicen"], "irr": true, "rank": 6, "ex": "¿Qué dices?", "day": 2}, {"v": "haber", "ru": "иметься (hay)", "f": ["he", "has", "ha", "hemos", "habéis", "han"], "irr": true, "rank": 7, "ex": "Hay un banco aquí.", "day": 2}, {"v": "ir", "ru": "идти, ехать", "f": ["voy", "vas", "va", "vamos", "vais", "van"], "irr": true, "rank": 8, "ex": "Voy al banco.", "day": 2}, {"v": "dar", "ru": "давать", "f": ["doy", "das", "da", "damos", "dais", "dan"], "irr": true, "rank": 9, "ex": "¿Me da el ticket?", "day": 2}, {"v": "ver", "ru": "видеть", "f": ["veo", "ves", "ve", "vemos", "veis", "ven"], "irr": true, "rank": 10, "ex": "No lo veo.", "day": 2}, {"v": "saber", "ru": "знать (факт)", "f": ["sé", "sabes", "sabe", "sabemos", "sabéis", "saben"], "irr": true, "rank": 11, "ex": "No sé.", "day": 3}, {"v": "querer", "ru": "хотеть", "f": ["quiero", "quieres", "quiere", "queremos", "queréis", "quieren"], "irr": true, "rank": 12, "ex": "Quiero un café.", "day": 3}, {"v": "llegar", "ru": "приезжать", "f": ["llego", "llegas", "llega", "llegamos", "llegáis", "llegan"], "irr": false, "rank": 13, "ex": "Llego mañana.", "day": 3}, {"v": "pasar", "ru": "проходить, случаться", "f": ["paso", "pasas", "pasa", "pasamos", "pasáis", "pasan"], "irr": false, "rank": 14, "ex": "¿Qué pasa?", "day": 3}, {"v": "deber", "ru": "быть должным", "f": ["debo", "debes", "debe", "debemos", "debéis", "deben"], "irr": false, "rank": 15, "ex": "Debo pagar.", "day": 3}, {"v": "dejar", "ru": "оставлять, позволять", "f": ["dejo", "dejas", "deja", "dejamos", "dejáis", "dejan"], "irr": false, "rank": 16, "ex": "Deja las llaves.", "day": 4}, {"v": "llevar", "ru": "нести, носить", "f": ["llevo", "llevas", "lleva", "llevamos", "lleváis", "llevan"], "irr": false, "rank": 17, "ex": "Llevo dos años aquí.", "day": 4}, {"v": "encontrar", "ru": "находить", "f": ["encuentro", "encuentras", "encuentra", "encontramos", "encontráis", "encuentran"], "irr": true, "rank": 18, "ex": "No encuentro la calle.", "day": 4}, {"v": "seguir", "ru": "продолжать, следовать", "f": ["sigo", "sigues", "sigue", "seguimos", "seguís", "siguen"], "irr": true, "rank": 19, "ex": "Siga todo recto.", "day": 4}, {"v": "poner", "ru": "класть, ставить", "f": ["pongo", "pones", "pone", "ponemos", "ponéis", "ponen"], "irr": true, "rank": 20, "ex": "¿Qué le pongo?", "day": 4}, {"v": "parecer", "ru": "казаться", "f": ["parezco", "pareces", "parece", "parecemos", "parecéis", "parecen"], "irr": true, "rank": 21, "ex": "Me parece bien.", "day": 5}, {"v": "hablar", "ru": "говорить", "f": ["hablo", "hablas", "habla", "hablamos", "habláis", "hablan"], "irr": false, "rank": 22, "ex": "Hablo un poco.", "day": 5}, {"v": "pensar", "ru": "думать", "f": ["pienso", "piensas", "piensa", "pensamos", "pensáis", "piensan"], "irr": true, "rank": 23, "ex": "Pienso que sí.", "day": 5}, {"v": "volver", "ru": "возвращаться", "f": ["vuelvo", "vuelves", "vuelve", "volvemos", "volvéis", "vuelven"], "irr": true, "rank": 24, "ex": "Vuelvo luego.", "day": 5}, {"v": "conocer", "ru": "быть знакомым", "f": ["conozco", "conoces", "conoce", "conocemos", "conocéis", "conocen"], "irr": true, "rank": 25, "ex": "No conozco la ciudad.", "day": 5}, {"v": "salir", "ru": "выходить", "f": ["salgo", "sales", "sale", "salimos", "salís", "salen"], "irr": true, "rank": 26, "ex": "Salgo a las ocho.", "day": 6}, {"v": "venir", "ru": "приходить", "f": ["vengo", "vienes", "viene", "venimos", "venís", "vienen"], "irr": true, "rank": 27, "ex": "Vengo de Rusia.", "day": 6}, {"v": "tomar", "ru": "брать, выпить", "f": ["tomo", "tomas", "toma", "tomamos", "tomáis", "toman"], "irr": false, "rank": 28, "ex": "Tomo un café.", "day": 6}, {"v": "tratar", "ru": "обращаться, пытаться", "f": ["trato", "tratas", "trata", "tratamos", "tratáis", "tratan"], "irr": false, "rank": 29, "ex": "", "day": 6}, {"v": "contar", "ru": "считать, рассказывать", "f": ["cuento", "cuentas", "cuenta", "contamos", "contáis", "cuentan"], "irr": true, "rank": 30, "ex": "Cuéntame.", "day": 6}, {"v": "mirar", "ru": "смотреть", "f": ["miro", "miras", "mira", "miramos", "miráis", "miran"], "irr": false, "rank": 31, "ex": "Mira aquí.", "day": 7}, {"v": "esperar", "ru": "ждать, надеяться", "f": ["espero", "esperas", "espera", "esperamos", "esperáis", "esperan"], "irr": false, "rank": 32, "ex": "Espere un momento.", "day": 7}, {"v": "buscar", "ru": "искать", "f": ["busco", "buscas", "busca", "buscamos", "buscáis", "buscan"], "irr": false, "rank": 33, "ex": "Busco un piso.", "day": 7}, {"v": "existir", "ru": "существовать", "f": ["existo", "existes", "existe", "existimos", "existís", "existen"], "irr": false, "rank": 34, "ex": "", "day": 7}, {"v": "entrar", "ru": "входить", "f": ["entro", "entras", "entra", "entramos", "entráis", "entran"], "irr": false, "rank": 35, "ex": "¿Puedo entrar?", "day": 7}, {"v": "trabajar", "ru": "работать", "f": ["trabajo", "trabajas", "trabaja", "trabajamos", "trabajáis", "trabajan"], "irr": false, "rank": 36, "ex": "Trabajo en casa.", "day": 8}, {"v": "escribir", "ru": "писать", "f": ["escribo", "escribes", "escribe", "escribimos", "escribís", "escriben"], "irr": false, "rank": 37, "ex": "¿Lo puede escribir?", "day": 8}, {"v": "perder", "ru": "терять", "f": ["pierdo", "pierdes", "pierde", "perdemos", "perdéis", "pierden"], "irr": true, "rank": 38, "ex": "He perdido el móvil.", "day": 8}, {"v": "producir", "ru": "производить", "f": ["produzco", "produces", "produce", "producimos", "producís", "producen"], "irr": true, "rank": 39, "ex": "", "day": 8}, {"v": "ocurrir", "ru": "происходить", "f": ["ocurro", "ocurres", "ocurre", "ocurrimos", "ocurrís", "ocurren"], "irr": false, "rank": 40, "ex": "", "day": 8}, {"v": "entender", "ru": "понимать", "f": ["entiendo", "entiendes", "entiende", "entendemos", "entendéis", "entienden"], "irr": true, "rank": 41, "ex": "No entiendo.", "day": 9}, {"v": "pedir", "ru": "просить", "f": ["pido", "pides", "pide", "pedimos", "pedís", "piden"], "irr": true, "rank": 42, "ex": "Quiero pedir cita.", "day": 9}, {"v": "recibir", "ru": "получать", "f": ["recibo", "recibes", "recibe", "recibimos", "recibís", "reciben"], "irr": false, "rank": 43, "ex": "He recibido el correo.", "day": 9}, {"v": "recordar", "ru": "помнить", "f": ["recuerdo", "recuerdas", "recuerda", "recordamos", "recordáis", "recuerdan"], "irr": true, "rank": 44, "ex": "No recuerdo.", "day": 9}, {"v": "terminar", "ru": "заканчивать", "f": ["termino", "terminas", "termina", "terminamos", "termináis", "terminan"], "irr": false, "rank": 45, "ex": "He terminado.", "day": 9}, {"v": "permitir", "ru": "разрешать", "f": ["permito", "permites", "permite", "permitimos", "permitís", "permiten"], "irr": false, "rank": 46, "ex": "", "day": 10}, {"v": "aparecer", "ru": "появляться", "f": ["aparezco", "apareces", "aparece", "aparecemos", "aparecéis", "aparecen"], "irr": true, "rank": 47, "ex": "", "day": 10}, {"v": "conseguir", "ru": "добиваться", "f": ["consigo", "consigues", "consigue", "conseguimos", "conseguís", "consiguen"], "irr": true, "rank": 48, "ex": "", "day": 10}, {"v": "comenzar", "ru": "начинать", "f": ["comienzo", "comienzas", "comienza", "comenzamos", "comenzáis", "comienzan"], "irr": true, "rank": 49, "ex": "", "day": 10}, {"v": "servir", "ru": "служить, годиться", "f": ["sirvo", "sirves", "sirve", "servimos", "servís", "sirven"], "irr": true, "rank": 50, "ex": "", "day": 10}, {"v": "sacar", "ru": "доставать, вынимать", "f": ["saco", "sacas", "saca", "sacamos", "sacáis", "sacan"], "irr": false, "rank": 51, "ex": "", "day": 11}, {"v": "necesitar", "ru": "нуждаться", "f": ["necesito", "necesitas", "necesita", "necesitamos", "necesitáis", "necesitan"], "irr": false, "rank": 52, "ex": "Necesito ayuda.", "day": 11}, {"v": "mantener", "ru": "поддерживать", "f": ["manteno", "mantenes", "mantene", "mantenemos", "mantenéis", "mantenen"], "irr": false, "rank": 53, "ex": "", "day": 11}, {"v": "resultar", "ru": "оказываться", "f": ["resulto", "resultas", "resulta", "resultamos", "resultáis", "resultan"], "irr": false, "rank": 54, "ex": "", "day": 11}, {"v": "leer", "ru": "читать", "f": ["leo", "lees", "lee", "leemos", "leéis", "leen"], "irr": false, "rank": 55, "ex": "", "day": 11}, {"v": "caer", "ru": "падать", "f": ["caigo", "caes", "cae", "caemos", "caéis", "caen"], "irr": true, "rank": 56, "ex": "", "day": 12}, {"v": "cambiar", "ru": "менять", "f": ["cambio", "cambias", "cambia", "cambiamos", "cambiáis", "cambian"], "irr": false, "rank": 57, "ex": "", "day": 12}, {"v": "presentar", "ru": "представлять", "f": ["presento", "presentas", "presenta", "presentamos", "presentáis", "presentan"], "irr": false, "rank": 58, "ex": "", "day": 12}, {"v": "crear", "ru": "создавать", "f": ["creo", "creas", "crea", "creamos", "creáis", "crean"], "irr": false, "rank": 59, "ex": "", "day": 12}, {"v": "abrir", "ru": "открывать", "f": ["abro", "abres", "abre", "abrimos", "abrís", "abren"], "irr": false, "rank": 60, "ex": "¿A qué hora abren?", "day": 12}, {"v": "considerar", "ru": "считать, рассматривать", "f": ["considero", "consideras", "considera", "consideramos", "consideráis", "consideran"], "irr": false, "rank": 61, "ex": "", "day": 13}, {"v": "oír", "ru": "слышать", "f": ["oigo", "oyes", "oye", "oímos", "oís", "oyen"], "irr": true, "rank": 62, "ex": "", "day": 13}, {"v": "acabar", "ru": "заканчивать", "f": ["acabo", "acabas", "acaba", "acabamos", "acabáis", "acaban"], "irr": false, "rank": 63, "ex": "", "day": 13}, {"v": "convertir", "ru": "превращать", "f": ["convierto", "conviertes", "convierte", "convertimos", "convertís", "convierten"], "irr": true, "rank": 64, "ex": "", "day": 13}, {"v": "ganar", "ru": "выигрывать", "f": ["gano", "ganas", "gana", "ganamos", "ganáis", "ganan"], "irr": false, "rank": 65, "ex": "", "day": 13}, {"v": "formar", "ru": "формировать", "f": ["formo", "formas", "forma", "formamos", "formáis", "forman"], "irr": false, "rank": 66, "ex": "", "day": 14}, {"v": "traer", "ru": "приносить", "f": ["traigo", "traes", "trae", "traemos", "traéis", "traen"], "irr": true, "rank": 67, "ex": "", "day": 14}, {"v": "partir", "ru": "отправляться", "f": ["parto", "partes", "parte", "partimos", "partís", "parten"], "irr": false, "rank": 68, "ex": "", "day": 14}, {"v": "aceptar", "ru": "принимать", "f": ["acepto", "aceptas", "acepta", "aceptamos", "aceptáis", "aceptan"], "irr": false, "rank": 69, "ex": "", "day": 14}, {"v": "realizar", "ru": "осуществлять", "f": ["realizo", "realizas", "realiza", "realizamos", "realizáis", "realizan"], "irr": false, "rank": 70, "ex": "", "day": 14}, {"v": "suponer", "ru": "предполагать", "f": ["supono", "supones", "supone", "suponemos", "suponéis", "suponen"], "irr": false, "rank": 71, "ex": "", "day": 15}, {"v": "comprender", "ru": "понимать", "f": ["comprendo", "comprendes", "comprende", "comprendemos", "comprendéis", "comprenden"], "irr": false, "rank": 72, "ex": "", "day": 15}, {"v": "lograr", "ru": "добиваться", "f": ["logro", "logras", "logra", "logramos", "lográis", "logran"], "irr": false, "rank": 73, "ex": "", "day": 15}, {"v": "explicar", "ru": "объяснять", "f": ["explico", "explicas", "explica", "explicamos", "explicáis", "explican"], "irr": false, "rank": 74, "ex": "", "day": 15}, {"v": "preguntar", "ru": "спрашивать", "f": ["pregunto", "preguntas", "pregunta", "preguntamos", "preguntáis", "preguntan"], "irr": false, "rank": 75, "ex": "Le pregunto una cosa.", "day": 15}, {"v": "tocar", "ru": "трогать, играть (на инструменте)", "f": ["toco", "tocas", "toca", "tocamos", "tocáis", "tocan"], "irr": false, "rank": 76, "ex": "", "day": 16}, {"v": "reconocer", "ru": "узнавать, признавать", "f": ["reconozco", "reconoces", "reconoce", "reconocemos", "reconocéis", "reconocen"], "irr": true, "rank": 77, "ex": "", "day": 16}, {"v": "estudiar", "ru": "учить, учиться", "f": ["estudio", "estudias", "estudia", "estudiamos", "estudiáis", "estudian"], "irr": false, "rank": 78, "ex": "", "day": 16}, {"v": "alcanzar", "ru": "достигать", "f": ["alcanzo", "alcanzas", "alcanza", "alcanzamos", "alcanzáis", "alcanzan"], "irr": false, "rank": 79, "ex": "", "day": 16}, {"v": "nacer", "ru": "рождаться", "f": ["nazco", "naces", "nace", "nacemos", "nacéis", "nacen"], "irr": true, "rank": 80, "ex": "", "day": 16}, {"v": "correr", "ru": "бегать", "f": ["corro", "corres", "corre", "corremos", "corréis", "corren"], "irr": false, "rank": 81, "ex": "", "day": 17}, {"v": "utilizar", "ru": "использовать", "f": ["utilizo", "utilizas", "utiliza", "utilizamos", "utilizáis", "utilizan"], "irr": false, "rank": 82, "ex": "", "day": 17}, {"v": "pagar", "ru": "платить", "f": ["pago", "pagas", "paga", "pagamos", "pagáis", "pagan"], "irr": false, "rank": 83, "ex": "", "day": 17}, {"v": "ayudar", "ru": "помогать", "f": ["ayudo", "ayudas", "ayuda", "ayudamos", "ayudáis", "ayudan"], "irr": false, "rank": 84, "ex": "¿Me ayuda?", "day": 17}, {"v": "gustar", "ru": "нравиться", "f": ["me gusta", "te gusta", "le gusta", "nos gusta", "os gusta", "les gusta"], "irr": true, "rank": 85, "ex": "", "day": 17}, {"v": "jugar", "ru": "играть", "f": ["juego", "juegas", "juega", "jugamos", "jugáis", "juegan"], "irr": true, "rank": 86, "ex": "", "day": 18}, {"v": "escuchar", "ru": "слушать", "f": ["escucho", "escuchas", "escucha", "escuchamos", "escucháis", "escuchan"], "irr": false, "rank": 87, "ex": "", "day": 18}, {"v": "cumplir", "ru": "выполнять, исполняться", "f": ["cumplo", "cumples", "cumple", "cumplimos", "cumplís", "cumplen"], "irr": false, "rank": 88, "ex": "", "day": 18}, {"v": "ofrecer", "ru": "предлагать", "f": ["ofrezco", "ofreces", "ofrece", "ofrecemos", "ofrecéis", "ofrecen"], "irr": true, "rank": 89, "ex": "", "day": 18}, {"v": "descubrir", "ru": "открывать, обнаруживать", "f": ["descubro", "descubres", "descubre", "descubrimos", "descubrís", "descubren"], "irr": false, "rank": 90, "ex": "", "day": 18}, {"v": "levantar", "ru": "поднимать", "f": ["levanto", "levantas", "levanta", "levantamos", "levantáis", "levantan"], "irr": false, "rank": 91, "ex": "", "day": 19}, {"v": "intentar", "ru": "пытаться", "f": ["intento", "intentas", "intenta", "intentamos", "intentáis", "intentan"], "irr": false, "rank": 92, "ex": "", "day": 19}, {"v": "usar", "ru": "использовать", "f": ["uso", "usas", "usa", "usamos", "usáis", "usan"], "irr": false, "rank": 93, "ex": "", "day": 19}, {"v": "decidir", "ru": "решать", "f": ["decido", "decides", "decide", "decidimos", "decidís", "deciden"], "irr": false, "rank": 94, "ex": "", "day": 19}, {"v": "vivir", "ru": "жить", "f": ["vivo", "vives", "vive", "vivimos", "vivís", "viven"], "irr": false, "rank": 95, "ex": "Vivo en Valencia.", "day": 19}, {"v": "comer", "ru": "есть, обедать", "f": ["como", "comes", "come", "comemos", "coméis", "comen"], "irr": false, "rank": 96, "ex": "", "day": 0}, {"v": "beber", "ru": "пить", "f": ["bebo", "bebes", "bebe", "bebemos", "bebéis", "beben"], "irr": false, "rank": 97, "ex": "", "day": 0}, {"v": "comprar", "ru": "покупать", "f": ["compro", "compras", "compra", "compramos", "compráis", "compran"], "irr": false, "rank": 98, "ex": "", "day": 20}, {"v": "vender", "ru": "продавать", "f": ["vendo", "vendes", "vende", "vendemos", "vendéis", "venden"], "irr": false, "rank": 99, "ex": "", "day": 20}, {"v": "empezar", "ru": "начинать", "f": ["empiezo", "empiezas", "empieza", "empezamos", "empezáis", "empiezan"], "irr": true, "rank": 100, "ex": "Empieza a las nueve.", "day": 20}, {"v": "mostrar", "ru": "показывать", "f": ["muestro", "muestras", "muestra", "mostramos", "mostráis", "muestran"], "irr": true, "rank": 101, "ex": "", "day": 20}, {"v": "mover", "ru": "двигать", "f": ["muevo", "mueves", "mueve", "movemos", "movéis", "mueven"], "irr": true, "rank": 102, "ex": "", "day": 20}, {"v": "guardar", "ru": "хранить, беречь", "f": ["guardo", "guardas", "guarda", "guardamos", "guardáis", "guardan"], "irr": false, "rank": 103, "ex": "", "day": 21}, {"v": "meter", "ru": "засовывать, помещать", "f": ["meto", "metes", "mete", "metemos", "metéis", "meten"], "irr": false, "rank": 104, "ex": "", "day": 21}, {"v": "quitar", "ru": "убирать, снимать", "f": ["quito", "quitas", "quita", "quitamos", "quitáis", "quitan"], "irr": false, "rank": 105, "ex": "", "day": 21}, {"v": "tirar", "ru": "бросать, выбрасывать", "f": ["tiro", "tiras", "tira", "tiramos", "tiráis", "tiran"], "irr": false, "rank": 106, "ex": "", "day": 21}, {"v": "echar", "ru": "бросать, наливать", "f": ["echo", "echas", "echa", "echamos", "echáis", "echan"], "irr": false, "rank": 107, "ex": "", "day": 21}, {"v": "visitar", "ru": "навещать, посещать", "f": ["visito", "visitas", "visita", "visitamos", "visitáis", "visitan"], "irr": false, "rank": 108, "ex": "", "day": 22}, {"v": "invitar", "ru": "приглашать", "f": ["invito", "invitas", "invita", "invitamos", "invitáis", "invitan"], "irr": false, "rank": 109, "ex": "", "day": 22}, {"v": "cantar", "ru": "петь", "f": ["canto", "cantas", "canta", "cantamos", "cantáis", "cantan"], "irr": false, "rank": 110, "ex": "", "day": 22}, {"v": "bailar", "ru": "танцевать", "f": ["bailo", "bailas", "baila", "bailamos", "bailáis", "bailan"], "irr": false, "rank": 111, "ex": "", "day": 0}, {"v": "llorar", "ru": "плакать", "f": ["lloro", "lloras", "llora", "lloramos", "lloráis", "lloran"], "irr": false, "rank": 112, "ex": "", "day": 0}, {"v": "reír", "ru": "смеяться", "f": ["río", "ríes", "ríe", "reímos", "reís", "ríen"], "irr": true, "rank": 113, "ex": "", "day": 0}, {"v": "soñar", "ru": "мечтать, видеть сон", "f": ["sueño", "sueñas", "sueña", "soñamos", "soñáis", "sueñan"], "irr": true, "rank": 114, "ex": "", "day": 0}, {"v": "volar", "ru": "летать", "f": ["vuelo", "vuelas", "vuela", "volamos", "voláis", "vuelan"], "irr": true, "rank": 115, "ex": "", "day": 0}, {"v": "cargar", "ru": "грузить, заряжать", "f": ["cargo", "cargas", "carga", "cargamos", "cargáis", "cargan"], "irr": false, "rank": 116, "ex": "", "day": 0}, {"v": "prestar", "ru": "одалживать", "f": ["presto", "prestas", "presta", "prestamos", "prestáis", "prestan"], "irr": false, "rank": 117, "ex": "", "day": 0}, {"v": "alquilar", "ru": "снимать, сдавать (жильё)", "f": ["alquilo", "alquilas", "alquila", "alquilamos", "alquiláis", "alquilan"], "irr": false, "rank": 118, "ex": "", "day": 0}, {"v": "cobrar", "ru": "получать деньги, взимать", "f": ["cobro", "cobras", "cobra", "cobramos", "cobráis", "cobran"], "irr": false, "rank": 119, "ex": "", "day": 0}, {"v": "gastar", "ru": "тратить", "f": ["gasto", "gastas", "gasta", "gastamos", "gastáis", "gastan"], "irr": false, "rank": 120, "ex": "", "day": 0}, {"v": "ahorrar", "ru": "копить, экономить", "f": ["ahorro", "ahorras", "ahorra", "ahorramos", "ahorráis", "ahorran"], "irr": false, "rank": 121, "ex": "", "day": 0}, {"v": "durar", "ru": "длиться", "f": ["duro", "duras", "dura", "duramos", "duráis", "duran"], "irr": false, "rank": 122, "ex": "", "day": 0}, {"v": "continuar", "ru": "продолжать", "f": ["continúo", "continúas", "continúa", "continuamos", "continuáis", "continúan"], "irr": true, "rank": 123, "ex": "", "day": 0}, {"v": "traducir", "ru": "переводить", "f": ["traduzco", "traduces", "traduce", "traducimos", "traducís", "traducen"], "irr": true, "rank": 124, "ex": "", "day": 0}, {"v": "imaginar", "ru": "представлять", "f": ["imagino", "imaginas", "imagina", "imaginamos", "imagináis", "imaginan"], "irr": false, "rank": 125, "ex": "", "day": 0}, {"v": "secar", "ru": "сушить", "f": ["seco", "secas", "seca", "secamos", "secáis", "secan"], "irr": false, "rank": 126, "ex": "", "day": 0}, {"v": "barrer", "ru": "подметать", "f": ["barro", "barres", "barre", "barremos", "barréis", "barren"], "irr": false, "rank": 127, "ex": "", "day": 0}, {"v": "hervir", "ru": "кипятить", "f": ["hervo", "herves", "herve", "hervimos", "hervís", "herven"], "irr": false, "rank": 128, "ex": "", "day": 0}, {"v": "oler", "ru": "пахнуть", "f": ["huelo", "hueles", "huele", "olemos", "oléis", "huelen"], "irr": true, "rank": 130, "ex": "", "day": 0}, {"v": "sentir", "ru": "чувствовать", "f": ["siento", "sientes", "siente", "sentimos", "sentís", "sienten"], "irr": true, "rank": 131, "ex": "", "day": 0}, {"v": "saltar", "ru": "прыгать", "f": ["salto", "saltas", "salta", "saltamos", "saltáis", "saltan"], "irr": false, "rank": 132, "ex": "", "day": 0}, {"v": "detener", "ru": "задерживать, останавливать", "f": ["deteno", "detenes", "detene", "detenemos", "detenéis", "detenen"], "irr": false, "rank": 133, "ex": "", "day": 0}, {"v": "obtener", "ru": "получать", "f": ["obteno", "obtenes", "obtene", "obtenemos", "obtenéis", "obtenen"], "irr": false, "rank": 134, "ex": "", "day": 0}, {"v": "sostener", "ru": "держать", "f": ["sosteno", "sostenes", "sostene", "sostenemos", "sostenéis", "sostenen"], "irr": false, "rank": 135, "ex": "", "day": 0}, {"v": "significar", "ru": "означать", "f": ["significo", "significas", "significa", "significamos", "significáis", "significan"], "irr": false, "rank": 136, "ex": "", "day": 0}, {"v": "notar", "ru": "замечать", "f": ["noto", "notas", "nota", "notamos", "notáis", "notan"], "irr": false, "rank": 137, "ex": "", "day": 0}, {"v": "observar", "ru": "наблюдать", "f": ["observo", "observas", "observa", "observamos", "observáis", "observan"], "irr": false, "rank": 138, "ex": "", "day": 0}, {"v": "sufrir", "ru": "страдать", "f": ["sufro", "sufres", "sufre", "sufrimos", "sufrís", "sufren"], "irr": false, "rank": 139, "ex": "", "day": 0}, {"v": "soportar", "ru": "терпеть", "f": ["soporto", "soportas", "soporta", "soportamos", "soportáis", "soportan"], "irr": false, "rank": 140, "ex": "", "day": 0}, {"v": "disfrutar", "ru": "наслаждаться", "f": ["disfruto", "disfrutas", "disfruta", "disfrutamos", "disfrutáis", "disfrutan"], "irr": false, "rank": 141, "ex": "", "day": 0}, {"v": "cortar", "ru": "резать", "f": ["corto", "cortas", "corta", "cortamos", "cortáis", "cortan"], "irr": false, "rank": 142, "ex": "", "day": 0}, {"v": "romper", "ru": "ломать, рвать", "f": ["rompo", "rompes", "rompe", "rompemos", "rompéis", "rompen"], "irr": false, "rank": 143, "ex": "", "day": 0}, {"v": "llenar", "ru": "наполнять", "f": ["lleno", "llenas", "llena", "llenamos", "llenáis", "llenan"], "irr": false, "rank": 144, "ex": "", "day": 0}, {"v": "morir", "ru": "умирать", "f": ["muero", "mueres", "muere", "morimos", "morís", "mueren"], "irr": true, "rank": 145, "ex": "", "day": 0}, {"v": "cocinar", "ru": "готовить", "f": ["cocino", "cocinas", "cocina", "cocinamos", "cocináis", "cocinan"], "irr": false, "rank": 146, "ex": "", "day": 0}, {"v": "limpiar", "ru": "убирать", "f": ["limpio", "limpias", "limpia", "limpiamos", "limpiáis", "limpian"], "irr": false, "rank": 147, "ex": "", "day": 0}, {"v": "lavar", "ru": "мыть, стирать", "f": ["lavo", "lavas", "lava", "lavamos", "laváis", "lavan"], "irr": false, "rank": 148, "ex": "", "day": 0}, {"v": "enviar", "ru": "отправлять", "f": ["envío", "envías", "envía", "enviamos", "enviáis", "envían"], "irr": true, "rank": 149, "ex": "", "day": 0}, {"v": "mandar", "ru": "посылать", "f": ["mando", "mandas", "manda", "mandamos", "mandáis", "mandan"], "irr": false, "rank": 150, "ex": "", "day": 0}, {"v": "avisar", "ru": "предупреждать", "f": ["aviso", "avisas", "avisa", "avisamos", "avisáis", "avisan"], "irr": false, "rank": 151, "ex": "", "day": 0}, {"v": "firmar", "ru": "подписывать", "f": ["firmo", "firmas", "firma", "firmamos", "firmáis", "firman"], "irr": false, "rank": 152, "ex": "", "day": 0}, {"v": "rellenar", "ru": "заполнять", "f": ["relleno", "rellenas", "rellena", "rellenamos", "rellenáis", "rellenan"], "irr": false, "rank": 153, "ex": "", "day": 0}, {"v": "entregar", "ru": "сдавать, вручать", "f": ["entrego", "entregas", "entrega", "entregamos", "entregáis", "entregan"], "irr": false, "rank": 154, "ex": "", "day": 0}, {"v": "colgar", "ru": "вешать, класть трубку", "f": ["cuelgo", "cuelgas", "cuelga", "colgamos", "colgáis", "cuelgan"], "irr": true, "rank": 155, "ex": "", "day": 0}, {"v": "marcar", "ru": "набирать номер", "f": ["marco", "marcas", "marca", "marcamos", "marcáis", "marcan"], "irr": false, "rank": 156, "ex": "", "day": 0}, {"v": "contestar", "ru": "отвечать", "f": ["contesto", "contestas", "contesta", "contestamos", "contestáis", "contestan"], "irr": false, "rank": 157, "ex": "", "day": 0}, {"v": "responder", "ru": "отвечать", "f": ["respondo", "respondes", "responde", "respondemos", "respondéis", "responden"], "irr": false, "rank": 158, "ex": "", "day": 0}, {"v": "repetir", "ru": "повторять", "f": ["repito", "repites", "repite", "repetimos", "repetís", "repiten"], "irr": true, "rank": 159, "ex": "", "day": 0}, {"v": "deletrear", "ru": "диктовать по буквам", "f": ["deletreo", "deletreas", "deletrea", "deletreamos", "deletreáis", "deletrean"], "irr": false, "rank": 160, "ex": "", "day": 0}, {"v": "apuntar", "ru": "записывать", "f": ["apunto", "apuntas", "apunta", "apuntamos", "apuntáis", "apuntan"], "irr": false, "rank": 161, "ex": "", "day": 0}, {"v": "comprobar", "ru": "проверять", "f": ["comprobo", "comprobas", "comproba", "comprobamos", "comprobáis", "comproban"], "irr": false, "rank": 162, "ex": "", "day": 0}, {"v": "confirmar", "ru": "подтверждать", "f": ["confirmo", "confirmas", "confirma", "confirmamos", "confirmáis", "confirman"], "irr": false, "rank": 163, "ex": "", "day": 0}, {"v": "cancelar", "ru": "отменять", "f": ["cancelo", "cancelas", "cancela", "cancelamos", "canceláis", "cancelan"], "irr": false, "rank": 164, "ex": "", "day": 0}, {"v": "solicitar", "ru": "запрашивать", "f": ["solicito", "solicitas", "solicita", "solicitamos", "solicitáis", "solicitan"], "irr": false, "rank": 165, "ex": "", "day": 0}, {"v": "tardar", "ru": "занимать время", "f": ["tardo", "tardas", "tarda", "tardamos", "tardáis", "tardan"], "irr": false, "rank": 166, "ex": "", "day": 0}, {"v": "faltar", "ru": "не хватать", "f": ["falto", "faltas", "falta", "faltamos", "faltáis", "faltan"], "irr": false, "rank": 167, "ex": "", "day": 0}, {"v": "depender", "ru": "зависеть", "f": ["dependo", "dependes", "depende", "dependemos", "dependéis", "dependen"], "irr": false, "rank": 168, "ex": "", "day": 0}, {"v": "crecer", "ru": "расти", "f": ["crezco", "creces", "crece", "crecemos", "crecéis", "crecen"], "irr": true, "rank": 169, "ex": "", "day": 0}, {"v": "divertirse", "ru": "развлекаться", "f": ["me divierto", "te diviertes", "se divierte", "nos divertimos", "os divertís", "se divierten"], "irr": false, "rank": 170, "ex": "", "day": 0}, {"v": "enfadarse", "ru": "сердиться", "f": ["me enfado", "te enfadas", "se enfada", "nos enfadamos", "os enfadáis", "se enfadan"], "irr": false, "rank": 171, "ex": "", "day": 0}, {"v": "preocuparse", "ru": "беспокоиться", "f": ["me preocupo", "te preocupas", "se preocupa", "nos preocupamos", "os preocupáis", "se preocupan"], "irr": false, "rank": 172, "ex": "", "day": 0}, {"v": "alegrarse", "ru": "радоваться", "f": ["me alegro", "te alegras", "se alegra", "nos alegramos", "os alegráis", "se alegran"], "irr": false, "rank": 173, "ex": "", "day": 0}, {"v": "acordarse", "ru": "вспоминать", "f": ["me acuerdo", "te acuerdas", "se acuerda", "nos acordamos", "os acordáis", "se acuerdan"], "irr": false, "rank": 174, "ex": "", "day": 0}, {"v": "levantarse", "ru": "вставать", "f": ["me levanto", "te levantas", "se levanta", "nos levantamos", "os levantáis", "se levantan"], "irr": false, "rank": 175, "ex": "", "day": 0}, {"v": "ducharse", "ru": "принимать душ", "f": ["me ducho", "te duchas", "se ducha", "nos duchamos", "os ducháis", "se duchan"], "irr": false, "rank": 176, "ex": "", "day": 0}, {"v": "acostarse", "ru": "ложиться спать", "f": ["me acuesto", "te acuestas", "se acuesta", "nos acostamos", "os acostáis", "se acuestan"], "irr": false, "rank": 177, "ex": "", "day": 0}, {"v": "sentarse", "ru": "садиться", "f": ["me siento", "te sientas", "se sienta", "nos sentamos", "os sentáis", "se sientan"], "irr": false, "rank": 178, "ex": "", "day": 0}, {"v": "quedarse", "ru": "оставаться", "f": ["me quedo", "te quedas", "se queda", "nos quedamos", "os quedáis", "se quedan"], "irr": false, "rank": 179, "ex": "", "day": 0}, {"v": "perderse", "ru": "заблудиться", "f": ["me pierdo", "te pierdes", "se pierde", "nos perdemos", "os perdéis", "se pierden"], "irr": false, "rank": 180, "ex": "", "day": 0}, {"v": "vestirse", "ru": "одеваться", "f": ["me visto", "te vistes", "se viste", "nos vestimos", "os vestís", "se visten"], "irr": false, "rank": 181, "ex": "", "day": 0}, {"v": "dormir", "ru": "спать", "f": ["duermo", "duermes", "duerme", "dormimos", "dormís", "duermen"], "irr": true, "rank": 182, "ex": "", "day": 0}, {"v": "descansar", "ru": "отдыхать", "f": ["descanso", "descansas", "descansa", "descansamos", "descansáis", "descansan"], "irr": false, "rank": 183, "ex": "", "day": 0}, {"v": "viajar", "ru": "путешествовать", "f": ["viajo", "viajas", "viaja", "viajamos", "viajáis", "viajan"], "irr": false, "rank": 184, "ex": "", "day": 0}, {"v": "nadar", "ru": "плавать", "f": ["nado", "nadas", "nada", "nadamos", "nadáis", "nadan"], "irr": false, "rank": 185, "ex": "", "day": 0}, {"v": "pasear", "ru": "гулять", "f": ["paseo", "paseas", "pasea", "paseamos", "paseáis", "pasean"], "irr": false, "rank": 186, "ex": "", "day": 0}, {"v": "ordenar", "ru": "наводить порядок", "f": ["ordeno", "ordenas", "ordena", "ordenamos", "ordenáis", "ordenan"], "irr": false, "rank": 187, "ex": "", "day": 0}, {"v": "arreglar", "ru": "чинить", "f": ["arreglo", "arreglas", "arregla", "arreglamos", "arregláis", "arreglan"], "irr": false, "rank": 188, "ex": "", "day": 0}, {"v": "apagar", "ru": "выключать", "f": ["apago", "apagas", "apaga", "apagamos", "apagáis", "apagan"], "irr": false, "rank": 191, "ex": "", "day": 0}, {"v": "encender", "ru": "включать", "f": ["enciendo", "enciendes", "enciende", "encendemos", "encendéis", "encienden"], "irr": true, "rank": 192, "ex": "", "day": 0}, {"v": "abrazar", "ru": "обнимать", "f": ["abrazo", "abrazas", "abraza", "abrazamos", "abrazáis", "abrazan"], "irr": false, "rank": 193, "ex": "", "day": 0}, {"v": "besar", "ru": "целовать", "f": ["beso", "besas", "besa", "besamos", "besáis", "besan"], "irr": false, "rank": 194, "ex": "", "day": 0}, {"v": "amar", "ru": "любить", "f": ["amo", "amas", "ama", "amamos", "amáis", "aman"], "irr": false, "rank": 195, "ex": "", "day": 0}, {"v": "montar", "ru": "садиться верхом, собирать", "f": ["monto", "montas", "monta", "montamos", "montáis", "montan"], "irr": false, "rank": 196, "ex": "", "day": 0}, {"v": "prohibir", "ru": "запрещать", "f": ["prohibo", "prohibes", "prohibe", "prohibimos", "prohibís", "prohiben"], "irr": false, "rank": 197, "ex": "", "day": 0}, {"v": "enchufar", "ru": "включать в розетку", "f": ["enchufo", "enchufas", "enchufa", "enchufamos", "enchufáis", "enchufan"], "irr": false, "rank": 198, "ex": "", "day": 0}, {"v": "planchar", "ru": "гладить", "f": ["plancho", "planchas", "plancha", "planchamos", "plancháis", "planchan"], "irr": false, "rank": 199, "ex": "", "day": 0}], START=new Date(2026,7,24);
 var P=[["yo","я"],["tú","ты"],["él / ella / usted","он, она, Вы"],
        ["nosotros","мы"],["vosotros","вы"],["ellos / ustedes","они"]];
 var WHO=[{id:"dmitry",name:"Дмитрий"},{id:"yulia",name:"Юлия"},{id:"mihail",name:"Михаил"}];
-var START=new Date(2026,7,24);
-var S={who:"dmitry",scope:"day",day:1,queue:[],idx:0,ok:0,wrong:0,view:"drill"};
-function today(){var n=new Date();n=new Date(n.getFullYear(),n.getMonth(),n.getDate());
-  return Math.max(1,Math.min(52,Math.floor((n-START)/864e5)+1))}
+var ROUNDS=[{k:"learn",t:"1. Знакомство"},{k:"table",t:"2. Таблица"},
+            {k:"listen",t:"3. На слух"},{k:"match",t:"4. Подбор"}];
+var S={who:"dmitry",day:1,round:0,verbs:[],vi:0,queue:[],idx:0,ok:0,wrong:0};
 
 function el(i){return document.getElementById(i)}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
 function sh(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
 function norm(s){return (s||"").toLowerCase().trim().replace(/[.,!?¡¿]/g,"")
   .normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ")}
+function today(){var n=new Date();n=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  return Math.max(1,Math.min(52,Math.floor((n-START)/864e5)+1))}
+function dayVerbs(d){
+  var f=V.filter(function(x){return x.day===d});
+  if(f.length) return f;
+  var prev=V.filter(function(x){return x.day>0&&x.day<d});
+  return prev.length?prev.slice(-5):V.slice(0,5);
+}
 function skey(){return "verb_stats_"+S.who}
 function stats(){try{return JSON.parse(ls(skey())||"{}")}catch(e){return{}}}
 function note(k,good){var st=stats(),r=st[k]||{e:0,ok:0};good?r.ok++:r.e++;st[k]=r;ls(skey(),JSON.stringify(st))}
+function rkey(d){return "verb_r_"+S.who+"_"+d}
+function rdone(d){var v=parseInt(ls(rkey(d))||"0",10);return isNaN(v)?0:v}
+function saveR(d,n){ls(rkey(d),String(n))}
 
-var esVoice=null;
-function pickVoice(){var v=[];try{v=speechSynthesis.getVoices()||[]}catch(e){}
-  var es=v.filter(function(x){return /^es[-_]?/i.test(x.lang||"")});
+/* ---------- голос ---------- */
+var VOICES=[], esVoice=null;
+function vrank(v){var n=(v.name||"").toLowerCase(),l=(v.lang||"").toLowerCase(),r=0;
+  if(l.indexOf("es-es")===0)r+=100; if(/premium|enhanced|natural/.test(n))r+=40;
+  if(/m[oó]nica|marisol|paulina/.test(n))r+=20; if(/compact|eloquence/.test(n))r-=30; return r}
+function collectVoices(){
+  var v=[];try{v=speechSynthesis.getVoices()||[]}catch(e){}
+  VOICES=v.filter(function(x){return /^es[-_]?/i.test(x.lang||"")}).sort(function(a,b){return vrank(b)-vrank(a)});
   var saved=ls("esp_voice");
-  esVoice=es.filter(function(x){return x.name===saved})[0]||es.filter(function(x){return /es-?ES/i.test(x.lang)})[0]||es[0]||null}
-function speak(t){try{if(!esVoice)pickVoice();var u=new SpeechSynthesisUtterance(t);
-  u.lang=(esVoice&&esVoice.lang)||"es-ES";u.rate=.9;if(esVoice)u.voice=esVoice;
-  speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+  esVoice=VOICES.filter(function(x){return x.name===saved})[0]||VOICES[0]||null;
+  var sel=el("voice"); if(!sel) return;
+  sel.innerHTML=VOICES.length?VOICES.map(function(x){
+    return '<option value="'+x.name.replace(/"/g,"")+'"'+(esVoice&&x.name===esVoice.name?" selected":"")+'>'+
+      x.name+(/premium|enhanced|natural/i.test(x.name)?" ★":"")+'</option>'}).join(""):'<option>голосов нет</option>';
+}
+function speak(t){try{if(!esVoice)collectVoices();
+  var u=new SpeechSynthesisUtterance(t);u.lang=(esVoice&&esVoice.lang)||"es-ES";u.rate=.88;
+  if(esVoice)u.voice=esVoice;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 
-function onlyPassed(){ return ls("verb_passed")!=="0" }
-function limit(list){
-  if(!onlyPassed()) return list;
-  var f=list.filter(function(x){return x.day>0 && x.day<=S.day});
-  return f.length?f:list.filter(function(x){return x.day>0}).slice(0,5);
-}
-function scopeList(){
-  if(S.scope==="day"){
-    var f=V.filter(function(x){return x.day===S.day});
-    if(!f.length) f=V.filter(function(x){return x.day>0&&x.day<=S.day}).slice(-5);
-    return f.length?f:V.slice(0,5);
-  }
-  if(S.scope==="irr")  return limit(V.filter(function(x){return x.irr}));
-  if(S.scope==="reg")  return limit(V.filter(function(x){return !x.irr}));
-  if(S.scope==="hard"){
-    var st=stats(), keys=[];
-    for(var k in st){ if(st[k].e>0) keys.push(k) }
-    var set={}; keys.forEach(function(k){ set[k.split("|")[0]]=1 });
-    var f=V.filter(function(x){return set[x.v]});
-    return f.length?f:limit(V);
-  }
-  return limit(V);
-}
-function buildQueue(){
-  var out=[];
-  scopeList().forEach(function(v){ P.forEach(function(p,i){ out.push({v:v,pi:i}) }) });
-  S.queue=sh(out); S.idx=0; S.ok=0; S.wrong=0;
-}
+/* ---------- каркас ---------- */
 function renderWho(){el("who").innerHTML=WHO.map(function(w){
   return '<button data-who="'+w.id+'"'+(w.id===S.who?' class="on"':'')+'>'+w.name+'</button>'}).join("")}
-function renderChips(){
-  var opts=[["day","Глаголы дня "+S.day],["irr","Неправильные"],["reg","Правильные"],
-            ["all", onlyPassed()?"Все пройденные":"Все "+V.length],["hard","Мои ошибки"]];
-  el("chips").innerHTML=opts.map(function(o){
-    return '<button class="chip'+(S.scope===o[0]?" on":"")+'" data-s="'+o[0]+'">'+o[1]+'</button>'}).join("");
+function renderRounds(){
+  var passed=rdone(S.day),h="";
+  ROUNDS.forEach(function(r,i){
+    var c=(i===S.round?"now":(i<passed?"ok":"lock"));
+    h+='<div class="rnd '+c+'">'+r.t+(c==="ok"?" ✓":"")+'</div>'});
+  el("rounds").innerHTML=h;
 }
-function head(){
-  var left=Math.max(0,S.queue.length-S.idx);
-  return '<div class="counter"><span class="pill learn">Ошибок: '+S.wrong+'</span>'+
-    '<span class="mono">Осталось: '+left+'</span>'+
-    '<span class="pill know">Верно: '+S.ok+'</span></div>';
+function startDay(d){
+  S.day=d; S.verbs=dayVerbs(d);
+  var r=rdone(d); S.round=(r>=ROUNDS.length?0:r);
+  el("daysel").value=d;
+  el("setname").textContent="День "+d+": "+S.verbs.map(function(x){return x.v}).join(", ");
+  startRound();
 }
-function drill(){
-  S.view="drill";
-  if(S.idx>=S.queue.length) return finish();
-  var q=S.queue[S.idx], v=q.v, p=P[q.pi], answer=v.f[q.pi];
-  el("stage").innerHTML=head()+
-   '<div class="card"><div class="big-v">'+v.v+'</div>'+
-   '<button class="audio" id="spk" aria-label="Послушать">🔊</button>'+
-   '<div class="pron">'+p[0]+'  <span style="opacity:.6">('+p[1]+')</span></div>'+
-   '<div class="hint">'+v.ru+'</div></div>'+
-   '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
-   'placeholder="форма глагола"><button class="btn" id="ok">Проверить</button></div>'+
-   '<div id="v"></div>'+
-   '<p class="tip"><span class="kbd">Enter</span> проверить · <span class="kbd">R</span> послушать инфинитив · ударения можно не ставить</p>';
+function startRound(){
+  renderRounds(); S.vi=0; S.idx=0; S.ok=0; S.wrong=0;
+  var k=ROUNDS[S.round].k;
+  if(k==="learn")  return rLearn();
+  if(k==="table")  return rTable();
+  if(k==="listen"){ S.queue=sh(pairs()).slice(0,12); return rListen() }
+  if(k==="match")  return rMatch();
+}
+function pairs(){var out=[];S.verbs.forEach(function(v){P.forEach(function(p,i){out.push({v:v,pi:i})})});return out}
+function roundDone(){
+  if(S.round+1>rdone(S.day)) saveR(S.day,S.round+1);
+  renderRounds();
+  el("stage").innerHTML='<div class="panel done"><div class="big">✓</div><h2>'+ROUNDS[S.round].t+
+    ' пройден</h2><p class="hint" style="margin:8px 0 16px">Верно '+S.ok+', ошибок '+S.wrong+'</p>'+
+    '<button class="btn" id="go">Дальше</button> <button class="btn ghost" id="re">Ещё раз</button></div>';
+  el("go").onclick=function(){S.round++;if(S.round>=ROUNDS.length)return finishDay();startRound()};
+  el("re").onclick=startRound;
+}
+function finishDay(){
+  saveR(S.day,ROUNDS.length); S.round=ROUNDS.length; renderRounds();
+  el("stage").innerHTML='<div class="panel done"><div class="big">🍊</div>'+
+    '<h2>Спряжения дня '+S.day+' закрыты</h2>'+
+    '<p class="hint" style="margin:8px 0 16px">Пять глаголов отработаны во всех шести формах</p>'+
+    '<button class="btn" id="n">Следующий день</button> '+
+    '<button class="btn ghost" id="r">Пройти заново</button></div>';
+  el("n").onclick=function(){startDay(Math.min(52,S.day+1))};
+  el("r").onclick=function(){saveR(S.day,0);startDay(S.day)};
+}
+
+/* ---------- круг 1: знакомство ---------- */
+function rLearn(){
+  if(S.vi>=S.verbs.length) return roundDone();
+  var v=S.verbs[S.vi];
+  var forms=P.map(function(p,i){return '<div><span>'+p[0]+'</span>'+v.f[i]+'</div>'}).join("");
+  el("stage").innerHTML=
+    '<div class="counter"><span class="mono">глагол '+(S.vi+1)+' из '+S.verbs.length+'</span>'+
+    '<span class="pill '+(v.irr?"learn":"know")+'">'+(v.irr?"неправильный":"правильный")+'</span></div>'+
+    '<div class="card"><div class="big-v">'+v.v+'</div>'+
+    '<button class="audio" id="spk">🔊</button>'+
+    '<div class="ru">'+v.ru+'</div>'+
+    '<div class="formlist">'+forms+'</div></div>'+
+    '<div class="acts"><button class="btn ghost" id="all">🔊 Все формы</button>'+
+    '<button class="btn" id="next">Запомнил, дальше</button></div>'+
+    '<p class="tip">Прочитайте формы вслух, потом послушайте</p>';
   el("spk").onclick=function(){speak(v.v)};
+  el("all").onclick=function(){speak(v.f.join(", "))};
+  el("next").onclick=function(){S.vi++;S.ok++;rLearn()};
+  speak(v.v);
+}
+
+/* ---------- круг 2: таблица с вводом ---------- */
+function rTable(){
+  if(S.vi>=S.verbs.length) return roundDone();
+  var v=S.verbs[S.vi], left=6, solved={};
+  var rows=P.map(function(p,i){
+    return '<tr data-i="'+i+'"><td class="p"><b>'+p[0]+'</b><br>'+
+      '<span style="font-size:12.5px;opacity:.7">'+p[1]+'</span></td>'+
+      '<td><input data-i="'+i+'" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="форма"></td>'+
+      '<td class="a"><button class="mini" data-play="'+i+'" disabled>🔊</button></td></tr>'}).join("");
+  el("stage").innerHTML=
+    '<div class="counter"><span class="mono">глагол '+(S.vi+1)+' из '+S.verbs.length+'</span>'+
+    '<span class="pill learn" id="cleft">осталось 6</span></div>'+
+    '<div class="panel"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">'+
+    '<div class="big-v" style="font-size:28px">'+v.v+'</div>'+
+    '<button class="mini" id="spkv">🔊</button>'+
+    '<span class="hint">'+v.ru+'</span></div>'+
+    '<table class="conj">'+rows+'</table>'+
+    '<div class="acts" style="margin-top:6px">'+
+    '<button class="btn ghost" id="hint">Не помню, подскажи</button>'+
+    '<button class="btn" id="done" disabled>Дальше</button></div>'+
+    '<p class="tip"><span class="kbd">Enter</span> проверить строку · после верного ответа появится 🔊</p></div>';
+  el("spkv").onclick=function(){speak(v.v)};
+  var inputs=el("stage").querySelectorAll(".conj input");
+  function focusNext(from){
+    for(var j=from+1;j<6;j++) if(!solved[j]){inputs[j].focus();return}
+    for(var j=0;j<6;j++) if(!solved[j]){inputs[j].focus();return}
+  }
+  function check(i,silent){
+    if(solved[i]) return true;
+    var inp=inputs[i], tr=inp.parentNode.parentNode;
+    if(norm(inp.value)===norm(v.f[i])){
+      solved[i]=true; note(v.v+"|"+i,true); S.ok++; left--;
+      tr.classList.remove("bad"); tr.classList.add("ok");
+      inp.value=v.f[i]; inp.readOnly=true;
+      var b=el("stage").querySelector('[data-play="'+i+'"]');
+      b.disabled=false; b.classList.add("on");
+      b.onclick=function(){speak(v.f[i])};
+      speak(v.f[i]);
+      el("cleft").textContent = left ? ("осталось "+left) : "все шесть верно";
+      if(!left){ el("done").disabled=false; el("done").focus() } else focusNext(i);
+      return true;
+    }
+    if(!silent && inp.value.trim()){
+      note(v.v+"|"+i,false); S.wrong++;
+      tr.classList.add("bad"); setTimeout(function(){tr.classList.remove("bad")},900);
+    }
+    return false;
+  }
+  Array.prototype.forEach.call(inputs,function(inp,i){
+    inp.onkeydown=function(e){ if(e.key==="Enter"){e.preventDefault();check(i)} };
+    inp.onblur=function(){ if(inp.value.trim()) check(i,true) };
+  });
+  el("hint").onclick=function(){
+    var i=-1; for(var j=0;j<6;j++) if(!solved[j]){i=j;break}
+    if(i<0) return;
+    var inp=inputs[i], tr=inp.parentNode.parentNode;
+    note(v.v+"|"+i,false); S.wrong++;
+    inp.value=v.f[i]; tr.classList.add("bad"); speak(v.f[i]); inp.blur();
+    setTimeout(function(){ tr.classList.remove("bad"); inp.value="";
+      inp.placeholder="было: "+v.f[i]; inp.focus() },2500);
+  };
+  el("done").onclick=function(){S.vi++;rTable()};
+  inputs[0].focus();
+}
+
+/* ---------- круг 3: на слух ---------- */
+function rListen(){
+  if(S.idx>=S.queue.length) return roundDone();
+  var q=S.queue[S.idx], v=q.v, p=P[q.pi], ans=v.f[q.pi];
+  el("stage").innerHTML=
+    '<div class="counter"><span class="pill learn">Ошибок: '+S.wrong+'</span>'+
+    '<span class="mono">Осталось: '+(S.queue.length-S.idx)+'</span>'+
+    '<span class="pill know">Верно: '+S.ok+'</span></div>'+
+    '<div class="card"><div class="hint">послушайте и напишите форму</div>'+
+    '<button class="audio" id="spk">🔊</button>'+
+    '<div class="pron">'+v.v+' · '+p[0]+'</div></div>'+
+    '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
+    'placeholder="что услышали"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
+    '<p class="tip"><span class="kbd">Enter</span> проверить · 🔊 повторяет</p>';
+  el("spk").onclick=function(){speak(ans)};
+  speak(ans);
   var inp=el("inp"); inp.focus(); var locked=false;
   function check(){
     if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
-    var good=a===norm(answer);
-    note(v.v+"|"+q.pi, good);
-    if(good){ S.ok++; el("v").innerHTML='<div class="verdict ok">Верно: <b>'+answer+'</b></div>'; }
-    else{ S.wrong++; S.queue.push(q);
-      el("v").innerHTML='<div class="verdict bad">Правильно: <b>'+answer+'</b><br>'+
-      '<span style="font-size:13.5px">вы написали: '+inp.value+'</span><br>'+
-      '<span style="font-size:13.5px;opacity:.85">'+v.v+': '+v.f.join(", ")+'</span></div>'; }
-    speak(answer); inp.disabled=true; el("ok").disabled=true;
-    S.idx++; setTimeout(drill, good?700:2600);
+    var good=a===norm(ans); note(v.v+"|"+q.pi,good);
+    if(good){S.ok++} else {S.wrong++;S.queue.push(q)}
+    el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+ans+'</b> — '+v.v+', '+p[1]+'</div>';
+    speak(ans); inp.disabled=true; el("ok").disabled=true;
+    S.idx++; setTimeout(rListen, good?800:2000);
   }
-  el("ok").onclick=check;
-  inp.onkeydown=function(e){
-    if(e.key==="Enter") check();
-    else if((e.key==="r"||e.key==="к")&&!inp.value){ e.preventDefault(); speak(v.v) }
+  el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
+}
+
+/* ---------- круг 4: подбор ---------- */
+var M={sel:null,left:0};
+function rMatch(){
+  var pick=sh(pairs()).slice(0,8), tiles=[];
+  pick.forEach(function(q,i){
+    tiles.push({k:i,t:q.v.v+" · "+P[q.pi][0]});
+    tiles.push({k:i,t:q.v.f[q.pi],say:q.v.f[q.pi]});
+  });
+  tiles=sh(tiles); M.sel=null; M.left=pick.length;
+  var h='<div class="panel bar"><span>Соедините форму с местоимением</span>'+
+        '<span class="mono" id="left">'+M.left+' пар</span></div><div class="grid" id="t">';
+  tiles.forEach(function(t,i){h+='<div class="tile" data-i="'+i+'" data-k="'+t.k+'"'+
+    (t.say?' data-say="'+t.say+'"':'')+'>'+t.t+'</div>'});
+  el("stage").innerHTML=h+'</div>';
+  el("t").onclick=function(e){
+    var t=e.target.closest(".tile"); if(!t||t.classList.contains("ok"))return;
+    if(t.dataset.say) speak(t.dataset.say);
+    if(!M.sel){M.sel=t;t.classList.add("sel");return}
+    if(M.sel===t){t.classList.remove("sel");M.sel=null;return}
+    if(M.sel.dataset.k===t.dataset.k){
+      M.sel.classList.remove("sel");M.sel.classList.add("ok");t.classList.add("ok");
+      M.sel=null;M.left--;S.ok++;el("left").textContent=M.left+" пар";
+      if(!M.left) setTimeout(roundDone,600);
+    } else {var a=M.sel;a.classList.add("bad");t.classList.add("bad");S.wrong++;
+      setTimeout(function(){a.classList.remove("bad","sel");t.classList.remove("bad")},420);M.sel=null}
   };
 }
-function finish(){
-  var acc=(S.ok+S.wrong)?Math.round(S.ok*100/(S.ok+S.wrong)):0;
-  el("stage").innerHTML='<div class="panel done"><div class="big">✓</div>'+
-    '<h2>Круг пройден</h2><p class="hint" style="margin:8px 0 16px">Верно '+S.ok+
-    ', ошибок '+S.wrong+' · точность '+acc+'%</p>'+
-    '<button class="btn" id="again">Ещё круг</button> '+
-    '<button class="btn ghost" id="tbl">Смотреть таблицу</button></div>';
-  el("again").onclick=function(){buildQueue();drill()};
-  el("tbl").onclick=table;
-}
-function table(){
-  S.view="table";
-  var h='<div class="panel"><p class="legend"><b>Оранжевым</b> — неправильные глаголы. '+
-    'Они же самые частотные, поэтому идут первыми. Столбец «День» показывает, в какой день курса это слово учится карточками.</p>'+
-    '<div style="overflow-x:auto"><table class="vtable"><tr><th>Глагол</th><th>Перевод</th>'+
-    '<th>yo · tú · él · nosotros · vosotros · ellos</th><th>День</th></tr>';
-  scopeList().forEach(function(v){
-    h+='<tr class="'+(v.irr?"irr":"")+'"><td class="v">'+v.v+'</td><td>'+v.ru+
-       '</td><td class="f">'+v.f.join(", ")+'</td><td class="f">'+(v.day?("день "+v.day):"—")+'</td></tr>';
-  });
-  h+='</table></div><div class="tools" style="margin-top:14px">'+
-     '<button class="btn" id="go">Тренировать</button></div></div>';
+
+/* ---------- справочник ---------- */
+function refTable(){
+  var list=V.filter(function(x){return x.day>0&&x.day<=S.day});
+  if(!list.length) list=V.slice(0,5);
+  var h='<div class="panel"><p class="hint" style="margin-bottom:10px">Глаголы, пройденные к дню '+S.day+
+    '. Оранжевым — неправильные и с изменением корня.</p><div style="overflow-x:auto"><table class="vtable">'+
+    '<tr><th>День</th><th>Глагол</th><th>Перевод</th><th>yo · tú · él · nosotros · vosotros · ellos</th></tr>';
+  list.forEach(function(v){h+='<tr class="'+(v.irr?"irr":"")+'"><td class="f">'+v.day+'</td>'+
+    '<td class="v">'+v.v+'</td><td>'+v.ru+'</td><td class="f">'+v.f.join(", ")+'</td></tr>'});
+  h+='</table></div><div class="tools" style="margin-top:14px"><button class="btn" id="back">Вернуться</button></div></div>';
   el("stage").innerHTML=h;
-  el("go").onclick=function(){buildQueue();drill()};
+  el("back").onclick=function(){startRound()};
 }
 function boot(){
   S.who=ls("esp_who")||"dmitry";
   if(!WHO.filter(function(w){return w.id===S.who}).length) S.who="dmitry";
-  S.day=today();
-  var o=""; for(var d=1;d<=52;d++) o+='<option value="'+d+'">День '+d+'</option>';
-  el("daysel").innerHTML=o; el("daysel").value=S.day;
-  el("daysel").onchange=function(){S.day=parseInt(this.value,10);S.scope="day";
-    renderChips();buildQueue();S.view==="table"?table():drill()};
-  S.scope=ls("verb_scope")||"day";
-  renderWho(); renderChips();
+  var o="";for(var d=1;d<=52;d++)o+='<option value="'+d+'">День '+d+'</option>';
+  el("daysel").innerHTML=o;
+  renderWho();
   el("who").onclick=function(e){var b=e.target.closest("button[data-who]");if(!b)return;
-    S.who=b.dataset.who;ls("esp_who",S.who);renderWho();buildQueue();drill()};
-  el("chips").onclick=function(e){var b=e.target.closest(".chip");if(!b)return;
-    S.scope=b.dataset.s;ls("verb_scope",S.scope);renderChips();
-    buildQueue(); S.view==="table"?table():drill()};
-  el("passed").checked=onlyPassed();
-  el("passed").onchange=function(){ ls("verb_passed",this.checked?"1":"0");
-    renderChips(); buildQueue(); S.view==="table"?table():drill() };
-  el("tblbtn").onclick=table;
-  el("drillbtn").onclick=function(){buildQueue();drill()};
-  try{speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
-  pickVoice(); buildQueue(); table();
+    S.who=b.dataset.who;ls("esp_who",S.who);renderWho();startDay(S.day)};
+  el("daysel").onchange=function(){startDay(parseInt(this.value,10))};
+  el("ref").onclick=refTable;
+  el("restart").onclick=function(){saveR(S.day,0);startDay(S.day)};
+  el("voice").onchange=function(){
+    var name=this.value, v=VOICES.filter(function(x){return x.name===name})[0];
+    if(v){esVoice=v;ls("esp_voice",v.name);speak("Hola, buenos días")}};
+  try{speechSynthesis.onvoiceschanged=collectVoices}catch(e){}
+  collectVoices(); startDay(today());
 }
 boot();
 </script>
