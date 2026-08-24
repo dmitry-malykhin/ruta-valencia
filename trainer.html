@@ -110,6 +110,10 @@ border-radius:5px;padding:1px 6px;font-size:11.5px}
 .tip{font-size:12.5px;color:var(--ink-faint);text-align:center;margin-top:12px}
 .auto{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-soft);cursor:pointer}
 .auto input{width:16px;height:16px;accent-color:var(--cobalt)}
+.voicebar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;
+padding-top:10px;border-top:1px dashed var(--line)}
+.voicebar select{flex:1;min-width:180px;max-width:420px}
+.voicebar .lab{font-size:12.5px;color:var(--ink-faint);white-space:nowrap}
 footer{margin-top:24px;font-size:12.5px;color:var(--ink-faint);text-align:center}
 a{color:var(--cobalt)}
 @media (max-width:520px){.opts{grid-template-columns:1fr}}
@@ -125,6 +129,11 @@ a{color:var(--cobalt)}
       <span style="font-weight:600" id="setname">—</span>
       <span class="row"><select id="daysel"></select><span class="mono" id="progress"></span>
       <label class="auto"><input type="checkbox" id="auto" checked>Автозвук</label><button class="btn ghost sm" id="skip">Пропустить круг</button></span>
+    </div>
+    <div class="voicebar">
+      <span class="lab">Голос</span>
+      <select id="voice"></select>
+      <button class="btn ghost sm" id="tryvoice">🔊 Проверить</button>
     </div>
     <div class="rounds" id="rounds"></div>
     <div class="days" id="days"></div>
@@ -154,36 +163,59 @@ function norm(s){return (s||"").toLowerCase().trim().replace(/[¡¿!?.,]/g,"")
   .normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ")}
 
 /* ---------- озвучка ---------- */
-var esVoice=null, voiceReady=false;
-function pickVoice(){
-  var v=[]; try{v=window.speechSynthesis.getVoices()||[]}catch(e){}
-  if(!v.length) return false;
-  var es=v.filter(function(x){return /^es[-_]?/i.test(x.lang||"")});
-  var pref=es.filter(function(x){return /ES/i.test(x.lang)&&!/google/i.test(x.name)});
-  esVoice=pref[0]||es.filter(function(x){return /ES/i.test(x.lang)})[0]||es[0]||null;
-  voiceReady=!!esVoice; return voiceReady;
+var VOICES=[], esVoice=null;
+var SAMPLE="Hola, buenos días. ¿Cuánto cuesta un café con leche?";
+function rank(v){
+  var n=(v.name||"").toLowerCase(), l=(v.lang||"").toLowerCase(), r=0;
+  if(l.indexOf("es-es")===0||l.indexOf("es_es")===0) r+=100;      // Испания
+  if(/premium|enhanced|natural|neural/.test(n)) r+=40;            // улучшенные
+  if(/m[oó]nica|marisol|paulina|lucia|elvira|sabina/.test(n)) r+=20;
+  if(/compact|eloquence/.test(n)) r-=30;                          // роботные
+  return r;
+}
+function collectVoices(){
+  var v=[]; try{ v=window.speechSynthesis.getVoices()||[] }catch(e){}
+  VOICES=v.filter(function(x){return /^es[-_]?/i.test(x.lang||"")})
+          .sort(function(a,b){return rank(b)-rank(a)});
+  var saved=ls("esp_voice");
+  esVoice=VOICES.filter(function(x){return x.name===saved})[0] || VOICES[0] || null;
+  renderVoices();
+  return VOICES.length>0;
+}
+function renderVoices(){
+  var sel=el("voice"); if(!sel) return;
+  if(!VOICES.length){ sel.innerHTML='<option>голосов не найдено</option>'; sel.disabled=true; return; }
+  sel.disabled=false;
+  sel.innerHTML=VOICES.map(function(v){
+    var mark=/^es-?es/i.test(v.lang)?"Испания":"Лат. Америка";
+    var good=/premium|enhanced|natural|neural/i.test(v.name)?" ★":"";
+    return '<option value="'+v.name.replace(/"/g,"")+'"'+(esVoice&&v.name===esVoice.name?" selected":"")+
+           '>'+v.name+good+" · "+mark+'</option>';
+  }).join("");
+  var w=el("warn"); if(w) w.style.display="none";
 }
 function initVoice(){
-  if(!("speechSynthesis" in window)){showWarn("Браузер не умеет озвучивать текст. Слушайте слова в Quizlet или на Forvo.");return}
-  pickVoice();
-  try{window.speechSynthesis.onvoiceschanged=function(){pickVoice();checkVoice()}}catch(e){}
-  setTimeout(checkVoice,900);
+  if(!("speechSynthesis" in window)){
+    showWarn("Браузер не умеет озвучивать текст. Слушайте слова на Forvo или в Quizlet."); return;
+  }
+  collectVoices();
+  try{ window.speechSynthesis.onvoiceschanged=collectVoices }catch(e){}
+  setTimeout(function(){
+    if(!VOICES.length) showWarn("Испанских голосов в системе нет. "+
+      "macOS: Системные настройки → Универсальный доступ → Проверка вслух → Системный голос → "+
+      "Управление голосами → испанский, берите вариант с пометкой Enhanced или Premium. "+
+      "Windows: Параметры → Время и язык → Речь → добавить испанский голос.");
+  },1200);
 }
-function checkVoice(){
-  if(voiceReady){var w=el("warn");if(w)w.style.display="none";return}
-  showWarn("Испанский голос в системе не найден, поэтому озвучки не будет. "+
-    "macOS: Системные настройки → Универсальный доступ → Проверка вслух → Системный голос → Управление голосами → добавить испанский. "+
-    "Windows: Параметры → Время и язык → Речь → добавить испанский голос.");
-}
-function showWarn(t){var w=el("warn");if(!w)return;w.textContent=t;w.style.display="block"}
 function speak(t){
   if(!("speechSynthesis" in window))return;
-  try{ if(!esVoice) pickVoice();
-    var u=new SpeechSynthesisUtterance(t); u.lang="es-ES"; u.rate=0.88;
+  try{ if(!esVoice) collectVoices();
+    var u=new SpeechSynthesisUtterance(t); u.lang=(esVoice&&esVoice.lang)||"es-ES"; u.rate=0.9;
     if(esVoice) u.voice=esVoice;
     window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
   }catch(e){}
 }
+function showWarn(t){var w=el("warn");if(!w)return;w.textContent=t;w.style.display="block"}
 
 /* ---------- каркас ---------- */
 function renderWho(){var h="";WHO.forEach(function(w){
@@ -382,6 +414,11 @@ function boot(){
     S.who=b.dataset.who;ls("esp_who",S.who);renderWho();startDay(today())};
   el("daysel").onchange=function(){startDay(parseInt(this.value,10))};
   el("days").onclick=function(e){var d=e.target.closest(".dot");if(d)startDay(parseInt(d.dataset.day,10))};
+  el("voice").onchange=function(){
+    var v=VOICES.filter(function(x){return x.name===this.value}.bind(this))[0];
+    if(v){esVoice=v; ls("esp_voice",v.name); speak(SAMPLE);}
+  };
+  el("tryvoice").onclick=function(){speak(SAMPLE)};
   el("auto").checked=autoOn();
   el("auto").onchange=function(){ls("esp_auto",this.checked?"1":"0")};
   el("skip").onclick=function(){nextRound()};
