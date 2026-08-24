@@ -206,8 +206,8 @@ var P=[["yo","я"],["tú","ты"],["él / ella / usted","он, она, Вы"],
        ["nosotros","мы"],["vosotros","вы"],["ellos / ustedes","они"]];
 var WHO=[{id:"dmitry",name:"Дмитрий"},{id:"yulia",name:"Юлия"},{id:"mihail",name:"Михаил"}];
 var ALL_ROUNDS=[{k:"warm",t:"Разминка"},{k:"block",t:"Разбор по одному"},
-                {k:"listen",t:"Вперемешку на слух"},{k:"speak",t:"Скажи фразу"},
-                {k:"mix",t:"Случайный добор"}];
+                {k:"frases",t:"Фразы вперемешку"},{k:"listen",t:"Вперемешку на слух"},
+                {k:"speak",t:"Скажи фразу"},{k:"mix",t:"Случайный добор"}];
 var ROUNDS=ALL_ROUNDS;
 function buildRounds(d){
   // разминка появляется со второго дня: раньше повторять нечего
@@ -221,7 +221,8 @@ function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorag
 function sh(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
 function norm(s){return (s||"").toLowerCase().trim().replace(/[.,!?¡¿]/g,"")
   .normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ")}
-function today(){var n=new Date();n=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+function today(){var n=new Date(); n=new Date(n.getTime()-4*36e5);
+  n=new Date(n.getFullYear(),n.getMonth(),n.getDate());
   return Math.max(1,Math.min(52,Math.floor((n-START)/864e5)+1))}
 function dayVerbs(d){
   var f=V.filter(function(x){return x.day===d});
@@ -277,9 +278,16 @@ function startRound(){
   var k=ROUNDS[S.round].k; S.step=0;
   if(k==="warm")   { S.queue=warmQueue(S.day); return rWarm() }
   if(k==="block")  return rBlock();
-  if(k==="listen"){ S.queue=sh(pairs()).slice(0,12); return rListen() }
-  if(k==="speak")  { S.queue=fraseQueue(1); return rSpeak() }
+  if(k==="frases") { S.queue=frasesQueue(); return rFrases() }
+  if(k==="listen"){ S.queue=sh(pairs()).slice(0,8); return rListen() }
+  if(k==="speak")  { S.queue=sh(fraseQueue(0).concat(fraseQueue(1))); return rSpeak() }
   if(k==="mix")    { S.queue=mixQueue(); return rMix() }
+}
+function requeue(q){
+  q.miss=(q.miss||0)+1;
+  var gap = q.miss===1 ? 3 : (q.miss===2 ? 5 : 8);
+  var at = Math.min(S.queue.length, S.idx+1+gap);
+  S.queue.splice(at,0,q);
 }
 function pairs(){var out=[];S.verbs.forEach(function(v){P.forEach(function(p,i){out.push({v:v,pi:i})})});return out}
 function roundDone(){
@@ -417,14 +425,31 @@ function oneFrase(v,k){
     '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
     'placeholder="форма глагола"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
     '<p class="tip">Вставьте форму, потом прочитайте предложение вслух целиком</p>';
-  var inp=el("inp"); inp.focus(); var locked=false, token=S.token;
+  var inp=el("inp"); inp.focus(); var locked=false, token=S.token, retype=false;
   function check(){
-    if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
+    if(locked) return; var a=norm(inp.value); if(!a) return;
+    if(retype){
+      if(a!==norm(ans)){
+        el("v").innerHTML='<div class="verdict bad">пока не совпадает, наберите <b>'+ans+'</b></div>';
+        return;
+      }
+      speak(fraseText(v,fr));
+      locked=true; inp.disabled=true; el("ok").disabled=true;
+      setTimeout(function(){if(token===S.token)blockNext()},900);
+      return;
+    }
     var good=a===norm(ans); note(v.v+"|"+fr.p,good);
-    good?S.ok++:S.wrong++;
-    el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+full+'</b></div>';
-    speak(fraseText(v,fr)); inp.disabled=true; el("ok").disabled=true;
-    setTimeout(function(){if(token===S.token)blockNext()}, good?1500:2800);
+    if(good){
+      S.ok++; locked=true;
+      el("v").innerHTML='<div class="verdict ok"><b>'+full+'</b></div>';
+      speak(fraseText(v,fr)); inp.disabled=true; el("ok").disabled=true;
+      setTimeout(function(){if(token===S.token)blockNext()},1500);
+      return;
+    }
+    S.wrong++; retype=true;
+    el("v").innerHTML='<div class="verdict bad"><b>'+full+'</b><br>наберите форму сами, тогда пойдём дальше</div>';
+    speak(fraseText(v,fr));
+    inp.value=""; inp.placeholder="наберите: "+ans; inp.focus();
   }
   el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
 }
@@ -456,7 +481,7 @@ function rMix(){
   function check(){
     if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
     var good=a===norm(ans); note(v.v+"|"+q.pi,good);
-    if(good){S.ok++} else {S.wrong++; S.queue.push(q)}
+    if(good){S.ok++} else {S.wrong++; requeue(q)}
     el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+ans+'</b> — '+v.v+', '+p[1]+'</div>';
     speak(ans); inp.disabled=true; el("ok").disabled=true;
     S.idx++; setTimeout(function(){if(token===S.token)rMix()}, good?800:2000);
@@ -485,7 +510,7 @@ function rListen(){
   function check(){
     if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
     var good=a===norm(ans); note(v.v+"|"+q.pi,good);
-    if(good){S.ok++} else {S.wrong++;S.queue.push(q)}
+    if(good){S.ok++} else {S.wrong++; requeue(q)}
     el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+ans+'</b> — '+v.v+', '+p[1]+'</div>';
     speak(ans); inp.disabled=true; el("ok").disabled=true;
     S.idx++; setTimeout(function(){if(token===S.token)rListen()}, good?800:2000);
@@ -531,7 +556,7 @@ function rWarm(){
   function check(){
     if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
     var good=a===norm(ans); note(v.v+"|"+q.pi,good);
-    if(good){S.ok++} else {S.wrong++; S.queue.push(q)}
+    if(good){S.ok++} else {S.wrong++; requeue(q)}
     el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+ans+'</b> — '+v.v+', '+p[1]+'</div>';
     speak(ans); inp.disabled=true; el("ok").disabled=true;
     S.idx++; setTimeout(function(){if(token===S.token)rWarm()}, good?800:2000);
@@ -549,6 +574,51 @@ function fraseQueue(which){
 }
 function fraseText(v,fr){ return fr.es.replace("{}", v.f[fr.p]) }
 function fraseShown(text){ return text.charAt(0).toUpperCase()+text.slice(1) }
+
+/* ---------- фразы вперемешку: два режима на каждую фразу ---------- */
+function frasesQueue(){
+  var out=[];
+  S.verbs.forEach(function(v){
+    (v.fr||[]).forEach(function(fr){
+      out.push({v:v,fr:fr,mode:"gap"});
+      out.push({v:v,fr:fr,mode:"full"});
+    });
+  });
+  return sh(out);
+}
+function rFrases(){
+  var token=S.token;
+  if(S.idx>=S.queue.length||!S.queue[S.idx]) return roundDone();
+  var q=S.queue[S.idx], v=q.v, fr=q.fr;
+  var full=fraseShown(fraseText(v,fr));
+  var gapMode=q.mode==="gap";
+  var ans=gapMode ? v.f[fr.p] : full;
+  var shown=gapMode
+    ? '<div class="frase">'+fraseShown(fr.es.replace("{}",'<span class="gap">?</span>'))+'</div>'
+    : '<div class="frase">'+fr.ru+'</div>';
+  el("stage").innerHTML=
+    '<div class="counter"><span class="mono">осталось '+(S.queue.length-S.idx)+'</span>'+
+    (q.miss?'<span class="warm">возврат к ошибке</span>':'')+
+    '<span class="pill know">верно '+S.ok+'</span></div>'+
+    '<div class="card">'+
+    (gapMode?'<div class="frase-ru">'+fr.ru+'</div>':'<div class="hint">напишите предложение целиком по-испански</div>')+
+    shown+
+    '<div class="hint" style="margin-top:10px">'+v.v+' · '+P[fr.p][0]+'</div></div>'+
+    '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
+    'placeholder="'+(gapMode?"форма глагола":"всё предложение")+'"><button class="btn" id="ok">Проверить</button></div>'+
+    '<div id="v"></div>'+
+    '<p class="tip">Ошиблись — вопрос вернётся через несколько других, и так пока не напишете верно</p>';
+  var inp=el("inp"); inp.focus(); var locked=false;
+  function check(){
+    if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
+    var good=a===norm(ans); note(v.v+"|"+fr.p,good);
+    if(good){S.ok++} else {S.wrong++; requeue(q)}
+    el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+full+'</b><br>'+fr.ru+'</div>';
+    speak(fraseText(v,fr)); inp.disabled=true; el("ok").disabled=true;
+    S.idx++; setTimeout(function(){if(token===S.token)rFrases()}, good?1200:2800);
+  }
+  el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
+}
 
 /* ---------- скажи фразу целиком с русского ---------- */
 function speechOK(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
@@ -577,7 +647,7 @@ function rSpeak(){
   function finish(good){
     if(done) return; done=true;
     note(v.v+"|"+fr.p,good);
-    if(good){S.ok++} else {S.wrong++; S.queue.push(q)}
+    if(good){S.ok++} else {S.wrong++; requeue(q)}
     el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+full+'</b><br>'+fr.ru+'</div>';
     speak(fraseText(v,fr));
     S.idx++; setTimeout(function(){if(token===S.token)rSpeak()}, good?1400:2800);
