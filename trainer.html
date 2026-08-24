@@ -48,6 +48,16 @@ font-size:12px;color:var(--ink-faint);text-align:center;background:var(--surface
 .rnd.now{border-color:var(--naranja);color:var(--naranja);font-weight:600;background:var(--naranja-soft)}
 .rnd.ok{border-color:transparent;background:var(--verde-soft);color:var(--verde);font-weight:600}
 .rnd.lock{opacity:.45}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tools .btn{padding:7px 12px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:4px 0 12px}
+.stat{background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:12px}
+.stat .v{font-family:"IBM Plex Mono",monospace;font-size:24px;font-weight:600;color:var(--cobalt)}
+.stat .k{font-size:12px;color:var(--ink-faint);margin-top:3px}
+table.hard{width:100%;border-collapse:collapse;font-size:14px}
+table.hard td{padding:7px 4px;border-bottom:1px solid var(--line)}
+table.hard td.e{text-align:right;color:var(--naranja);font-weight:600;
+font-family:"IBM Plex Mono",monospace}
 .card{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:16px;
 box-shadow:var(--shadow);min-height:190px;display:flex;flex-direction:column;
 align-items:center;justify-content:center;gap:10px;padding:26px 18px;text-align:center;user-select:none}
@@ -138,6 +148,13 @@ a{color:var(--cobalt)}
     </div>
     <div class="rounds" id="rounds"></div>
     <div class="days" id="days"></div>
+    <div class="tools">
+      <button class="btn ghost" id="stats">Статистика</button>
+      <button class="btn ghost" id="hard">Трудные слова</button>
+      <button class="btn ghost" id="dl">Скачать прогресс</button>
+      <button class="btn ghost" id="up">Загрузить прогресс</button>
+      <input type="file" id="file" accept="application/json" style="display:none">
+    </div>
   </div>
   <div id="stage"></div>
   <footer>Прогресс хранится в этом браузере, у каждого свой.</footer>
@@ -148,7 +165,7 @@ var WHO=[{id:"dmitry",name:"Дмитрий",track:"adults"},{id:"yulia",name:"Ю
          {id:"mihail",name:"Михаил",track:"kids"},{id:"darya",name:"Дарья",track:"kids"}];
 var ROUNDS=[{k:"cards",t:"1. Карточки"},{k:"choose",t:"2. Выбор"},{k:"type",t:"3. Пишу сам"},
             {k:"listen",t:"4. На слух"},{k:"match",t:"5. Игра"}];
-var S={who:"papa",day:1,round:0,queue:[],idx:0,wrong:0,ok:0};
+var S={who:"dmitry",day:1,round:0,queue:[],idx:0,wrong:0,ok:0,mode:"day",hardList:[]};
 
 function el(i){return document.getElementById(i)}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
@@ -156,10 +173,37 @@ function today(){var n=new Date();n=new Date(n.getFullYear(),n.getMonth(),n.getD
   return Math.max(1,Math.min(52,Math.floor((n-START)/864e5)+1))}
 function who(){return WHO.filter(function(w){return w.id===S.who})[0]}
 function setFor(d){var a=DATA[who().track].filter(function(s){return s.day===d});return a[0]||DATA[who().track][0]}
+function pool(){ return S.mode==="hard" ? S.hardList : setFor(S.day).w }
 function dkey(){return "esp2_done_"+S.who}
 function done(){try{return JSON.parse(ls(dkey())||"[]")}catch(e){return[]}}
 function mark(d){var a=done();if(a.indexOf(d)<0){a.push(d);ls(dkey(),JSON.stringify(a))}}
 function rkey(d){return "esp2_r_"+S.who+"_"+d}
+function wkey(){return "esp2_words_"+S.who}
+function wordStats(){try{return JSON.parse(ls(wkey())||"{}")}catch(e){return{}}}
+function noteAnswer(w,good){
+  var st=wordStats(), k=w[0];
+  var r=st[k]||{e:0,ok:0,ru:w[1]};
+  if(good) r.ok++; else r.e++;
+  r.ru=w[1]; st[k]=r; ls(wkey(),JSON.stringify(st));
+}
+function hardWords(n){
+  var st=wordStats(), a=[];
+  for(var k in st){ if(st[k].e>0) a.push([k,st[k].ru,st[k].e]) }
+  a.sort(function(x,y){return y[2]-x[2]});
+  return a.slice(0,n||20);
+}
+function skey(d){return "esp2_state_"+S.who+"_"+d}
+function saveState(){
+  if(S.mode!=="day") return;
+  try{ls(skey(S.day),JSON.stringify({r:S.round,i:S.idx,ok:S.ok,w:S.wrong,q:S.queue}))}catch(e){}
+}
+function clearState(){try{localStorage.removeItem(skey(S.day))}catch(e){}}
+function loadState(){
+  try{var v=JSON.parse(ls(skey(S.day))||"null");
+    if(v&&v.r===S.round&&v.q&&v.q.length){S.queue=v.q;S.idx=v.i;S.ok=v.ok;S.wrong=v.w;return true}
+  }catch(e){}
+  return false;
+}
 function roundsDone(d){var v=parseInt(ls(rkey(d))||"0",10);return isNaN(v)?0:v}
 function saveRound(d,n){ls(rkey(d),String(n))}
 function sh(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
@@ -243,8 +287,8 @@ function startDay(d){
 }
 function startRound(){
   renderRounds();
-  var w=setFor(S.day).w;
-  S.queue=sh(w); S.idx=0; S.wrong=0; S.ok=0;
+  S.queue=sh(pool()); S.idx=0; S.wrong=0; S.ok=0;
+  loadState();
   var k=ROUNDS[S.round].k;
   if(k==="match") return renderMatch();
   step();
@@ -266,7 +310,8 @@ function step(){
 }
 function roundDone(){
   keys({});
-  if(S.round+1>roundsDone(S.day)) saveRound(S.day,S.round+1);
+  clearState();
+  if(S.mode==="day" && S.round+1>roundsDone(S.day)) saveRound(S.day,S.round+1);
   el("stage").innerHTML='<div class="panel done"><div class="big">✓</div><h2>'+ROUNDS[S.round].t+
     ' пройден</h2><p class="hint" style="margin:8px 0 16px">Верно '+S.ok+', ошибок '+S.wrong+'</p>'+
     '<button class="btn" id="go">Дальше</button> <button class="btn ghost" id="re">Ещё раз</button></div>';
@@ -310,8 +355,8 @@ function rCards(){
     el("show").outerHTML='<div class="acts" id="acts">'+
       '<button class="btn no" id="n">Не вспомнил</button>'+
       '<button class="btn yes" id="y">Знаю</button></div>';
-    el("n").onclick=function(){S.wrong++;S.queue.push(w);S.idx++;step()};
-    el("y").onclick=function(){S.ok++;S.idx++;step()};
+    el("n").onclick=function(){noteAnswer(w,false);S.wrong++;S.queue.push(w);S.idx++;saveState();step()};
+    el("y").onclick=function(){noteAnswer(w,true);S.ok++;S.idx++;saveState();step()};
     keys({r:function(){speak(w[0])},
           "1":function(){el("n").click()},"2":function(){el("y").click()}});
     el("stage").querySelector(".tip").innerHTML=
@@ -323,7 +368,7 @@ function rCards(){
 
 /* ---------- круг 2: выбор перевода ---------- */
 function rChoose(){
-  var all=setFor(S.day).w, w=S.queue[S.idx];
+  var all=pool().length>3?pool():setFor(S.day).w, w=S.queue[S.idx];
   var wrong=sh(all.filter(function(x){return x[1]!==w[1]})).slice(0,3).map(function(x){return x[1]});
   var opts=sh(wrong.concat([w[1]]));
   var h=head()+'<div class="card"><div class="es">'+w[0]+'</div>'+audioBtn(w[0])+'</div><div class="opts">';
@@ -334,8 +379,8 @@ function rChoose(){
   function pick(i){
     if(locked) return; locked=true;
     var b=btns[i];
-    if(opts[i]===w[1]){ b.classList.add("ok"); S.ok++; S.idx++; setTimeout(step,420); }
-    else{ b.classList.add("bad"); S.wrong++; S.queue.push(w);
+    if(opts[i]===w[1]){ b.classList.add("ok"); noteAnswer(w,true); S.ok++; S.idx++; saveState(); setTimeout(step,420); }
+    else{ b.classList.add("bad"); noteAnswer(w,false); S.wrong++; S.queue.push(w); saveState();
       Array.prototype.forEach.call(btns,function(x,j){if(opts[j]===w[1])x.classList.add("ok")});
       speak(w[0]); S.idx++; setTimeout(step,1400); }
   }
@@ -358,11 +403,12 @@ function rType(){
   function check(){
     if(doneOnce) return; var a=norm(inp.value); if(!a) return; doneOnce=true;
     var good=a===norm(w[0]);
+    noteAnswer(w,good);
     if(good){ S.ok++; el("v").innerHTML='<div class="verdict ok">Верно: <b>'+w[0]+'</b></div>'; }
     else{ S.wrong++; S.queue.push(w);
       el("v").innerHTML='<div class="verdict bad">Правильно: <b>'+w[0]+'</b><br>'+
       '<span style="font-size:13.5px">вы написали: '+inp.value+'</span></div>'; }
-    speak(w[0]); inp.disabled=true; el("ok").disabled=true;
+    speak(w[0]); inp.disabled=true; el("ok").disabled=true; saveState();
     setTimeout(step,good?800:2100);
   }
   el("ok").onclick=check;
@@ -383,7 +429,9 @@ function rListen(){
   function check(){
     if(doneOnce) return; var a=norm(inp.value); if(!a) return; doneOnce=true;
     var good=a===norm(w[0]);
+    noteAnswer(w,good);
     if(good){S.ok++} else {S.wrong++;S.queue.push(w)}
+    saveState();
     el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+w[0]+'</b> — '+w[1]+'</div>';
     speak(w[0]); inp.disabled=true; el("ok").disabled=true; setTimeout(step,good?900:2100);
   }
@@ -394,7 +442,7 @@ function rListen(){
 var M={sel:null,left:0};
 function renderMatch(){
   keys({});
-  var pick=sh(setFor(S.day).w).slice(0,8), tiles=[];
+  var pick=sh(pool()).slice(0,8), tiles=[];
   pick.forEach(function(p,i){tiles.push({k:i,t:p[0]});tiles.push({k:i,t:p[1]})});
   tiles=sh(tiles); M.sel=null; M.left=pick.length;
   var h='<div class="panel bar"><span>Соедините пары</span><span class="mono" id="left">'+M.left+' пар</span></div><div class="grid" id="t">';
@@ -413,7 +461,13 @@ function renderMatch(){
   };
 }
 function finish(){
-  keys({});
+  keys({}); clearState();
+  if(S.mode==="hard"){
+    el("stage").innerHTML='<div class="panel done"><div class="big">💪</div>'+
+      '<h2>Трудные слова пройдены</h2><button class="btn" id="back">Вернуться к дню</button></div>';
+    el("back").onclick=function(){S.mode="day";startDay(S.day)};
+    return;
+  }
   saveRound(S.day,ROUNDS.length); mark(S.day); S.round=ROUNDS.length;
   renderDays(); renderRounds();
   el("stage").innerHTML='<div class="panel done"><div class="big">🍊</div><h2>День '+S.day+' закрыт</h2>'+
@@ -421,6 +475,62 @@ function finish(){
     '<button class="btn" id="n">Следующий день</button> <button class="btn ghost" id="r">Пройти заново</button></div>';
   el("n").onclick=function(){startDay(Math.min(52,S.day+1))};
   el("r").onclick=function(){startDay(S.day)};
+}
+function showStats(){
+  keys({});
+  var st=wordStats(), seen=0, err=0, ok=0;
+  for(var k in st){seen++; err+=st[k].e; ok+=st[k].ok}
+  var acc=(ok+err)?Math.round(ok*100/(ok+err)):0;
+  var d=done().slice().sort(function(a,b){return a-b});
+  var streak=0; for(var i=d.length-1;i>=0;i--){ if(i===d.length-1||d[i+1]-d[i]===1) streak++; else break }
+  var hard=hardWords(12);
+  var h='<div class="panel"><h2 style="margin-bottom:12px">Статистика · '+who().name+'</h2>'+
+    '<div class="stats">'+
+    '<div class="stat"><div class="v">'+d.length+'</div><div class="k">дней пройдено</div></div>'+
+    '<div class="stat"><div class="v">'+streak+'</div><div class="k">дней подряд</div></div>'+
+    '<div class="stat"><div class="v">'+seen+'</div><div class="k">слов в работе</div></div>'+
+    '<div class="stat"><div class="v">'+acc+'%</div><div class="k">верных ответов</div></div>'+
+    '</div>';
+  if(hard.length){
+    h+='<h2 style="font-size:16px;margin:6px 0 8px">Чаще всего ошибаетесь</h2><table class="hard">';
+    hard.forEach(function(x){h+='<tr><td><b>'+x[0]+'</b></td><td>'+x[1]+'</td><td class="e">'+x[2]+'</td></tr>'});
+    h+='</table>';
+  } else { h+='<p class="hint">Ошибок пока нет.</p>' }
+  h+='<div class="tools" style="margin-top:14px"><button class="btn" id="close">Вернуться</button></div></div>';
+  el("stage").innerHTML=h;
+  el("close").onclick=function(){startDay(S.day)};
+}
+function startHard(){
+  var hw=hardWords(20);
+  if(hw.length<4){
+    el("stage").innerHTML='<div class="panel done"><h2>Пока нечего повторять</h2>'+
+     '<p class="hint" style="margin:8px 0 16px">Трудные слова появятся после ошибок</p>'+
+     '<button class="btn" id="b">Вернуться</button></div>';
+    el("b").onclick=function(){startDay(S.day)}; return;
+  }
+  S.mode="hard"; S.hardList=hw.map(function(x){return [x[0],x[1]]});
+  S.round=0; el("setname").textContent="Трудные слова · "+S.hardList.length;
+  startRound();
+}
+function exportProgress(){
+  var out={who:S.who,saved:new Date().toISOString(),data:{}};
+  try{ for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);
+    if(k.indexOf("esp")===0) out.data[k]=localStorage.getItem(k)} }catch(e){}
+  var b=new Blob([JSON.stringify(out,null,1)],{type:"application/json"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(b); a.download="espanol-progreso-"+S.who+".json";
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function importProgress(e){
+  var f=e.target.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{ var j=JSON.parse(r.result);
+      for(var k in j.data){ localStorage.setItem(k,j.data[k]) }
+      alert("Прогресс загружен"); location.reload();
+    }catch(err){ alert("Не удалось прочитать файл") }
+  };
+  r.readAsText(f);
 }
 function boot(){
   var o="";for(var d=1;d<=52;d++)o+='<option value="'+d+'">День '+d+'</option>';
@@ -437,7 +547,12 @@ function boot(){
   el("tryvoice").onclick=function(){speak(SAMPLE)};
   el("auto").checked=autoOn();
   el("auto").onchange=function(){ls("esp_auto",this.checked?"1":"0")};
-  el("restart").onclick=function(){ saveRound(S.day,0); startDay(S.day) };
+  el("restart").onclick=function(){ clearState(); saveRound(S.day,0); startDay(S.day) };
+  el("stats").onclick=showStats;
+  el("hard").onclick=startHard;
+  el("dl").onclick=exportProgress;
+  el("up").onclick=function(){el("file").click()};
+  el("file").onchange=importProgress;
   initVoice(); startDay(today());
 }
 boot();
