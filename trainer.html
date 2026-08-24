@@ -177,7 +177,8 @@ var S={who:"dmitry",day:1,round:0,queue:[],idx:0,wrong:0,ok:0,mode:"day",hardLis
 
 function el(i){return document.getElementById(i)}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
-function today(){var n=new Date();n=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+function today(){var n=new Date(); n=new Date(n.getTime()-4*36e5);
+  n=new Date(n.getFullYear(),n.getMonth(),n.getDate());
   return Math.max(1,Math.min(52,Math.floor((n-START)/864e5)+1))}
 function who(){return WHO.filter(function(w){return w.id===S.who})[0]}
 function setFor(d){var a=DATA[who().track].filter(function(s){return s.day===d});return a[0]||DATA[who().track][0]}
