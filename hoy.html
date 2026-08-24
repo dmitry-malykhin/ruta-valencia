@@ -277,6 +277,8 @@ function render(){
   renderDays();
 }
 function boot(){
+  var whoFromUrl=(location.search.match(/who=([a-z]+)/)||[])[1];
+  if(whoFromUrl && WHO.some(function(person){return person.id===whoFromUrl})) ls("esp_who",whoFromUrl);
   S.who=ls("esp_who")||"dmitry";
   if(!WHO.filter(function(w){return w.id===S.who}).length)S.who="dmitry";
   S.day=today();
