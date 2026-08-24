@@ -205,8 +205,9 @@ var V=[{"v": "ser", "ru": "быть (кто/какой)", "f": ["soy", "eres", "
 var P=[["yo","я"],["tú","ты"],["él / ella / usted","он, она, Вы"],
        ["nosotros","мы"],["vosotros","вы"],["ellos / ustedes","они"]];
 var WHO=[{id:"dmitry",name:"Дмитрий"},{id:"yulia",name:"Юлия"},{id:"mihail",name:"Михаил"}];
-var ALL_ROUNDS=[{k:"warm",t:"Разминка"},{k:"learn",t:"Знакомство"},{k:"table",t:"Таблица"},
-                {k:"frase",t:"Фраза"},{k:"speak",t:"Скажи фразу"},{k:"listen",t:"На слух"}];
+var ALL_ROUNDS=[{k:"warm",t:"Разминка"},{k:"block",t:"Разбор по одному"},
+                {k:"listen",t:"Вперемешку на слух"},{k:"speak",t:"Скажи фразу"},
+                {k:"mix",t:"Случайный добор"}];
 var ROUNDS=ALL_ROUNDS;
 function buildRounds(d){
   // разминка появляется со второго дня: раньше повторять нечего
@@ -273,13 +274,12 @@ function startDay(d){
 }
 function startRound(){
   renderRounds(); S.vi=0; S.idx=0; S.ok=0; S.wrong=0; S.token=(S.token||0)+1;
-  var k=ROUNDS[S.round].k;
+  var k=ROUNDS[S.round].k; S.step=0;
   if(k==="warm")   { S.queue=warmQueue(S.day); return rWarm() }
-  if(k==="learn")  return rLearn();
-  if(k==="table")  return rTable();
-  if(k==="frase")  { S.queue=fraseQueue(0); return rFrase() }
-  if(k==="speak")  { S.queue=fraseQueue(1); return rSpeak() }
+  if(k==="block")  return rBlock();
   if(k==="listen"){ S.queue=sh(pairs()).slice(0,12); return rListen() }
+  if(k==="speak")  { S.queue=fraseQueue(1); return rSpeak() }
+  if(k==="mix")    { S.queue=mixQueue(); return rMix() }
 }
 function pairs(){var out=[];S.verbs.forEach(function(v){P.forEach(function(p,i){out.push({v:v,pi:i})})});return out}
 function roundDone(){
@@ -302,43 +302,59 @@ function finishDay(){
   el("r").onclick=function(){saveR(S.day,0);startDay(S.day)};
 }
 
-/* ---------- круг 1: знакомство ---------- */
-function rLearn(){
+/* ---------- фаза 1: один глагол через все режимы подряд ---------- */
+// сначала блок по одному глаголу (запись формы в память), перемешивание идёт следующими кругами
+var BLOCK=["learn","table","frase","frase"];
+function blockLabel(){
+  var names={learn:"знакомство",table:"таблица форм",frase:"глагол во фразе"};
+  return names[BLOCK[S.step]]+" · шаг "+(S.step+1)+" из "+BLOCK.length;
+}
+function rBlock(){
   if(S.vi>=S.verbs.length) return roundDone();
-  var v=S.verbs[S.vi];
+  var v=S.verbs[S.vi], stage=BLOCK[S.step];
+  if(stage==="learn") return oneLearn(v);
+  if(stage==="table") return oneTable(v);
+  return oneFrase(v, S.step-2);
+}
+function blockNext(){
+  S.step++;
+  if(S.step>=BLOCK.length){ S.step=0; S.vi++ }
+  rBlock();
+}
+function blockHead(v){
+  return '<div class="counter"><span class="mono">глагол '+(S.vi+1)+' из '+S.verbs.length+'</span>'+
+    '<span class="warm">'+blockLabel()+'</span>'+
+    '<span class="pill '+(v.irr?"learn":"know")+'">'+(v.irr?"неправильный":"правильный")+'</span></div>';
+}
+
+function oneLearn(v){
   var forms=P.map(function(p,i){return '<div><span>'+p[0]+'</span>'+v.f[i]+'</div>'}).join("");
-  // порядок в разметке остаётся 0..5, колонки раскладывает grid-auto-flow: column
-  el("stage").innerHTML=
-    '<div class="counter"><span class="mono">глагол '+(S.vi+1)+' из '+S.verbs.length+'</span>'+
-    '<span class="pill '+(v.irr?"learn":"know")+'">'+(v.irr?"неправильный":"правильный")+'</span></div>'+
+  el("stage").innerHTML= blockHead(v)+
     '<div class="card"><div class="big-v">'+v.v+'</div>'+
     '<button class="audio" id="spk">🔊</button>'+
     '<div class="ru">'+v.ru+'</div>'+
     '<div class="formlist">'+forms+'</div></div>'+
     '<div class="acts"><button class="btn ghost" id="all">🔊 Все формы</button>'+
     '<button class="btn" id="next">Запомнил, дальше</button></div>'+
-    '<p class="tip">Прочитайте формы вслух, потом послушайте</p>';
+    '<p class="tip">Прочитайте формы вслух, потом послушайте. Дальше этот же глагол пойдёт в таблицу и во фразу</p>';
   el("spk").onclick=function(){speak(v.v)};
   el("all").onclick=function(){speak(v.f.join(", "))};
-  el("next").onclick=function(){S.vi++;S.ok++;rLearn()};
+  el("next").onclick=function(){S.ok++;blockNext()};
   speak(v.v);
 }
 
-/* ---------- круг 2: таблица с вводом, две колонки по три ---------- */
-function rTable(){
-  if(S.vi>=S.verbs.length) return roundDone();
-  var v=S.verbs[S.vi], left=6, solved={};
+function oneTable(v){
+  var left=6, solved={};
   var cells=P.map(function(p,i){
     return '<div class="cell" data-i="'+i+'"><div class="p"><b>'+p[0]+'</b>'+p[1]+'</div>'+
       '<input data-i="'+i+'" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="форма">'+
       '<button class="mini" data-play="'+i+'" disabled>🔊</button></div>'}).join("");
-  el("stage").innerHTML=
-    '<div class="counter"><span class="mono">глагол '+(S.vi+1)+' из '+S.verbs.length+'</span>'+
-    '<span class="pill learn" id="cleft">осталось 6</span></div>'+
+  el("stage").innerHTML= blockHead(v)+
     '<div class="panel"><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">'+
     '<div class="big-v" style="font-size:28px">'+v.v+'</div>'+
     '<button class="mini" id="spkv">🔊</button>'+
-    '<span class="hint">'+v.ru+'</span></div>'+
+    '<span class="hint">'+v.ru+'</span>'+
+    '<span class="pill learn" id="cleft" style="margin-left:auto">осталось 6</span></div>'+
     '<div class="conjgrid">'+cells+'</div>'+
     '<div class="acts" style="margin-top:14px">'+
     '<button class="btn ghost" id="hint">Не помню, подскажи</button>'+
@@ -383,11 +399,69 @@ function rTable(){
     speak(v.f[i]);
     inp.value=""; inp.placeholder="перепишите: "+v.f[i]; inp.focus();
     cell.classList.add("bad");
-    el("stage").querySelector(".tip").innerHTML=
-      'Наберите <b>'+v.f[i]+'</b> целиком, так форма запомнится.';
+    el("stage").querySelector(".tip").innerHTML='Наберите <b>'+v.f[i]+'</b> целиком, так форма запомнится.';
   };
-  el("done").onclick=function(){S.vi++;rTable()};
+  el("done").onclick=blockNext;
   inputs[0].focus();
+}
+
+function oneFrase(v,k){
+  var list=v.fr||[];
+  if(!list.length) return blockNext();
+  var fr=list[k%list.length], ans=v.f[fr.p], full=fraseShown(fraseText(v,fr));
+  var shown=fraseShown(fr.es.replace("{}",'<span class="gap">?</span>'));
+  el("stage").innerHTML= blockHead(v)+
+    '<div class="card"><div class="frase-ru">'+fr.ru+'</div>'+
+    '<div class="frase">'+shown+'</div>'+
+    '<div class="hint" style="margin-top:10px">'+v.v+' · '+P[fr.p][0]+'</div></div>'+
+    '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
+    'placeholder="форма глагола"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
+    '<p class="tip">Вставьте форму, потом прочитайте предложение вслух целиком</p>';
+  var inp=el("inp"); inp.focus(); var locked=false, token=S.token;
+  function check(){
+    if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
+    var good=a===norm(ans); note(v.v+"|"+fr.p,good);
+    good?S.ok++:S.wrong++;
+    el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+full+'</b></div>';
+    speak(fraseText(v,fr)); inp.disabled=true; el("ok").disabled=true;
+    setTimeout(function(){if(token===S.token)blockNext()}, good?1500:2800);
+  }
+  el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
+}
+
+/* ---------- случайный добор по всем глаголам дня ---------- */
+function mixQueue(){
+  var out=[];
+  S.verbs.forEach(function(v){ P.forEach(function(p,i){ out.push({v:v,pi:i}) }) });
+  // к сегодняшним добавляем немного прошлых, чтобы добор был не только про этот день
+  var older=warmPool(S.day);
+  sh(older).slice(0,3).forEach(function(v){ out.push({v:v,pi:Math.floor(Math.random()*6)}) });
+  return sh(out).slice(0,12);
+}
+function rMix(){
+  var token=S.token;
+  if(S.idx>=S.queue.length||!S.queue[S.idx]) return roundDone();
+  var q=S.queue[S.idx], v=q.v, p=P[q.pi], ans=v.f[q.pi];
+  el("stage").innerHTML=
+    '<div class="counter"><span class="mono">осталось '+(S.queue.length-S.idx)+'</span>'+
+    (v.day===S.day?'':'<span class="warm">повтор дня '+v.day+'</span>')+
+    '<span class="pill know">верно '+S.ok+'</span></div>'+
+    '<div class="card"><div class="big-v" style="font-size:30px">'+v.v+'</div>'+
+    '<div class="ru">'+v.ru+'</div>'+
+    '<div class="pron" style="margin-top:14px">'+p[0]+' · '+p[1]+'</div></div>'+
+    '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
+    'placeholder="форма"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
+    '<p class="tip">Вперемешку, случайное лицо. Ошиблись — вопрос вернётся в конец</p>';
+  var inp=el("inp"); inp.focus(); var locked=false;
+  function check(){
+    if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
+    var good=a===norm(ans); note(v.v+"|"+q.pi,good);
+    if(good){S.ok++} else {S.wrong++; S.queue.push(q)}
+    el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+ans+'</b> — '+v.v+', '+p[1]+'</div>';
+    speak(ans); inp.disabled=true; el("ok").disabled=true;
+    S.idx++; setTimeout(function(){if(token===S.token)rMix()}, good?800:2000);
+  }
+  el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
 }
 
 /* ---------- круг 3: на слух ---------- */
@@ -475,32 +549,6 @@ function fraseQueue(which){
 }
 function fraseText(v,fr){ return fr.es.replace("{}", v.f[fr.p]) }
 function fraseShown(text){ return text.charAt(0).toUpperCase()+text.slice(1) }
-
-function rFrase(){
-  var token=S.token;
-  if(S.idx>=S.queue.length||!S.queue[S.idx]) return roundDone();
-  var q=S.queue[S.idx], v=q.v, fr=q.fr, ans=v.f[fr.p], full=fraseShown(fraseText(v,fr));
-  var shown=fraseShown(fr.es.replace("{}",'<span class="gap">?</span>'));
-  el("stage").innerHTML=
-    '<div class="counter"><span class="mono">фраза '+(S.idx+1)+' из '+S.queue.length+'</span>'+
-    '<span class="pill know">верно '+S.ok+'</span></div>'+
-    '<div class="card"><div class="frase-ru">'+fr.ru+'</div>'+
-    '<div class="frase">'+shown+'</div>'+
-    '<div class="hint" style="margin-top:10px">'+v.v+' · '+P[fr.p][0]+'</div></div>'+
-    '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
-    'placeholder="форма глагола"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
-    '<p class="tip">Вставьте нужную форму, потом прочитайте предложение вслух</p>';
-  var inp=el("inp"); inp.focus(); var locked=false;
-  function check(){
-    if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
-    var good=a===norm(ans); note(v.v+"|"+fr.p,good);
-    if(good){S.ok++} else {S.wrong++; S.queue.push(q)}
-    el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+full+'</b></div>';
-    speak(fraseText(v,fr)); inp.disabled=true; el("ok").disabled=true;
-    S.idx++; setTimeout(function(){if(token===S.token)rFrase()}, good?1400:2600);
-  }
-  el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
-}
 
 /* ---------- скажи фразу целиком с русского ---------- */
 function speechOK(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
