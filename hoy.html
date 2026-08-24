@@ -156,7 +156,9 @@ font-weight:600;font-size:14px;text-decoration:none;display:inline-block}
 white-space:nowrap;flex:0 0 auto}
 .tag2{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
 .dayhead{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.ringbox{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}
 .ring{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:600;color:var(--cobalt)}
+.ringcap{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);margin-top:3px;white-space:nowrap}
 .days{display:flex;gap:4px;flex-wrap:wrap;margin-top:12px}
 .dot{width:25px;height:25px;border-radius:7px;background:var(--surface-2);border:1px solid var(--line);
 font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);cursor:pointer}
@@ -186,7 +188,9 @@ border-radius:11px;font-size:13.5px;color:var(--ink);line-height:1.7}
     <div class="dayhead">
       <div><div style="font-weight:600" id="dayline">—</div>
            <div class="s" style="font-size:13px;color:var(--ink-faint)" id="sum"></div></div>
-      <div class="row"><select id="daysel"></select><span class="ring" id="ring">—</span></div>
+      <div class="row"><select id="daysel"></select>
+        <div class="ringbox"><span class="ring" id="ring">—</span>
+          <span class="ringcap">заданий сделано</span></div></div>
     </div>
     <div class="days" id="days"></div>
     <div class="plan" id="plan" style="display:none"></div>
@@ -339,7 +343,7 @@ function render(){
   el("plan").innerHTML=pl; el("plan").style.display= pl?"block":"none";
   if(el("goplan")) el("goplan").onclick=function(){S.day=today();render()};
   if(el("goopen")) el("goopen").onclick=function(){S.day=firstOpenDay();render()};
-  el("ring").textContent=done+" / "+b.length;
+  el("ring").textContent=done+" из "+b.length;
   var sit=b.filter(function(x){return !x.fon}).reduce(function(a,x){return a+x.min},0);
   var fon=b.filter(function(x){return x.fon}).reduce(function(a,x){return a+x.min},0);
   el("sum").textContent=(done>=b.length?"день закрыт · ":"осталось "+(b.length-done)+" · ")+
