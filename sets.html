@@ -1,0 +1,2344 @@
+<title>Наборы для Quizlet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#F4F6FA;
+  --surface:#FFFFFF;
+  --surface-2:#EDF1F8;
+  --line:#D3DCEA;
+  --ink:#0F1C33;
+  --ink-soft:#4A5872;
+  --ink-faint:#7C8AA3;
+  --cobalt:#1B4FA8;
+  --cobalt-soft:#E3EBF9;
+  --naranja:#D45B12;
+  --naranja-soft:#FBE8DB;
+  --verde:#256B4E;
+  --shadow:0 1px 2px rgba(15,28,51,.06),0 8px 24px rgba(15,28,51,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1421;
+    --surface:#141E2F;
+    --surface-2:#1B2740;
+    --line:#2A3958;
+    --ink:#E7EDF8;
+    --ink-soft:#AEBCD4;
+    --ink-faint:#7D8DA8;
+    --cobalt:#7BA6F2;
+    --cobalt-soft:#1B2C4C;
+    --naranja:#F0894A;
+    --naranja-soft:#3A2416;
+    --verde:#5FBF93;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1421;
+  --surface:#141E2F;
+  --surface-2:#1B2740;
+  --line:#2A3958;
+  --ink:#E7EDF8;
+  --ink-soft:#AEBCD4;
+  --ink-faint:#7D8DA8;
+  --cobalt:#7BA6F2;
+  --cobalt-soft:#1B2C4C;
+  --naranja:#F0894A;
+  --naranja-soft:#3A2416;
+  --verde:#5FBF93;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 72px}
+
+h1,h2,h3{font-family:Bitter,Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,4.4vw,44px);font-weight:700;letter-spacing:-.01em;line-height:1.1}
+h2{font-size:20px;font-weight:700;letter-spacing:-.005em}
+h3{font-size:17px;font-weight:700}
+p{margin:0}
+a{color:inherit}
+
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+/* ---------- сегодня ---------- */
+.today{
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);padding:22px 24px;margin:18px 0 32px;
+  display:grid;gap:20px;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+}
+.today-main{display:flex;flex-direction:column;gap:10px;min-width:0}
+.today-task{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.counters{display:flex;gap:26px}
+.counter{text-align:right}
+.counter .num{
+  font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:600;
+  font-variant-numeric:tabular-nums;line-height:1;color:var(--cobalt);
+}
+.counter .lab{font-size:11.5px;color:var(--ink-faint);margin-top:5px}
+.counter.warm .num{color:var(--naranja)}
+
+.pill{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 13px;border-radius:999px;font-size:13.5px;font-weight:500;
+  background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--line);
+  text-decoration:none;
+}
+.pill.hot{background:var(--naranja-soft);color:var(--naranja);border-color:transparent;font-weight:600}
+a.pill:hover{border-color:var(--cobalt);color:var(--cobalt)}
+
+/* ---------- секции ---------- */
+section{margin-top:38px}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.sec-head .note{font-size:13.5px;color:var(--ink-faint)}
+
+.grid{display:grid;gap:14px}
+.people{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.res{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:13px;
+  padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px;
+}
+.card.person{border-top:3px solid var(--cobalt)}
+.card.person.kid{border-top-color:var(--naranja)}
+.who{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.who .age{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint)}
+.blocks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.blocks li{
+  display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--ink-soft);
+  padding-bottom:6px;border-bottom:1px dotted var(--line);
+}
+.blocks li:last-child{border-bottom:none;padding-bottom:0}
+.blocks .min{
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.btn{
+  display:block;text-align:center;text-decoration:none;
+  background:var(--cobalt);color:#fff;font-weight:600;font-size:14.5px;
+  padding:10px 14px;border-radius:9px;margin-top:auto;
+}
+.card.kid .btn{background:var(--naranja)}
+.btn:hover{filter:brightness(1.08)}
+.btn:focus-visible,a:focus-visible{outline:2px solid var(--naranja);outline-offset:2px}
+
+/* ---------- ресурсы ---------- */
+.res .card{gap:9px}
+.res h3{font-size:15.5px}
+.res .why{font-size:13px;color:var(--ink-faint);margin-bottom:2px}
+.links{display:flex;flex-direction:column;gap:2px}
+.links a{
+  display:flex;justify-content:space-between;gap:10px;align-items:baseline;
+  text-decoration:none;font-size:14.5px;color:var(--ink);
+  padding:5px 0;border-bottom:1px solid transparent;
+}
+.links a:hover{color:var(--cobalt);border-bottom-color:var(--line)}
+.links .tag{font-size:11.5px;color:var(--ink-faint);white-space:nowrap}
+
+/* ---------- уроки ---------- */
+.lessons{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.lesson{
+  text-decoration:none;background:var(--surface);border:1px solid var(--line);
+  border-radius:9px;padding:9px 11px;display:flex;flex-direction:column;gap:2px;
+}
+.lesson .n{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--cobalt)}
+.lesson .d{font-size:12px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.lesson:hover{border-color:var(--cobalt)}
+.lesson.done{opacity:.5}
+.lesson.now{border-color:var(--naranja);background:var(--naranja-soft)}
+.lesson.now .n{color:var(--naranja)}
+
+footer{
+  margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:13px;color:var(--ink-faint);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+@media (max-width:640px){
+  .today{grid-template-columns:1fr}
+  .counters{justify-content:flex-start}
+  .counter{text-align:left}
+}
+
+.card button.btn{border:none;cursor:pointer;font-family:inherit}
+</style><div class="wrap">
+<p class="eyebrow"><a href="./" style="text-decoration:none">← Ruta Valencia</a></p>
+<h1>Наборы для Quizlet</h1>
+<p style="color:var(--ink-soft);max-width:64ch;margin-top:8px">Нажмите «Копировать» у нужного набора, потом в Quizlet: <b>+</b> → <b>Flashcard set</b> → <b>Import</b> → вставить. Разделители: <b>Tab</b> между словом и переводом, <b>New line</b> между строками. Не забудьте выставить <b>Term language: Spanish</b> и <b>Definition language: Russian</b>, иначе не будет озвучки.</p>
+<section><div class="sec-head"><h2>Для Дмитрия и Юли</h2><span class="note">по неделям плана, потом дополнительные</span></div>
+<div class="grid res">
+<div class="card">
+<h3>01 · W1 · знакомство и базовые слова</h3>
+<p class="why">204 слов и фраз</p>
+<button class="btn" data-id="01_0">Копировать</button>
+<textarea id="t_01_0" style="position:absolute;left:-9999px;top:0" readonly>hola	привет
+buenos días	доброе утро
+buenas tardes	добрый день
+buenas noches	добрый вечер, спокойной ночи
+adiós	до свидания
+hasta luego	до скорого
+hasta mañana	до завтра
+por favor	пожалуйста (просьба)
+gracias	спасибо
+muchas gracias	большое спасибо
+de nada	не за что
+perdón	извините
+perdone	извините (вежливо, к незнакомому)
+disculpe	простите, извините
+lo siento	мне жаль, извините
+sí	да
+no	нет
+vale	ладно, хорошо
+claro	конечно
+por supuesto	разумеется
+tal vez	может быть
+quizás	возможно
+también	тоже, также
+tampoco	тоже не
+pero	но
+y	и
+o	или
+porque	потому что
+por qué	почему
+qué	что, какой
+quién	кто
+dónde	где
+adónde	куда
+cuándo	когда
+cómo	как
+cuánto	сколько
+cuál	какой (из)
+mucho	много, очень
+poco	мало
+más	больше
+menos	меньше
+muy	очень
+bien	хорошо
+mal	плохо
+todo	всё
+nada	ничего
+algo	что-то
+alguien	кто-то
+nadie	никто
+siempre	всегда
+nunca	никогда
+a veces	иногда
+ahora	сейчас
+hoy	сегодня
+mañana	завтра
+ayer	вчера
+después	потом, после
+antes	раньше, до
+ya	уже
+todavía	ещё
+otra vez	ещё раз
+aquí	здесь
+allí	там
+cerca	близко
+lejos	далеко
+yo	я
+tú	ты
+usted	Вы (вежливо)
+él	он
+ella	она
+nosotros	мы
+vosotros	вы (мн.)
+ellos	они
+mi	мой
+tu	твой
+su	его, её, Ваш
+nuestro	наш
+este	этот
+ese	тот
+aquel	тот (дальний)
+el señor	господин, мужчина
+la señora	госпожа, женщина
+la señorita	девушка
+el hombre	мужчина
+la mujer	женщина, жена
+el marido	муж
+el niño	мальчик, ребёнок
+la niña	девочка
+el chico	парень
+la chica	девушка
+la gente	люди
+la persona	человек
+la familia	семья
+el padre	отец
+la madre	мать
+los padres	родители
+el hijo	сын
+la hija	дочь
+los hijos	дети
+el hermano	брат
+la hermana	сестра
+el abuelo	дедушка
+la abuela	бабушка
+el amigo	друг
+la amiga	подруга
+el vecino	сосед
+el nombre	имя
+el apellido	фамилия
+la edad	возраст
+el año	год
+Rusia	Россия
+España	Испания
+ruso	русский
+español	испанский, испанец
+inglés	английский
+Valencia	Валенсия
+el país	страна
+la ciudad	город
+el idioma	язык
+la lengua	язык
+extranjero	иностранный, иностранец
+el trabajo	работа
+el profesor	учитель
+el médico	врач
+el ingeniero	инженер
+el programador	программист
+el estudiante	студент
+la profesión	профессия
+llamarse	называться, зваться
+ser	быть (постоянно)
+estar	быть, находиться
+tener	иметь
+haber	иметься (hay)
+hablar	говорить
+vivir	жить
+trabajar	работать
+estudiar	учить, учиться
+saber	знать (факт)
+conocer	быть знакомым
+entender	понимать
+querer	хотеть, любить
+poder	мочь
+necesitar	нуждаться
+gustar	нравиться
+grande	большой
+pequeño	маленький
+nuevo	новый
+viejo	старый
+joven	молодой
+bueno	хороший
+malo	плохой
+bonito	красивый
+feo	некрасивый
+alto	высокий
+bajo	низкий
+largo	длинный
+corto	короткий
+fácil	лёгкий, простой
+difícil	трудный
+caro	дорогой
+barato	дешёвый
+rápido	быстрый
+lento	медленный
+limpio	чистый
+sucio	грязный
+lleno	полный
+vacío	пустой
+abierto	открытый
+cerrado	закрытый
+libre	свободный
+ocupado	занятый
+importante	важный
+posible	возможный
+rojo	красный
+azul	синий
+verde	зелёный
+amarillo	жёлтый
+negro	чёрный
+blanco	белый
+gris	серый
+marrón	коричневый
+naranja	оранжевый
+rosa	розовый
+el color	цвет
+el número	число, номер
+primero	первый
+segundo	второй
+tercero	третий
+último	последний
+mucho gusto	очень приятно
+encantado	очень приятно
+igualmente	взаимно
+¿qué tal?	как дела?
+regular	так себе
+más o menos	более-менее
+un poco	немного
+bastante	достаточно, довольно
+demasiado	слишком
+otro	другой
+mismo	тот же самый
+cada	каждый
+todos	все
+juntos	вместе
+solo	один, только</textarea>
+</div>
+<div class="card">
+<h3>02 · W2 · еда, кафе, магазин</h3>
+<p class="why">170 слов и фраз</p>
+<button class="btn" data-id="01_1">Копировать</button>
+<textarea id="t_01_1" style="position:absolute;left:-9999px;top:0" readonly>la comida	еда, обед
+el desayuno	завтрак
+el almuerzo	обед
+la cena	ужин
+desayunar	завтракать
+comer	есть, обедать
+cenar	ужинать
+beber	пить
+tomar	брать, выпить, съесть
+probar	пробовать
+cocinar	готовить
+el agua	вода
+el agua con gas	вода с газом
+el agua sin gas	вода без газа
+el café	кофе
+el café con leche	кофе с молоком
+el café solo	чёрный кофе
+el cortado	кофе с каплей молока
+el té	чай
+la leche	молоко
+el zumo	сок
+el zumo de naranja	апельсиновый сок
+la cerveza	пиво
+el vino	вино
+el vino tinto	красное вино
+el pan	хлеб
+la tostada	тост
+el bocadillo	бутерброд, сэндвич
+el croissant	круассан
+la tortilla	омлет, тортилья
+el huevo	яйцо
+el queso	сыр
+el jamón	хамон, ветчина
+la carne	мясо
+el pollo	курица
+la ternera	телятина
+el cerdo	свинина
+el pescado	рыба
+el marisco	морепродукты
+la gamba	креветка
+el arroz	рис
+la paella	паэлья
+la pasta	макароны
+la sopa	суп
+la ensalada	салат
+la verdura	овощи
+el tomate	помидор
+la patata	картофель
+la cebolla	лук
+el ajo	чеснок
+la zanahoria	морковь
+el pepino	огурец
+el pimiento	перец
+la fruta	фрукты
+la manzana	яблоко
+el plátano	банан
+la naranja	апельсин
+el limón	лимон
+la fresa	клубника
+la uva	виноград
+la sandía	арбуз
+el melón	дыня
+el melocotón	персик
+el aceite	масло (растительное)
+la sal	соль
+el azúcar	сахар
+la pimienta	перец (молотый)
+la mantequilla	сливочное масло
+el yogur	йогурт
+el helado	мороженое
+el postre	десерт
+la tarta	торт
+la galleta	печенье
+el chocolate	шоколад
+la mermelada	джем
+la miel	мёд
+el supermercado	супермаркет
+la tienda	магазин
+la panadería	булочная
+la carnicería	мясная лавка
+la pescadería	рыбный магазин
+la frutería	фруктовая лавка
+la farmacia	аптека
+el mercado	рынок
+el bar	бар
+el restaurante	ресторан
+la cafetería	кафе
+la terraza	терраса
+el camarero	официант
+la carta	меню
+el menú del día	комплексный обед
+la cuenta	счёт
+la propina	чаевые
+el plato	блюдо, тарелка
+el vaso	стакан
+la taza	чашка
+la botella	бутылка
+la servilleta	салфетка
+el tenedor	вилка
+el cuchillo	нож
+la cuchara	ложка
+la bandeja	поднос
+la bolsa	пакет, сумка
+el paquete	пачка, упаковка
+la lata	банка
+la caja	коробка
+el kilo	килограмм
+medio kilo	полкило
+el gramo	грамм
+el litro	литр
+la docena	дюжина
+el trozo	кусок
+la ración	порция
+la tapa	закуска
+el precio	цена
+el dinero	деньги
+el euro	евро
+el céntimo	цент
+la tarjeta	карта
+el efectivo	наличные
+el cambio	сдача, обмен
+el ticket	чек
+la oferta	акция, скидка
+el descuento	скидка
+la caja registradora	касса
+la cola	очередь
+gratis	бесплатно
+comprar	покупать
+pagar	платить
+costar	стоить
+vender	продавать
+pesar	весить
+elegir	выбирать
+buscar	искать
+encontrar	находить
+llevar	нести, брать с собой
+traer	приносить
+poner	класть, ставить
+dar	давать
+rico	вкусный
+sabroso	вкусный
+dulce	сладкий
+salado	солёный
+picante	острый
+amargo	горький
+fresco	свежий
+caliente	горячий
+frío	холодный
+templado	тёплый
+crudo	сырой
+hecho	приготовленный
+sin	без
+con	с
+el hambre	голод
+la sed	жажда
+tener hambre	быть голодным
+tener sed	хотеть пить
+la dieta	диета
+vegetariano	вегетарианский
+sin gluten	без глютена
+sin lactosa	без лактозы
+la alergia	аллергия
+¿cuánto cuesta?	сколько стоит?
+¿cuánto es?	сколько с меня?
+¿qué le pongo?	что Вам положить?
+para llevar	с собой (навынос)
+para tomar aquí	здесь
+la barra	барная стойка
+el desayuno completo	полный завтрак
+la merienda	полдник</textarea>
+</div>
+<div class="card">
+<h3>03 · W3 · город и дорога</h3>
+<p class="why">153 слов и фраз</p>
+<button class="btn" data-id="01_2">Копировать</button>
+<textarea id="t_01_2" style="position:absolute;left:-9999px;top:0" readonly>la calle	улица
+la plaza	площадь
+la avenida	проспект
+el paseo	бульвар, прогулка
+el barrio	район
+el centro	центр
+las afueras	окраина
+la esquina	угол
+la acera	тротуар
+el semáforo	светофор
+el paso de peatones	пешеходный переход
+el cruce	перекрёсток
+el puente	мост
+el parque	парк
+el jardín	сад
+la playa	пляж
+el mar	море
+el río	река
+la montaña	гора
+el edificio	здание
+la casa	дом
+el piso	квартира, этаж
+el portal	подъезд
+la puerta	дверь
+la ventana	окно
+el ascensor	лифт
+la escalera	лестница
+la planta baja	первый этаж
+el código postal	почтовый индекс
+la dirección	адрес
+el mapa	карта
+la iglesia	церковь
+el museo	музей
+el teatro	театр
+el cine	кинотеатр
+la biblioteca	библиотека
+el colegio	школа
+la universidad	университет
+el hospital	больница
+el centro de salud	поликлиника
+la comisaría	полицейский участок
+el ayuntamiento	мэрия, муниципалитет
+la oficina	офис
+el banco	банк
+el cajero automático	банкомат
+correos	почта
+la gasolinera	заправка
+el aparcamiento	парковка
+el hotel	отель
+el aeropuerto	аэропорт
+la estación	станция, вокзал
+la parada	остановка
+el metro	метро
+el autobús	автобус
+el tranvía	трамвай
+el tren	поезд
+el taxi	такси
+el coche	машина
+la moto	мотоцикл
+la bicicleta	велосипед
+el patinete	самокат
+el billete	билет
+el abono	проездной
+la tarjeta de transporte	транспортная карта
+el andén	перрон
+la vía	путь
+la línea	линия, маршрут
+el horario	расписание
+la salida	выход, отправление
+la entrada	вход, билет
+el destino	пункт назначения
+el viaje	поездка
+el conductor	водитель
+el pasajero	пассажир
+la maleta	чемодан
+la mochila	рюкзак
+ir	идти, ехать
+venir	приходить
+llegar	прибывать
+salir	выходить, уезжать
+volver	возвращаться
+entrar	входить
+subir	подниматься, садиться
+bajar	спускаться, выходить
+pasar	проходить, происходить
+cruzar	переходить
+seguir	продолжать, следовать
+girar	поворачивать
+parar	останавливать
+esperar	ждать
+andar	ходить
+caminar	идти пешком
+correr	бежать
+conducir	водить
+coger	брать, садиться (в транспорт)
+perderse	заблудиться
+a la derecha	направо
+a la izquierda	налево
+todo recto	прямо
+al final	в конце
+enfrente	напротив
+detrás	сзади
+delante	впереди
+al lado	рядом
+entre	между
+dentro	внутри
+fuera	снаружи
+arriba	наверху
+abajo	внизу
+encima	сверху
+debajo	снизу
+alrededor	вокруг
+hacia	в сторону, к
+hasta	до
+desde	от, с
+por	по, через
+para	для, чтобы
+el norte	север
+el sur	юг
+el este	восток
+el oeste	запад
+la distancia	расстояние
+el kilómetro	километр
+el minuto	минута
+la hora	час
+andando	пешком
+en coche	на машине
+en metro	на метро
+en autobús	на автобусе
+el tráfico	движение, пробки
+el atasco	пробка
+la multa	штраф
+la señal	знак
+el carril	полоса
+el carril bici	велодорожка
+la rotonda	круговое движение
+la autopista	автомагистраль
+el pueblo	посёлок, деревня
+la provincia	провинция
+la comunidad	сообщество, автономия
+el turista	турист
+la guía	путеводитель, гид
+abierto al público	открыто для посетителей
+el horario de apertura	часы работы
+cerrado por vacaciones	закрыто на отпуск
+¿dónde está?	где находится?
+¿cómo llego a...?	как добраться до...?
+¿está lejos?	это далеко?
+¿cuánto se tarda?	сколько занимает времени?
+la izquierda	левая сторона
+la derecha	правая сторона
+perdone, ¿me puede ayudar?	извините, можете помочь?
+estoy perdido	я заблудился</textarea>
+</div>
+<div class="card">
+<h3>04 · W4 · дом, время, распорядок</h3>
+<p class="why">162 слов и фраз</p>
+<button class="btn" data-id="01_3">Копировать</button>
+<textarea id="t_01_3" style="position:absolute;left:-9999px;top:0" readonly>la habitación	комната
+el dormitorio	спальня
+el salón	гостиная
+la cocina	кухня
+el baño	ванная, туалет
+el aseo	санузел
+el pasillo	коридор
+el balcón	балкон
+el trastero	кладовка
+el garaje	гараж
+la cama	кровать
+la mesa	стол
+la silla	стул
+el sofá	диван
+el sillón	кресло
+el armario	шкаф
+la estantería	полка, стеллаж
+la lámpara	лампа
+la alfombra	ковёр
+el espejo	зеркало
+la cortina	штора
+el cuadro	картина
+la nevera	холодильник
+el horno	духовка
+el microondas	микроволновка
+la lavadora	стиральная машина
+el lavavajillas	посудомойка
+la ducha	душ
+la bañera	ванна
+el lavabo	раковина
+el váter	унитаз
+la toalla	полотенце
+el jabón	мыло
+el papel higiénico	туалетная бумага
+el cepillo de dientes	зубная щётка
+la pasta de dientes	зубная паста
+la llave	ключ
+la cerradura	замок
+el timbre	звонок
+el enchufe	розетка
+la luz	свет
+el interruptor	выключатель
+la calefacción	отопление
+el aire acondicionado	кондиционер
+la basura	мусор
+el contenedor	мусорный бак
+la limpieza	уборка
+el ordenador	компьютер
+el móvil	мобильный телефон
+el cargador	зарядка
+la pantalla	экран
+el wifi	вайфай
+la contraseña	пароль
+la tele	телевизор
+el mando	пульт
+el libro	книга
+el papel	бумага
+el bolígrafo	ручка
+las gafas	очки
+el reloj	часы
+la ropa	одежда
+la camiseta	футболка
+la camisa	рубашка
+los pantalones	брюки
+los vaqueros	джинсы
+la falda	юбка
+el vestido	платье
+el jersey	свитер
+la chaqueta	куртка, пиджак
+el abrigo	пальто
+los zapatos	туфли, обувь
+las zapatillas	кроссовки
+los calcetines	носки
+la gorra	кепка
+el bolso	сумка
+el paraguas	зонт
+levantarse	вставать
+despertarse	просыпаться
+ducharse	принимать душ
+lavarse	мыться
+vestirse	одеваться
+peinarse	причёсываться
+acostarse	ложиться спать
+dormir	спать
+descansar	отдыхать
+sentarse	садиться
+quedarse	оставаться
+irse	уходить
+ponerse	надевать
+quitarse	снимать
+limpiar	убирать, чистить
+lavar	мыть, стирать
+ordenar	наводить порядок
+arreglar	чинить, приводить в порядок
+abrir	открывать
+cerrar	закрывать
+encender	включать
+apagar	выключать
+ayudar	помогать
+empezar	начинать
+terminar	заканчивать
+la mañana	утро
+el mediodía	полдень
+la tarde	день, вечер
+la noche	ночь
+la madrugada	раннее утро
+el día	день
+la semana	неделя
+el mes	месяц
+el fin de semana	выходные
+lunes	понедельник
+martes	вторник
+miércoles	среда
+jueves	четверг
+viernes	пятница
+sábado	суббота
+domingo	воскресенье
+enero	январь
+febrero	февраль
+marzo	март
+abril	апрель
+mayo	май
+junio	июнь
+julio	июль
+agosto	август
+septiembre	сентябрь
+octubre	октябрь
+noviembre	ноябрь
+diciembre	декабрь
+la fecha	дата
+el cumpleaños	день рождения
+la fiesta	праздник, вечеринка
+las vacaciones	отпуск, каникулы
+la cita	встреча, приём
+el segundo	секунда
+temprano	рано
+tarde	поздно
+pronto	скоро
+en punto	ровно (о времени)
+y media	половина (о времени)
+y cuarto	четверть (о времени)
+menos cuarto	без четверти
+¿qué hora es?	который час?
+¿a qué hora?	во сколько?
+la rutina	распорядок
+el tiempo libre	свободное время
+el ocio	досуг
+pasear	гулять
+salir con amigos	встречаться с друзьями
+ver la tele	смотреть телевизор
+leer	читать
+escribir	писать
+escuchar	слушать
+mirar	смотреть
+ver	видеть
+oír	слышать
+jugar	играть
+nadar	плавать
+viajar	путешествовать
+encantar	очень нравиться
+preferir	предпочитать
+odiar	ненавидеть</textarea>
+</div>
+<div class="card">
+<h3>05 · W5 · документы, банк, аренда</h3>
+<p class="why">142 слов и фраз</p>
+<button class="btn" data-id="01_4">Копировать</button>
+<textarea id="t_01_4" style="position:absolute;left:-9999px;top:0" readonly>el documento	документ
+el pasaporte	паспорт
+el DNI	удостоверение личности (испанское)
+el NIE	номер иностранца
+la TIE	карта иностранца
+el visado	виза
+el permiso de residencia	вид на жительство
+la nacionalidad	гражданство
+el certificado	справка, сертификат
+el empadronamiento	прописка
+el padrón	реестр жителей
+la cita previa	запись на приём
+el trámite	формальность, процедура
+la solicitud	заявление
+el formulario	бланк
+el impreso	бланк, форма
+la firma	подпись
+firmar	подписывать
+rellenar	заполнять
+entregar	сдавать, передавать
+presentar	предъявлять, подавать
+sellar	ставить печать
+el sello	печать, штамп
+la copia	копия
+el original	оригинал
+la fotocopia	ксерокопия
+la traducción	перевод
+el traductor jurado	присяжный переводчик
+la apostilla	апостиль
+el registro	регистрация, реестр
+la oficina de extranjería	отдел по делам иностранцев
+el funcionario	чиновник
+la ventanilla	окошко
+el turno	очередь, талон
+el expediente	дело, досье
+el plazo	срок
+la tasa	пошлина
+el justificante	подтверждение
+el recibo	квитанция
+la factura	счёт, инвойс
+el contrato	договор
+el alquiler	аренда
+el casero	арендодатель
+el inquilino	арендатор
+la inmobiliaria	агентство недвижимости
+la fianza	залог
+el depósito	депозит
+la mensualidad	ежемесячный платёж
+los gastos	расходы, коммуналка
+el suministro	коммунальная услуга
+el gas	газ
+el internet	интернет
+la compañía	компания
+el proveedor	поставщик
+amueblado	меблированный
+sin amueblar	без мебели
+la reforma	ремонт
+el seguro	страховка
+la cuenta bancaria	банковский счёт
+la cuenta corriente	расчётный счёт
+el IBAN	IBAN
+la transferencia	перевод
+el ingreso	поступление, доход
+el pago	платёж
+el cobro	списание, получение денег
+la comisión	комиссия
+el saldo	баланс
+el extracto	выписка
+la domiciliación	автоплатёж
+la nómina	зарплатная ведомость
+el sueldo	зарплата
+el impuesto	налог
+el IVA	НДС
+la declaración	декларация
+la Seguridad Social	соцстрах
+el número de afiliación	номер соцстрахования
+el autónomo	самозанятый
+la empresa	компания, фирма
+el contrato de trabajo	трудовой договор
+el jefe	начальник
+el compañero	коллега
+la reunión	встреча, совещание
+el correo electrónico	электронная почта
+la llamada	звонок
+el teléfono	телефон
+el número de teléfono	номер телефона
+llamar	звонить
+colgar	класть трубку
+marcar	набирать номер
+contestar	отвечать
+preguntar	спрашивать
+responder	отвечать
+explicar	объяснять
+repetir	повторять
+deletrear	диктовать по буквам
+apuntar	записывать
+comprobar	проверять
+confirmar	подтверждать
+cancelar	отменять
+cambiar	менять
+enviar	отправлять
+recibir	получать
+mandar	посылать
+avisar	предупреждать
+solicitar	запрашивать
+pedir	просить
+conseguir	добиваться, получать
+tardar	занимать время
+faltar	не хватать
+hacer falta	быть нужным
+depender	зависеть
+el horario de atención	часы приёма
+el lunes por la mañana	в понедельник утром
+urgente	срочный
+obligatorio	обязательный
+gratuito	бесплатный
+válido	действительный
+caducado	просроченный
+pendiente	в ожидании
+listo	готовый
+resuelto	решённый
+el problema	проблема
+la duda	сомнение, вопрос
+la ayuda	помощь
+la información	информация
+el requisito	требование
+el motivo	причина
+la respuesta	ответ
+el resultado	результат
+hay que	нужно (безлично)
+tener que	быть должным
+deber	быть обязанным
+intentar	пытаться
+conseguir cita	записаться на приём
+estar en trámite	находиться в процессе
+el aval	поручительство
+el nómina o contrato	зарплатная справка или договор
+la vivienda	жильё
+el propietario	собственник
+la escritura	акт собственности
+la hipoteca	ипотека
+la mudanza	переезд</textarea>
+</div>
+<div class="card">
+<h3>06 · W6 · здоровье и аптека</h3>
+<p class="why">138 слов и фраз</p>
+<button class="btn" data-id="01_5">Копировать</button>
+<textarea id="t_01_5" style="position:absolute;left:-9999px;top:0" readonly>el cuerpo	тело
+la cabeza	голова
+el pelo	волосы
+la cara	лицо
+el ojo	глаз
+la nariz	нос
+la boca	рот
+el diente	зуб
+la muela	коренной зуб
+la oreja	ухо
+el oído	ухо (внутреннее), слух
+el cuello	шея
+la garganta	горло
+el hombro	плечо
+el brazo	рука (от плеча)
+el codo	локоть
+la mano	кисть руки
+el dedo	палец
+el pecho	грудь
+la espalda	спина
+la barriga	живот
+el estómago	желудок
+la cintura	талия
+la pierna	нога
+la rodilla	колено
+el pie	ступня
+el tobillo	лодыжка
+el corazón	сердце
+la piel	кожа
+el hueso	кость
+la sangre	кровь
+la salud	здоровье
+la enfermedad	болезнь
+el dolor	боль
+la fiebre	температура, жар
+la tos	кашель
+el resfriado	простуда
+la gripe	грипп
+el catarro	насморк
+la infección	инфекция
+el virus	вирус
+la herida	рана
+el golpe	удар, ушиб
+la quemadura	ожог
+la fractura	перелом
+la náusea	тошнота
+el mareo	головокружение
+la diarrea	диарея
+el vómito	рвота
+la tensión	давление
+el análisis	анализ
+la radiografía	рентген
+la prueba	тест, анализ
+la vacuna	прививка
+la receta	рецепт
+el medicamento	лекарство
+la pastilla	таблетка
+el jarabe	сироп
+la crema	мазь, крем
+la gota	капля
+la inyección	укол
+la dosis	доза
+el antibiótico	антибиотик
+el paracetamol	парацетамол
+el ibuprofeno	ибупрофен
+la tirita	пластырь
+la venda	бинт
+el termómetro	градусник
+el médico de cabecera	семейный врач
+el pediatra	педиатр
+el dentista	стоматолог
+la enfermera	медсестра
+el especialista	специалист
+la consulta	приём, кабинет
+las urgencias	неотложка
+la ambulancia	скорая помощь
+la sala de espera	зал ожидания
+la tarjeta sanitaria	медицинская карта
+el seguro médico	медицинская страховка
+el paciente	пациент
+el tratamiento	лечение
+la operación	операция
+la baja	больничный
+doler	болеть (о части тела)
+sentirse	чувствовать себя
+encontrarse	чувствовать себя
+curar	лечить, вылечивать
+mejorar	улучшаться
+empeorar	ухудшаться
+respirar	дышать
+toser	кашлять
+sangrar	кровоточить
+romperse	сломать
+caerse	падать
+cuidar	заботиться
+llamar al médico	вызвать врача
+pedir cita	записаться на приём
+tomar la medicación	принимать лекарство
+cada ocho horas	каждые восемь часов
+dos veces al día	два раза в день
+en ayunas	натощак
+después de las comidas	после еды
+durante siete días	в течение семи дней
+grave	серьёзный
+leve	лёгкий
+crónico	хронический
+alérgico	аллергик
+embarazada	беременная
+enfermo	больной
+sano	здоровый
+cansado	уставший
+débil	слабый
+fuerte	сильный
+el peso	вес
+la altura	рост
+el centímetro	сантиметр
+el grado	градус
+la temperatura	температура
+el frío	холод
+el calor	жара
+el sueño	сон, сонливость
+el estrés	стресс
+el miedo	страх
+la preocupación	беспокойство
+tener miedo	бояться
+tener sueño	хотеть спать
+tener prisa	торопиться
+tener razón	быть правым
+tener cuidado	быть осторожным
+me duele	у меня болит
+me encuentro mal	мне плохо
+no me encuentro bien	мне нехорошо
+desde hace dos días	уже два дня
+¿qué le pasa?	что с Вами?
+¿es grave?	это серьёзно?
+¿hace falta receta?	нужен рецепт?
+es para un niño	это для ребёнка
+soy alérgico a	у меня аллергия на</textarea>
+</div>
+<div class="card">
+<h3>07 · W7 · школа и погода</h3>
+<p class="why">131 слов и фраз</p>
+<button class="btn" data-id="01_6">Копировать</button>
+<textarea id="t_01_6" style="position:absolute;left:-9999px;top:0" readonly>el instituto	старшая школа
+la guardería	детский сад
+la clase	класс, урок
+el aula	учебная аудитория
+el curso	учебный год, класс
+la asignatura	предмет
+la matrícula	запись, зачисление
+matricular	записывать в школу
+el alumno	ученик
+la alumna	ученица
+el compañero de clase	одноклассник
+el maestro	учитель (начальная школа)
+el tutor	классный руководитель
+la tutoría	встреча с классным руководителем
+el director	директор
+la secretaría	канцелярия
+el AMPA	родительский комитет
+el comedor	столовая
+el patio	школьный двор
+el recreo	перемена
+el gimnasio	спортзал
+los deberes	домашнее задание
+el examen	экзамен, контрольная
+la nota	оценка
+el boletín	табель
+el cuaderno	тетрадь
+el estuche	пенал
+el lápiz	карандаш
+la goma	ластик
+la regla	линейка
+las tijeras	ножницы
+el pegamento	клей
+la carpeta	папка
+el uniforme	форма
+las extraescolares	кружки
+la excursión	экскурсия
+la reunión de padres	родительское собрание
+el idioma valenciano	валенсийский язык
+el castellano	кастильский, испанский
+bilingüe	двуязычный
+el apoyo	поддержка
+el refuerzo	дополнительные занятия
+la adaptación	адаптация
+las matemáticas	математика
+la literatura	литература
+la historia	история
+la geografía	география
+las ciencias	естественные науки
+la educación física	физкультура
+la música	музыка
+el arte	искусство
+la informática	информатика
+aprender	учить, узнавать
+enseñar	учить, показывать
+repasar	повторять
+practicar	практиковать
+copiar	переписывать
+dibujar	рисовать
+contar	считать, рассказывать
+sumar	складывать
+restar	вычитать
+recordar	помнить, вспоминать
+olvidar	забывать
+equivocarse	ошибаться
+aprobar	сдать, получить зачёт
+suspender	провалить
+el tiempo	погода, время
+hace sol	солнечно
+hace calor	жарко
+hace frío	холодно
+hace viento	ветрено
+hace buen tiempo	хорошая погода
+hace mal tiempo	плохая погода
+está nublado	облачно
+llueve	идёт дождь
+nieva	идёт снег
+la lluvia	дождь
+la nieve	снег
+el viento	ветер
+la nube	облако
+el sol	солнце
+la luna	луна
+el cielo	небо
+la tormenta	гроза
+la sombra	тень
+la primavera	весна
+el verano	лето
+el otoño	осень
+el invierno	зима
+la previsión	прогноз
+el árbol	дерево
+la flor	цветок
+la planta	растение
+la hierba	трава
+el animal	животное
+el perro	собака
+el gato	кот
+el pájaro	птица
+el pez	рыба (живая)
+el caballo	лошадь
+la mascota	домашний питомец
+el niño pequeño	малыш
+el adolescente	подросток
+el adulto	взрослый
+la infancia	детство
+crecer	расти
+cuidar de	присматривать за
+llevar al colegio	отводить в школу
+recoger	забирать, собирать
+acompañar	сопровождать
+portarse bien	хорошо себя вести
+el amigo nuevo	новый друг
+hacer amigos	заводить друзей
+el juego	игра
+el juguete	игрушка
+la pelota	мяч
+el fútbol	футбол
+el baloncesto	баскетбол
+la natación	плавание
+el deporte	спорт
+el entrenamiento	тренировка
+el equipo	команда
+ganar	выигрывать
+perder	проигрывать, терять
+divertido	весёлый
+aburrido	скучный
+contento	довольный
+triste	грустный
+enfadado	сердитый
+nervioso	нервный
+tranquilo	спокойный</textarea>
+</div>
+<div class="card">
+<h3>08 · W8 · проблемы и телефон</h3>
+<p class="why">126 слов и фраз</p>
+<button class="btn" data-id="01_7">Копировать</button>
+<textarea id="t_01_7" style="position:absolute;left:-9999px;top:0" readonly>la queja	жалоба
+la reclamación	претензия
+el reembolso	возврат денег
+la devolución	возврат товара
+la garantía	гарантия
+el defecto	дефект
+la avería	поломка
+el fallo	сбой, ошибка
+el retraso	задержка
+el error	ошибка
+el pedido	заказ
+el envío	доставка
+el repartidor	курьер
+la entrega	доставка, вручение
+el servicio	обслуживание
+el cliente	клиент
+el encargado	ответственный, менеджер
+el dependiente	продавец
+la atención al cliente	клиентская служба
+devolver	возвращать
+cambiar por	обменять на
+reclamar	требовать, жаловаться
+protestar	возражать
+funcionar	работать (о вещи)
+estropearse	портиться
+revisar	проверять
+resolver	решать
+solucionar	улаживать
+llegar tarde	опаздывать
+olvidarse	забывать
+prometer	обещать
+insistir	настаивать
+aceptar	соглашаться
+rechazar	отказывать
+está roto	сломано
+no funciona	не работает
+no es lo que pedí	это не то, что я заказывал
+quiero hablar con el encargado	хочу поговорить с ответственным
+¿me puede ayudar?	можете мне помочь?
+¿dónde está el problema?	в чём проблема?
+tengo un problema con	у меня проблема с
+¿dígame?	алло?
+¿de parte de quién?	кто спрашивает?
+le paso	соединяю
+no cuelgue	не кладите трубку
+se ha equivocado	Вы ошиблись номером
+un momento, por favor	минутку, пожалуйста
+le llamo más tarde	перезвоню позже
+¿me pasa con...?	соедините с...?
+la línea está ocupada	линия занята
+no le oigo bien	я Вас плохо слышу
+más alto, por favor	громче, пожалуйста
+fui	я пошёл, я был (indefinido)
+fue	он пошёл, он был
+tuve	у меня было
+tuvo	у него было
+hice	я сделал
+hizo	он сделал
+dije	я сказал
+dijo	он сказал
+estuve	я был, находился
+estuvo	он был, находился
+vine	я пришёл
+vino	он пришёл
+pude	я смог
+pudo	он смог
+quise	я захотел
+quiso	он захотел
+di	я дал
+dio	он дал
+vi	я увидел
+vio	он увидел
+llegué	я приехал
+compré	я купил
+hablé	я поговорил
+comí	я поел
+salí	я вышел
+he hecho	я сделал (perfecto)
+he dicho	я сказал
+he visto	я видел
+he ido	я ходил
+he estado	я был
+he comido	я поел
+he comprado	я купил
+he hablado	я поговорил
+he terminado	я закончил
+he olvidado	я забыл
+todavía no	ещё нет
+ya está	уже готово
+acabo de	я только что
+por fin	наконец
+en seguida	сейчас же
+de repente	вдруг
+por cierto	кстати
+además	кроме того
+sin embargo	однако
+entonces	тогда, значит
+pues	ну, значит
+o sea	то есть
+es decir	то есть
+sobre todo	прежде всего
+en general	в целом
+depende	зависит
+me da igual	мне всё равно
+no pasa nada	ничего страшного
+qué pena	как жаль
+qué bien	как хорошо
+menos mal	слава богу
+por supuesto que sí	конечно да
+ni idea	понятия не имею
+creo que	думаю, что
+me parece que	мне кажется, что
+en mi opinión	по-моему
+estoy de acuerdo	я согласен
+no estoy de acuerdo	я не согласен
+tienes razón	ты прав
+perdona, ¿qué has dicho?	извини, что ты сказал?
+¿puedes repetir?	можешь повторить?
+más despacio	помедленнее
+no entiendo	я не понимаю
+no lo sé	я не знаю
+¿cómo se dice?	как это сказать?
+¿cómo se escribe?	как это пишется?
+¿qué significa?	что это значит?
+estoy aprendiendo español	я учу испанский
+soy de Rusia	я из России</textarea>
+</div>
+<div class="card">
+<h3>09 · 110 частотных глаголов</h3>
+<p class="why">108 слов и фраз</p>
+<button class="btn" data-id="01_8">Копировать</button>
+<textarea id="t_01_8" style="position:absolute;left:-9999px;top:0" readonly>hacer	делать
+decir	говорить, сказать
+dejar	оставлять, позволять
+pensar	думать
+creer	верить, считать
+parecer	казаться
+quedar	оставаться, договориться
+sacar	доставать, вынимать
+tocar	трогать, играть (на инструменте)
+usar	использовать
+utilizar	использовать
+decidir	решать
+acabar	заканчивать
+servir	служить, годиться
+nacer	рождаться
+morir	умирать
+tratar	обращаться, пытаться
+llenar	наполнять
+cortar	резать
+romper	ломать, рвать
+cantar	петь
+bailar	танцевать
+gritar	кричать
+callar	молчать
+reír	смеяться
+sonreír	улыбаться
+llorar	плакать
+abrazar	обнимать
+besar	целовать
+amar	любить
+soñar	мечтать, видеть сон
+invitar	приглашать
+visitar	навещать, посещать
+volar	летать
+montar	садиться верхом, собирать
+cargar	грузить, заряжать
+guardar	хранить, беречь
+meter	засовывать, помещать
+quitar	убирать, снимать
+tirar	бросать, выбрасывать
+echar	бросать, наливать
+caber	помещаться
+mover	двигать
+mostrar	показывать
+ofrecer	предлагать
+permitir	разрешать
+prohibir	запрещать
+gastar	тратить
+ahorrar	копить, экономить
+prestar	одалживать
+alquilar	снимать, сдавать (жильё)
+cobrar	получать деньги, взимать
+enchufar	включать в розетку
+durar	длиться
+continuar	продолжать
+traducir	переводить
+imaginar	представлять
+suponer	предполагать
+secar	сушить
+planchar	гладить
+barrer	подметать
+hervir	кипятить
+freír	жарить
+oler	пахнуть
+sentir	чувствовать
+despertar	будить
+levantar	поднимать
+saltar	прыгать
+crear	создавать
+formar	формировать
+existir	существовать
+ocurrir	происходить
+producir	производить
+aparecer	появляться
+desaparecer	исчезать
+convertir	превращать
+mantener	поддерживать
+obtener	получать
+sostener	держать
+detener	задерживать, останавливать
+resultar	оказываться
+significar	означать
+comprender	понимать
+reconocer	узнавать, признавать
+comenzar	начинать
+lograr	добиваться
+realizar	осуществлять
+alcanzar	достигать
+cumplir	выполнять, исполняться
+descubrir	открывать, обнаруживать
+notar	замечать
+observar	наблюдать
+sufrir	страдать
+soportar	терпеть
+disfrutar	наслаждаться
+divertirse	развлекаться
+enfadarse	сердиться
+preocuparse	беспокоиться
+alegrarse	радоваться
+atreverse	осмеливаться
+acordarse	вспоминать
+darse cuenta	осознавать
+tener ganas de	хотеть, иметь желание
+acabar de	только что сделать
+volver a	сделать снова
+dejar de	перестать
+empezar a	начать
+ir a	собираться сделать</textarea>
+</div>
+<div class="card">
+<h3>10 · прилагательные и связки</h3>
+<p class="why">126 слов и фраз</p>
+<button class="btn" data-id="01_9">Копировать</button>
+<textarea id="t_01_9" style="position:absolute;left:-9999px;top:0" readonly>feliz	счастливый
+seguro	уверенный, безопасный
+tonto	глупый
+inteligente	умный
+simpático	приятный, милый
+amable	любезный
+serio	серьёзный
+gordo	толстый
+delgado	худой
+guapo	красивый (о человеке)
+rubio	светловолосый
+moreno	темноволосый
+mayor	старший, взрослый
+menor	младший
+igual	одинаковый
+diferente	другой, разный
+parecido	похожий
+verdadero	настоящий
+falso	ложный
+cierto	верный, определённый
+oscuro	тёмный
+ancho	широкий
+estrecho	узкий
+profundo	глубоко, глубокий
+ligero	лёгкий (по весу)
+pesado	тяжёлый
+duro	твёрдый, трудный
+blando	мягкий
+suave	мягкий, нежный
+seco	сухой
+mojado	мокрый
+húmedo	влажный
+peligroso	опасный
+útil	полезный
+necesario	необходимый
+suficiente	достаточный
+completo	полный
+único	единственный
+principal	главный
+general	общий
+especial	особый
+normal	обычный
+raro	странный, редкий
+común	обычный, общий
+famoso	известный
+pobre	бедный
+tibio	тёплый
+próximo	следующий, ближайший
+pasado	прошлый
+siguiente	следующий
+anterior	предыдущий
+actual	нынешний
+antiguo	старинный
+moderno	современный
+tradicional	традиционный
+local	местный
+nacional	национальный
+internacional	международный
+público	общественный
+privado	частный
+personal	личный
+propio	собственный
+ajeno	чужой
+lleno de	полный чего-то
+capaz	способный
+dispuesto	готовый, настроенный
+casi	почти
+apenas	едва
+sólo	только
+incluso	даже
+aunque	хотя
+mientras	пока
+cuando	когда
+si	если
+como	как, поскольку
+tan	так, настолько
+tanto	столько
+sobre	о, над
+según	согласно
+contra	против
+durante	в течение
+mediante	посредством
+frente a	напротив
+a través de	через
+en vez de	вместо
+a pesar de	несмотря на
+gracias a	благодаря
+por eso	поэтому
+por lo tanto	следовательно
+en cambio	зато, напротив
+por ejemplo	например
+en realidad	на самом деле
+de verdad	правда, всерьёз
+desde luego	разумеется
+a lo mejor	может быть
+seguramente	наверняка
+probablemente	вероятно
+afortunadamente	к счастью
+lamentablemente	к сожалению
+rápidamente	быстро
+despacio	медленно
+aparte	отдельно
+directamente	напрямую
+enfrente de	напротив
+al lado de	рядом с
+cerca de	около
+lejos de	далеко от
+dentro de	внутри, через (время)
+fuera de	вне
+antes de	перед
+después de	после
+alrededor de	вокруг, примерно
+por lo menos	по крайней мере
+sobre las tres	около трёх
+la mitad	половина
+el doble	вдвое больше
+la vez	раз
+una vez	один раз
+dos veces	два раза
+muchas veces	много раз
+pocas veces	редко
+la mayoría	большинство
+algunos	некоторые
+varios	несколько
+ninguno	ни один
+cualquiera	любой</textarea>
+</div>
+<div class="card">
+<h3>11 · знакомство и о себе</h3>
+<p class="why">20 слов и фраз</p>
+<button class="btn" data-id="01_10">Копировать</button>
+<textarea id="t_01_10" style="position:absolute;left:-9999px;top:0" readonly>Me llamo Dmitri	Меня зовут Дмитрий
+Encantado	Очень приятно (мужчина)
+Encantada	Очень приятно (женщина)
+Mucho gusto	Приятно познакомиться
+Soy de Rusia	Я из России
+Vivo en Valencia	Я живу в Валенсии
+Acabamos de llegar	Мы только что приехали
+Llevo dos meses aquí	Я здесь два месяца
+Soy programador	Я программист
+Trabajo con ordenadores	Работаю с компьютерами
+Estoy casado	Я женат
+Tengo dos hijos, de doce y ocho años	У меня двое детей, двенадцать и восемь
+Estoy aprendiendo español	Я учу испанский
+Hablo un poco de español e inglés	Говорю немного по-испански и по-английски
+¿A qué te dedicas?	Чем ты занимаешься?
+¿De dónde eres?	Откуда ты?
+¿Cuánto tiempo llevas aquí?	Давно ты здесь?
+¿Tienes hijos?	У тебя есть дети?
+¿Dónde vives?	Где ты живёшь?
+¿Te gusta Valencia?	Тебе нравится Валенсия?</textarea>
+</div>
+<div class="card">
+<h3>12 · время на слух</h3>
+<p class="why">10 слов и фраз</p>
+<button class="btn" data-id="01_11">Копировать</button>
+<textarea id="t_01_11" style="position:absolute;left:-9999px;top:0" readonly>¿Qué hora es?	Который час?
+¿Tiene hora?	Вы не подскажете время?
+Perdone, ¿qué hora es?	Извините, который час?
+¿A qué hora abren?	Во сколько открываются?
+¿A qué hora cierran?	Во сколько закрываются?
+¿A qué hora es la cita?	Во сколько приём?
+¿A qué hora sale el tren?	Во сколько отправляется поезд?
+¿Cuánto falta?	Сколько ещё ждать?
+¿Puede repetir la hora?	Повторите время, пожалуйста
+¿Es por la mañana o por la tarde?	Это утром или днём?</textarea>
+</div>
+</div></section>
+<section><div class="sec-head"><h2>Для Миши и Даши</h2><span class="note">те же недели, только детская лексика</span></div>
+<div class="grid res">
+<div class="card">
+<h3>01 · W1 · привет, цвета, числа до 10</h3>
+<p class="why">28 слов и фраз</p>
+<button class="btn" data-id="02_0">Копировать</button>
+<textarea id="t_02_0" style="position:absolute;left:-9999px;top:0" readonly>Hola	Привет
+Buenos días	Доброе утро
+Buenas tardes	Добрый день
+Buenas noches	Спокойной ночи
+Adiós	Пока
+Hasta luego	До скорого
+¿Cómo te llamas?	Как тебя зовут?
+Me llamo ___	Меня зовут ___
+¿Cómo estás?	Как дела?
+Bien, gracias	Хорошо, спасибо
+Muy bien	Очень хорошо
+Regular	Так себе
+Sí / No	Да / Нет
+Gracias	Спасибо
+De nada	Пожалуйста (в ответ)
+Por favor	Пожалуйста (просьба)
+Perdón	Извини
+uno, dos, tres	1, 2, 3
+cuatro, cinco	4, 5
+seis, siete	6, 7
+ocho, nueve, diez	8, 9, 10
+rojo	красный
+azul	синий
+verde	зелёный
+amarillo	жёлтый
+negro / blanco	чёрный / белый
+¿De qué color es?	Какого это цвета?
+Es rojo	Он красный</textarea>
+</div>
+<div class="card">
+<h3>02 · W2 · семья, еда, числа до 20</h3>
+<p class="why">28 слов и фраз</p>
+<button class="btn" data-id="02_1">Копировать</button>
+<textarea id="t_02_1" style="position:absolute;left:-9999px;top:0" readonly>mamá	мама
+papá	папа
+hermano	брат
+hermana	сестра
+abuela / abuelo	бабушка / дедушка
+Esta es mi mamá	Это моя мама
+Tengo un hermano	У меня есть брат
+Tengo ___ años	Мне ___ лет
+¿Cuántos años tienes?	Сколько тебе лет?
+agua	вода
+pan	хлеб
+leche	молоко
+manzana	яблоко
+plátano	банан
+queso	сыр
+pollo	курица
+arroz	рис
+helado	мороженое
+Tengo hambre	Я хочу есть
+Tengo sed	Я хочу пить
+Quiero agua, por favor	Хочу воды, пожалуйста
+Me gusta el helado	Мне нравится мороженое
+No me gusta	Мне не нравится
+Está rico	Вкусно
+once, doce, trece	11, 12, 13
+catorce, quince	14, 15
+dieciséis, diecisiete, dieciocho	16, 17, 18
+diecinueve, veinte	19, 20</textarea>
+</div>
+<div class="card">
+<h3>03 · W3 · школа и фразы-выручалки</h3>
+<p class="why">28 слов и фраз</p>
+<button class="btn" data-id="02_2">Копировать</button>
+<textarea id="t_02_2" style="position:absolute;left:-9999px;top:0" readonly>el colegio	школа
+la clase	класс
+el profesor / la profesora	учитель / учительница
+el amigo / la amiga	друг / подруга
+el libro	книга
+el cuaderno	тетрадь
+el lápiz	карандаш
+la mochila	рюкзак
+la mesa / la silla	стол / стул
+el baño	туалет
+el patio	школьный двор
+el recreo	перемена
+No entiendo	Я не понимаю
+No sé	Я не знаю
+¿Puedes repetir?	Повтори, пожалуйста
+Más despacio, por favor	Помедленнее, пожалуйста
+¿Cómo se dice ___ en español?	Как сказать ___ по-испански?
+¿Puedo ir al baño?	Можно выйти в туалет?
+¿Me ayudas?	Поможешь мне?
+No hablo español todavía	Я пока не говорю по-испански
+Estoy aprendiendo	Я учусь
+Soy de Rusia	Я из России
+¿Cómo se llama?	Как его зовут?
+¿Qué es esto?	Что это?
+Es mío	Это моё
+¿Me prestas el lápiz?	Дашь карандаш?
+Ya está	Готово
+Vale	Ладно, окей</textarea>
+</div>
+<div class="card">
+<h3>04 · W4 · тело, одежда, что не так</h3>
+<p class="why">28 слов и фраз</p>
+<button class="btn" data-id="02_3">Копировать</button>
+<textarea id="t_02_3" style="position:absolute;left:-9999px;top:0" readonly>la cabeza	голова
+la mano	рука
+el pie	нога
+la barriga	живот
+los ojos	глаза
+la boca	рот
+Me duele la cabeza	У меня болит голова
+Me duele aquí	Болит вот тут
+Estoy cansado / cansada	Я устал / устала
+Tengo frío	Мне холодно
+Tengo calor	Мне жарко
+Tengo miedo	Мне страшно
+Estoy bien	Я в порядке
+la camiseta	футболка
+los pantalones	штаны
+los zapatos	ботинки
+el abrigo	куртка
+Me pongo el abrigo	Надеваю куртку
+¿Dónde están mis zapatos?	Где мои ботинки?
+veinte, treinta	20, 30
+cuarenta, cincuenta	40, 50
+veintiuno, veintidós	21, 22
+treinta y cinco	35
+¿Cuántos hay?	Сколько тут?
+muchos / pocos	много / мало
+grande / pequeño	большой / маленький
+Necesito ayuda	Мне нужна помощь
+Está roto	Сломалось</textarea>
+</div>
+<div class="card">
+<h3>05 · W5 · дом, животные, время</h3>
+<p class="why">28 слов и фраз</p>
+<button class="btn" data-id="02_4">Копировать</button>
+<textarea id="t_02_4" style="position:absolute;left:-9999px;top:0" readonly>la casa	дом
+mi habitación	моя комната
+la cocina	кухня
+la cama	кровать
+la ventana	окно
+la puerta	дверь
+En mi habitación hay una cama	В моей комнате есть кровать
+el perro	собака
+el gato	кот
+el pájaro	птица
+el caballo	лошадь
+Me gustan los perros	Мне нравятся собаки
+¿Tienes mascota?	У тебя есть питомец?
+la mañana	утро
+la tarde	день
+la noche	ночь
+hoy	сегодня
+mañana	завтра
+ayer	вчера
+ahora	сейчас
+sesenta, setenta	60, 70
+ochenta, noventa, cien	80, 90, 100
+cuarenta y siete	47
+ochenta y tres	83
+¿Qué hora es?	Который час?
+Son las tres	Три часа
+Es tarde	Поздно
+Vamos	Пошли</textarea>
+</div>
+<div class="card">
+<h3>06 · W6 · игры, друзья, вопросы</h3>
+<p class="why">28 слов и фраз</p>
+<button class="btn" data-id="02_5">Копировать</button>
+<textarea id="t_02_5" style="position:absolute;left:-9999px;top:0" readonly>jugar	играть
+¿Quieres jugar?	Хочешь поиграть?
+¡Vamos a jugar!	Давай играть!
+Me toca a mí	Моя очередь
+Te toca a ti	Твоя очередь
+¡Qué guay!	Круто!
+¡Genial!	Здорово!
+¡Cuidado!	Осторожно!
+Espera	Подожди
+Ven aquí	Иди сюда
+Mira	Смотри
+Escucha	Слушай
+¿Dónde?	Где?
+¿Cuándo?	Когда?
+¿Quién?	Кто?
+¿Por qué?	Почему?
+¿Cómo?	Как?
+Porque sí	Потому что
+el fútbol	футбол
+la pelota	мяч
+el parque	парк
+la playa	пляж
+¿Vamos al parque?	Пойдём в парк?
+Es divertido	Это весело
+Es aburrido	Скучно
+No quiero	Не хочу
+Sí, quiero	Да, хочу
+¿Puedo jugar con vosotros?	Можно с вами поиграть?</textarea>
+</div>
+<div class="card">
+<h3>07 · W7 · знакомство с одноклассником</h3>
+<p class="why">28 слов и фраз</p>
+<button class="btn" data-id="02_6">Копировать</button>
+<textarea id="t_02_6" style="position:absolute;left:-9999px;top:0" readonly>Hola, me llamo ___	Привет, меня зовут ___
+Soy nuevo / nueva	Я новенький / новенькая
+Soy de Rusia	Я из России
+Tengo ___ años	Мне ___ лет
+¿Y tú?	А ты?
+¿En qué clase estás?	В каком ты классе?
+Encantado / Encantada	Приятно познакомиться
+¿Quieres ser mi amigo?	Будешь моим другом?
+¿Jugamos en el recreo?	Поиграем на перемене?
+¿Me enseñas dónde está el baño?	Покажешь, где туалет?
+¿Qué hay que hacer?	Что надо делать?
+¿Qué deberes hay?	Что задали?
+No lo he entendido	Я не понял
+¿Puedes escribirlo?	Можешь написать?
+Perdona, ¿qué has dicho?	Извини, что ты сказал?
+¿Puedo sentarme aquí?	Можно тут сесть?
+Se me ha olvidado	Я забыл
+He terminado	Я закончил
+Todavía no	Ещё нет
+Un momento	Минутку
+Lo siento	Извини
+No pasa nada	Ничего страшного
+¿Me lo repites?	Повторишь?
+Gracias por ayudarme	Спасибо, что помог
+¡Hasta mañana!	До завтра!
+Que tengas buen día	Хорошего дня
+Nos vemos	Увидимся
+¿Puedo preguntarte una cosa?	Можно спросить?</textarea>
+</div>
+<div class="card">
+<h3>08 · фразы для школы</h3>
+<p class="why">14 слов и фраз</p>
+<button class="btn" data-id="02_7">Копировать</button>
+<textarea id="t_02_7" style="position:absolute;left:-9999px;top:0" readonly>Hola, me llamo ___	Привет, меня зовут ___
+Soy de Rusia	Я из России
+No hablo español todavía	Я пока не говорю по-испански
+No entiendo	Я не понимаю
+¿Puedes repetir, por favor?	Повтори, пожалуйста
+Más despacio, por favor	Помедленнее, пожалуйста
+¿Cómo se dice ___ en español?	Как сказать ___ по-испански?
+¿Puedo ir al baño?	Можно выйти в туалет?
+¿Me ayudas?	Поможешь мне?
+No sé	Я не знаю
+Me duele aquí	У меня болит вот тут
+Gracias	Спасибо
+Perdona	Извини
+Vale	Ладно, окей</textarea>
+</div>
+<div class="card">
+<h3>09 · математика для школы</h3>
+<p class="why">30 слов и фраз</p>
+<button class="btn" data-id="02_8">Копировать</button>
+<textarea id="t_02_8" style="position:absolute;left:-9999px;top:0" readonly>sumar	складывать
+restar	вычитать
+multiplicar	умножать
+dividir	делить
+más	плюс
+menos	минус
+por	умножить на
+entre	разделить на
+igual a	равно
+¿Cuánto es dos más tres?	Сколько будет два плюс три?
+la suma	сложение, сумма
+la resta	вычитание
+el resultado	результат
+el número	число
+la cifra	цифра
+la mitad	половина
+el doble	вдвое больше
+mayor que	больше чем
+menor que	меньше чем
+par	чётный
+impar	нечётный
+contar	считать
+la tabla de multiplicar	таблица умножения
+el ejercicio	упражнение
+el problema	задача
+la respuesta	ответ
+correcto	правильно
+incorrecto	неправильно
+la regla	линейка, правило
+las matemáticas	математика</textarea>
+</div>
+<div class="card">
+<h3>10 · знакомство в классе</h3>
+<p class="why">16 слов и фраз</p>
+<button class="btn" data-id="02_9">Копировать</button>
+<textarea id="t_02_9" style="position:absolute;left:-9999px;top:0" readonly>Hola, me llamo Dasha	Привет, меня зовут Даша
+Tengo ocho años	Мне восемь лет
+Soy de Rusia	Я из России
+Estoy en tercero	Я в третьем классе
+Soy nuevo	Я новенький
+Soy nueva	Я новенькая
+Me gusta el fútbol	Мне нравится футбол
+Me gusta dibujar	Мне нравится рисовать
+¿Cómo te llamas?	Как тебя зовут?
+¿Cuántos años tienes?	Сколько тебе лет?
+¿En qué clase estás?	В каком ты классе?
+¿Quieres jugar?	Хочешь поиграть?
+¿Jugamos en el recreo?	Поиграем на перемене?
+¿Puedo jugar con vosotros?	Можно с вами поиграть?
+Este es mi amigo	Это мой друг
+Encantado de conocerte	Рад познакомиться</textarea>
+</div>
+<div class="card">
+<h3>11 · прилагательные</h3>
+<p class="why">26 слов и фраз</p>
+<button class="btn" data-id="02_10">Копировать</button>
+<textarea id="t_02_10" style="position:absolute;left:-9999px;top:0" readonly>grande	большой
+pequeño	маленький
+nuevo	новый
+viejo	старый
+bonito	красивый
+feo	некрасивый
+bueno	хороший
+malo	плохой
+alto	высокий
+bajo	низкий
+rápido	быстрый
+lento	медленный
+fácil	лёгкий
+difícil	трудный
+divertido	весёлый
+aburrido	скучный
+contento	довольный
+triste	грустный
+cansado	уставший
+enfadado	сердитый
+mi favorito	мой любимый
+me gusta	мне нравится
+no me gusta	мне не нравится
+¡Qué guay!	Круто!
+¡Genial!	Здорово!
+¡Qué bonito!	Как красиво!</textarea>
+</div>
+<div class="card">
+<h3>12 · общение и игра</h3>
+<p class="why">18 слов и фраз</p>
+<button class="btn" data-id="02_11">Копировать</button>
+<textarea id="t_02_11" style="position:absolute;left:-9999px;top:0" readonly>¿Qué tal?	Как дела?
+Bien, ¿y tú?	Хорошо, а ты?
+¡Hola!	Привет!
+¡Hasta mañana!	До завтра!
+Nos vemos	Увидимся
+¿Jugamos?	Поиграем?
+Me toca a mí	Моя очередь
+Te toca a ti	Твоя очередь
+¡Cuidado!	Осторожно!
+Espera	Подожди
+Mira	Смотри
+¿Me lo prestas?	Дашь мне?
+Lo siento	Извини
+No pasa nada	Ничего страшного
+Gracias por ayudarme	Спасибо, что помог
+¿Puedo?	Можно?
+Ya está	Готово
+No lo he entendido	Я не понял</textarea>
+</div>
+</div></section>
+<section><div class="sec-head"><h2>Нужно всем</h2><span class="note">числа, цены, дни, месяцы, часы</span></div>
+<div class="grid res">
+<div class="card">
+<h3>01 · числа и цены</h3>
+<p class="why">48 слов и фраз</p>
+<button class="btn" data-id="03_0">Копировать</button>
+<textarea id="t_03_0" style="position:absolute;left:-9999px;top:0" readonly>¿Cuánto es?	Сколько с меня?
+¿Cuánto cuesta?	Сколько это стоит?
+Son doce con noventa	Двенадцать девяносто
+Son doce euros con noventa céntimos	Двенадцать евро девяносто центов
+¿Me cobra, por favor?	Посчитайте, пожалуйста
+¿Puedo pagar con tarjeta?	Можно картой?
+¿Tiene cambio?	У Вас есть сдача?
+Aquí tiene	Вот, держите
+Le devuelvo cinco	Ваша сдача пять
+Quédese con el cambio	Сдачи не надо
+En total son cuarenta y tres	Итого сорок три
+Está rebajado	Это со скидкой
+¿Me da el ticket?	Дайте чек
+Es demasiado caro	Это слишком дорого
+¿Hay algo más barato?	Есть что-нибудь подешевле?
+Me lo llevo	Я это беру
+cero	0
+uno	1
+dos	2
+tres	3
+cuatro	4
+cinco	5
+seis	6
+siete	7
+ocho	8
+nueve	9
+diez	10
+once	11
+doce	12
+trece	13
+catorce	14
+quince	15
+dieciséis	16
+diecisiete	17
+dieciocho	18
+diecinueve	19
+veinte	20
+treinta	30
+cuarenta	40
+cincuenta	50
+sesenta	60
+setenta	70
+ochenta	80
+noventa	90
+cien	100
+doscientos	200
+quinientos	500
+mil	1000</textarea>
+</div>
+<div class="card">
+<h3>02 · дни, месяцы, время</h3>
+<p class="why">51 слов и фраз</p>
+<button class="btn" data-id="03_1">Копировать</button>
+<textarea id="t_03_1" style="position:absolute;left:-9999px;top:0" readonly>lunes	понедельник
+martes	вторник
+miércoles	среда
+jueves	четверг
+viernes	пятница
+sábado	суббота
+domingo	воскресенье
+el lunes	в понедельник
+los lunes	по понедельникам
+entre semana	в будни
+el fin de semana	выходные
+hoy	сегодня
+mañana	завтра
+ayer	вчера
+pasado mañana	послезавтра
+anteayer	позавчера
+la semana que viene	на следующей неделе
+la semana pasada	на прошлой неделе
+enero	январь
+febrero	февраль
+marzo	март
+abril	апрель
+mayo	май
+junio	июнь
+julio	июль
+agosto	август
+septiembre	сентябрь
+octubre	октябрь
+noviembre	ноябрь
+diciembre	декабрь
+la primavera	весна
+el verano	лето
+el otoño	осень
+el invierno	зима
+¿Qué día es hoy?	Какой сегодня день?
+¿A qué día estamos?	Какое сегодня число?
+el quince de octubre	пятнадцатое октября
+¿Qué hora es?	Который час?
+Son las tres	Три часа
+Es la una	Час
+y media	половина
+y cuarto	четверть
+menos cuarto	без четверти
+en punto	ровно
+de la mañana	утра
+de la tarde	дня
+de la noche	вечера
+a las ocho	в восемь
+sobre las cinco	около пяти
+el mediodía	полдень
+la medianoche	полночь</textarea>
+</div>
+</div></section>
+<section><div class="sec-head"><h2>Нужно всем</h2><span class="note">погода, small talk, прилагательные</span></div>
+<div class="grid res">
+<div class="card">
+<h3>01 · погода и small talk</h3>
+<p class="why">51 слов и фраз</p>
+<button class="btn" data-id="04_0">Копировать</button>
+<textarea id="t_04_0" style="position:absolute;left:-9999px;top:0" readonly>¿Qué tiempo hace?	Какая погода?
+Hace sol	Солнечно
+Hace calor	Жарко
+Hace frío	Холодно
+Hace viento	Ветрено
+Hace fresco	Прохладно
+Hace buen tiempo	Хорошая погода
+Hace mal tiempo	Плохая погода
+Está nublado	Облачно
+Está despejado	Ясно
+Llueve	Идёт дождь
+Está lloviendo	Сейчас идёт дождь
+Nieva	Идёт снег
+Hay tormenta	Гроза
+Hay niebla	Туман
+Estamos a treinta grados	Тридцать градусов
+la previsión	прогноз
+Menudo calor	Ну и жара
+Vaya frío	Ну и холод
+Hace un calor que no se aguanta	Жара невыносимая
+Por fin llueve	Наконец-то дождь
+Qué bien se está hoy	Как сегодня хорошо
+Parece que va a llover	Похоже, будет дождь
+¿Qué tal?	Как дела?
+¿Cómo va todo?	Как оно всё?
+¿Qué tal el día?	Как день?
+Bien, ¿y tú?	Хорошо, а ты?
+Aquí andamos	Да потихоньку
+Vamos tirando	Держимся
+No me quejo	Не жалуюсь
+Muy liado	Занят по горло
+¿Qué tal el fin de semana?	Как выходные?
+¡Qué bien!	Как здорово!
+¡Vaya!	Ничего себе
+Menos mal	Слава богу
+Ya ves	Ну вот так
+Es lo que hay	Как есть, так есть
+Claro, claro	Конечно-конечно
+Bueno, te dejo	Ладно, не задерживаю
+Un placer	Приятно было
+Nos vemos	Увидимся
+Que vaya bien	Всего доброго
+Cuídate	Береги себя
+Buen finde	Хороших выходных
+Buen provecho	Приятного аппетита
+Igualmente	И Вам того же
+Saluda a tu mujer	Передавай привет жене
+Perdone, una pregunta	Извините, вопрос
+Muchas gracias, muy amable	Спасибо, Вы очень любезны
+No hay de qué	Не за что
+Disculpe las molestias	Извините за беспокойство</textarea>
+</div>
+<div class="card">
+<h3>02 · 50 прилагательных парами</h3>
+<p class="why">50 слов и фраз</p>
+<button class="btn" data-id="04_1">Копировать</button>
+<textarea id="t_04_1" style="position:absolute;left:-9999px;top:0" readonly>grande	большой
+pequeño	маленький
+nuevo	новый
+viejo	старый
+bueno	хороший
+malo	плохой
+bonito	красивый
+feo	некрасивый
+alto	высокий
+bajo	низкий
+largo	длинный
+corto	короткий
+fácil	лёгкий
+difícil	трудный
+caro	дорогой
+barato	дешёвый
+rápido	быстрый
+lento	медленный
+limpio	чистый
+sucio	грязный
+lleno	полный
+vacío	пустой
+abierto	открытый
+cerrado	закрытый
+libre	свободный
+ocupado	занятый
+fuerte	сильный
+débil	слабый
+joven	молодой
+mayor	старший
+contento	довольный
+triste	грустный
+cansado	уставший
+enfermo	больной
+tranquilo	спокойный
+nervioso	нервный
+simpático	приятный
+amable	любезный
+divertido	весёлый
+aburrido	скучный
+importante	важный
+necesario	нужный
+posible	возможный
+seguro	уверенный
+caliente	горячий
+frío	холодный
+dulce	сладкий
+salado	солёный
+cerca	близко
+lejos	далеко</textarea>
+</div>
+</div></section>
+<footer><span>47 наборов · всё бесплатно</span><span>Обновлено 24 августа 2026</span></footer>
+</div>
+<script>
+document.addEventListener("click", function(e){
+  var b = e.target.closest("button[data-id]");
+  if(!b) return;
+  var ta = document.getElementById("t_" + b.dataset.id);
+  var text = ta.value;
+  function done(){ var old=b.textContent; b.textContent="Скопировано"; b.style.background="var(--verde)";
+    setTimeout(function(){ b.textContent=old; b.style.background=""; },1600); }
+  if (navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else { fallback(); }
+  function fallback(){
+    ta.style.position="static"; ta.style.left="0"; ta.select();
+    try{ document.execCommand("copy"); done(); }catch(err){ b.textContent="Выделите и скопируйте вручную"; }
+    ta.style.position="absolute"; ta.style.left="-9999px";
+  }
+});
+</script>
