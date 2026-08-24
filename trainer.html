@@ -390,54 +390,87 @@ function rChoose(){
 }
 
 /* ---------- круг 3: пишу сам ---------- */
-function rType(){
-  var w=S.queue[S.idx];
-  el("stage").innerHTML=head()+
-    '<div class="card"><div class="hint">напишите по-испански</div><div class="ask">'+w[1]+'</div></div>'+
-    '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
-    'placeholder="слово по-испански"><button class="btn" id="ok">Проверить</button></div>'+
-    '<div id="v"></div><p class="tip"><span class="kbd">Enter</span> проверить</p>';
-  keys({});
-  var inp=el("inp"); inp.focus();
-  var doneOnce=false;
-  function check(){
-    if(doneOnce) return; var a=norm(inp.value); if(!a) return; doneOnce=true;
-    var good=a===norm(w[0]);
-    noteAnswer(w,good);
-    if(good){ S.ok++; el("v").innerHTML='<div class="verdict ok">Верно: <b>'+w[0]+'</b></div>'; }
-    else{ S.wrong++; S.queue.push(w);
-      el("v").innerHTML='<div class="verdict bad">Правильно: <b>'+w[0]+'</b><br>'+
-      '<span style="font-size:13.5px">вы написали: '+inp.value+'</span></div>'; }
-    speak(w[0]); inp.disabled=true; el("ok").disabled=true;
-    S.idx++; saveState();
-    setTimeout(step,good?800:2100);
+function mask(word,n){
+  var out=[];
+  for(var i=0;i<word.length;i++){
+    var ch=word[i];
+    out.push(i<n ? ch : (ch===" "?" ":"·"));
   }
-  el("ok").onclick=check;
-  inp.onkeydown=function(e){ if(e.key==="Enter") check() };
+  return out.join("");
 }
+function typingRound(opts){
+  // opts: {ask(w), listen:bool, next()}
+  var w=S.queue[S.idx], hints=0, mode="answer", errored=false;
+  draw();
+  function draw(){
+    var copy = mode==="copy";
+    var card = copy
+      ? '<div class="card"><div class="hint">перепишите правильный вариант</div>'+
+        '<div class="es" style="font-size:clamp(26px,5vw,38px)">'+w[0]+'</div>'+
+        '<button class="audio" id="spk">🔊</button>'+
+        '<div class="ru" style="font-size:20px">'+w[1]+'</div></div>'
+      : (opts.listen
+          ? '<div class="card"><div class="hint">послушайте и напишите</div>'+
+            '<button class="audio" id="spk">🔊</button>'+
+            (hints?'<div class="mono" style="font-size:22px;letter-spacing:4px;margin-top:12px">'+mask(w[0],hints)+'</div>':'')+
+            '</div>'
+          : '<div class="card"><div class="hint">напишите по-испански</div>'+
+            '<div class="ask">'+w[1]+'</div>'+
+            (hints?'<div class="mono" style="font-size:22px;letter-spacing:4px;margin-top:12px">'+mask(w[0],hints)+'</div>':'')+
+            '</div>');
+    el("stage").innerHTML=head()+card+
+      '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
+      'placeholder="'+(copy?"перепишите: "+w[0]:"слово по-испански")+'"><button class="btn" id="ok">'+
+      (copy?"Готово":"Проверить")+'</button></div>'+
+      (copy?'':'<div class="acts" style="margin-top:10px">'+
+        '<button class="btn ghost" id="hint">Подсказка</button>'+
+        '<button class="btn ghost" id="idk">Не помню</button></div>')+
+      '<div id="v"></div>'+
+      '<p class="tip">'+(copy
+        ? 'наберите слово целиком, так оно запомнится · 🔊 послушать'
+        : '<span class="kbd">Enter</span> проверить · подсказка открывает буквы')+'</p>';
+    var sp=el("spk"); if(sp) sp.onclick=function(){speak(w[0])};
+    if(copy) speak(w[0]);
+    else if(opts.listen) speak(w[0]);
+    var inp=el("inp"); inp.focus();
+    el("ok").onclick=check;
+    inp.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); check() } };
+    if(!copy){
+      el("hint").onclick=function(){
+        if(hints<w[0].length-1){ hints++; if(!errored){errored=true} draw(); }
+      };
+      el("idk").onclick=function(){ reveal() };
+    }
+  }
+  function reveal(){
+    if(!errored){ noteAnswer(w,false); S.wrong++; errored=true; }
+    S.queue.push(w); mode="copy"; draw();
+  }
+  function check(){
+    var inp=el("inp"), a=norm(inp.value);
+    if(!a) return;
+    if(mode==="copy"){
+      if(a===norm(w[0])){ S.idx++; saveState(); opts.next() }
+      else { inp.value=""; inp.placeholder="ещё раз: "+w[0];
+             el("v").innerHTML='<div class="verdict bad">не сходится, наберите точно: <b>'+w[0]+'</b></div>' }
+      return;
+    }
+    if(a===norm(w[0])){
+      if(!errored){ noteAnswer(w,true); S.ok++ }
+      el("v").innerHTML='<div class="verdict ok">Верно: <b>'+w[0]+'</b></div>';
+      speak(w[0]); inp.disabled=true; el("ok").disabled=true;
+      S.idx++; saveState(); setTimeout(opts.next,700);
+      return;
+    }
+    noteAnswer(w,false); S.wrong++; errored=true;
+    el("v").innerHTML='<div class="verdict bad">Не то. Правильно: <b>'+w[0]+'</b></div>';
+    S.queue.push(w); mode="copy"; setTimeout(draw,900);
+  }
+}
+function rType(){ typingRound({listen:false,next:step}) }
 
 /* ---------- круг 4: на слух ---------- */
-function rListen(){
-  var w=S.queue[S.idx];
-  el("stage").innerHTML=head()+
-    '<div class="card"><div class="hint">послушайте и напишите по-испански</div>'+
-    audioBtn(w[0])+'<div class="hint">слушать можно сколько угодно раз</div></div>'+
-    '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
-    'placeholder="что услышали"><button class="btn" id="ok">Проверить</button></div>'+
-    '<div id="v"></div><p class="tip"><span class="kbd">Enter</span> проверить · кнопка 🔊 повторяет</p>';
-  bindAudio(w[0]); keys({}); speak(w[0]);
-  var inp=el("inp"); inp.focus(); var doneOnce=false;
-  function check(){
-    if(doneOnce) return; var a=norm(inp.value); if(!a) return; doneOnce=true;
-    var good=a===norm(w[0]);
-    noteAnswer(w,good);
-    if(good){S.ok++} else {S.wrong++;S.queue.push(w)}
-    S.idx++; saveState();
-    el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+w[0]+'</b> — '+w[1]+'</div>';
-    speak(w[0]); inp.disabled=true; el("ok").disabled=true; setTimeout(step,good?900:2100);
-  }
-  el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
-}
+function rListen(){ typingRound({listen:true,next:step}) }
 
 /* ---------- круг 5: подбор ---------- */
 var M={sel:null,left:0};
