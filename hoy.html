@@ -1,0 +1,293 @@
+<title>Мой день</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--ground:#F4F6FA;--surface:#FFFFFF;--surface-2:#EDF1F8;--line:#D3DCEA;
+--ink:#0F1C33;--ink-soft:#4A5872;--ink-faint:#7C8AA3;--cobalt:#1B4FA8;--cobalt-soft:#E3EBF9;
+--naranja:#D45B12;--naranja-soft:#FBE8DB;--verde:#256B4E;--verde-soft:#DFF0E6;
+--shadow:0 1px 2px rgba(15,28,51,.06),0 10px 30px rgba(15,28,51,.08);}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+--ground:#0C1421;--surface:#141E2F;--surface-2:#1B2740;--line:#2A3958;--ink:#E7EDF8;
+--ink-soft:#AEBCD4;--ink-faint:#7D8DA8;--cobalt:#7BA6F2;--cobalt-soft:#1B2C4C;
+--naranja:#F0894A;--naranja-soft:#3A2416;--verde:#5FBF93;--verde-soft:#13301F;
+--shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px rgba(0,0,0,.4);}}
+:root[data-theme="dark"]{--ground:#0C1421;--surface:#141E2F;--surface-2:#1B2740;--line:#2A3958;
+--ink:#E7EDF8;--ink-soft:#AEBCD4;--ink-faint:#7D8DA8;--cobalt:#7BA6F2;--cobalt-soft:#1B2C4C;
+--naranja:#F0894A;--naranja-soft:#3A2416;--verde:#5FBF93;--verde-soft:#13301F;
+--shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px rgba(0,0,0,.4);}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit;color:var(--ink)}
+body{margin:0;background:var(--ground);color:var(--ink);
+font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;line-height:1.5}
+.wrap{max-width:820px;margin:0 auto;padding:20px 16px 64px}
+h1,h2{font-family:Bitter,Georgia,serif;margin:0;text-wrap:balance}
+h1{font-size:clamp(23px,4vw,32px)}
+h2{font-size:20px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;
+text-transform:uppercase;color:var(--ink-faint)}
+.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.who{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 14px}
+.who button{border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);
+border-radius:999px;padding:7px 15px;font:inherit;font-size:14px;cursor:pointer}
+.who button.on{background:var(--cobalt);color:#fff;border-color:transparent;font-weight:600}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+box-shadow:var(--shadow);padding:16px;margin-bottom:12px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+select,input,.btn{font:inherit}
+select{background:var(--surface-2);color:var(--ink);border:1px solid var(--line);
+border-radius:9px;padding:7px 10px}
+.btn{border:none;border-radius:10px;padding:11px 18px;font-weight:600;font-size:15px;
+cursor:pointer;background:var(--cobalt);color:#fff}
+.btn.ghost{background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--line)}
+.btn.sm{padding:7px 12px;font-size:13.5px}
+.rounds{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.rnd{flex:1;min-width:92px;border:1px solid var(--line);border-radius:9px;padding:7px 8px;
+font-size:12px;color:var(--ink-faint);text-align:center;background:var(--surface-2)}
+.rnd.now{border-color:var(--naranja);color:var(--naranja);font-weight:600;background:var(--naranja-soft)}
+.rnd.ok{border-color:transparent;background:var(--verde-soft);color:var(--verde);font-weight:600}
+.rnd.lock{opacity:.45}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tools .btn{padding:7px 12px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:4px 0 12px}
+.stat{background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:12px}
+.stat .v{font-family:"IBM Plex Mono",monospace;font-size:24px;font-weight:600;color:var(--cobalt)}
+.stat .k{font-size:12px;color:var(--ink-faint);margin-top:3px}
+table.hard{width:100%;border-collapse:collapse;font-size:14px}
+table.hard td{padding:7px 4px;border-bottom:1px solid var(--line)}
+table.hard td.e{text-align:right;color:var(--naranja);font-weight:600;
+font-family:"IBM Plex Mono",monospace}
+.card{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:16px;
+box-shadow:var(--shadow);min-height:190px;display:flex;flex-direction:column;
+align-items:center;justify-content:center;gap:10px;padding:26px 18px;text-align:center;user-select:none}
+.card.tap{cursor:pointer}
+.es{font-size:clamp(28px,5.5vw,42px);font-weight:650}
+.ru{font-size:clamp(19px,3.6vw,26px);color:var(--verde);font-weight:500}
+.ask{font-size:clamp(21px,4vw,30px);font-weight:600}
+.hint{font-size:13px;color:var(--ink-faint)}
+.counter{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-faint);margin:8px 2px 10px}
+.pill{padding:3px 10px;border-radius:999px;font-weight:600}
+.pill.learn{background:var(--naranja-soft);color:var(--naranja)}
+.pill.know{background:var(--verde-soft);color:var(--verde)}
+.acts{display:flex;gap:10px;margin-top:12px}
+.acts .btn{flex:1}
+.acts .btn.ghost{flex:0 0 auto;min-width:56px}
+.acts .no{background:var(--naranja)}
+.acts .yes{background:var(--verde)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.opt{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:11px;
+padding:14px 12px;font-size:15.5px;cursor:pointer;text-align:left;line-height:1.35}
+.opt:hover{border-color:var(--cobalt)}
+.opt.ok{background:var(--verde-soft);border-color:transparent;color:var(--verde);font-weight:600}
+.opt.bad{background:var(--naranja-soft);border-color:transparent;color:var(--naranja)}
+.type{display:flex;gap:8px;margin-top:12px}
+.type input{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:10px;
+padding:13px 14px;font-size:18px;color:var(--ink)}
+.type input::placeholder{color:var(--ink-faint)}
+.type input:disabled{opacity:.7}
+.type input:focus{outline:2px solid var(--cobalt);outline-offset:1px}
+.verdict{margin-top:10px;padding:12px 14px;border-radius:10px;font-size:15px}
+.verdict.ok{background:var(--verde-soft);color:var(--verde)}
+.verdict.bad{background:var(--naranja-soft);color:var(--naranja)}
+.verdict b{font-size:19px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px}
+.tile{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:11px;
+padding:14px 10px;font-size:15px;cursor:pointer;text-align:center;min-height:54px;
+display:flex;align-items:center;justify-content:center}
+.tile:hover{border-color:var(--cobalt)}
+.tile.sel{border-color:var(--cobalt);background:var(--cobalt-soft)}
+.tile.ok{border-color:transparent;background:var(--verde-soft);color:var(--verde);opacity:.5}
+.tile.bad{border-color:var(--naranja);background:var(--naranja-soft)}
+.done{text-align:center;padding:24px 12px}
+.done .big{font-size:40px}
+.days{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px}
+.dot{width:25px;height:25px;border-radius:7px;background:var(--surface-2);border:1px solid var(--line);
+font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);cursor:pointer}
+.dot.ok{background:var(--verde-soft);color:var(--verde);border-color:transparent;font-weight:600}
+.dot.now{border-color:var(--naranja);color:var(--naranja);font-weight:700}
+.warn{background:var(--naranja-soft);color:var(--naranja);border-radius:10px;padding:11px 14px;
+font-size:13.5px;margin-bottom:12px}
+.audio{background:var(--cobalt-soft);border:1px solid transparent;color:var(--cobalt);
+border-radius:999px;width:62px;height:62px;font-size:25px;cursor:pointer;display:flex;
+align-items:center;justify-content:center;transition:transform .12s}
+.audio:hover{transform:scale(1.06)}
+.audio:active{transform:scale(.94)}
+.audio.playing{background:var(--cobalt);color:#fff}
+.card{position:relative}
+.reveal{width:100%;margin-top:12px}
+.kbd{font-family:"IBM Plex Mono",monospace;background:var(--surface-2);border:1px solid var(--line);
+border-radius:5px;padding:1px 6px;font-size:11.5px}
+.tip{font-size:12.5px;color:var(--ink-faint);text-align:center;margin-top:12px}
+.auto{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-soft);cursor:pointer}
+.auto input{width:16px;height:16px;accent-color:var(--cobalt)}
+.voicebar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;
+padding-top:10px;border-top:1px dashed var(--line)}
+.voicebar select{flex:1;min-width:180px;max-width:420px}
+.voicebar .lab{font-size:12.5px;color:var(--ink-faint);white-space:nowrap}
+footer{margin-top:24px;font-size:12.5px;color:var(--ink-faint);text-align:center}
+a{color:var(--cobalt)}
+@media (max-width:520px){.opts{grid-template-columns:1fr}}
+
+.blocks2{display:flex;flex-direction:column;gap:10px}
+.blk{background:var(--surface);border:1px solid var(--line);border-radius:13px;
+padding:14px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.blk.done{border-color:transparent;background:var(--verde-soft)}
+.box{width:30px;height:30px;border-radius:9px;border:2px solid var(--line);background:var(--surface);
+display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;flex:0 0 auto;
+color:var(--verde);font-weight:700}
+.box.on{background:var(--verde);border-color:transparent;color:#fff}
+.box.auto{cursor:default;border-style:dashed}
+.blk .body{flex:1;min-width:180px}
+.blk .t{font-weight:600;font-size:15.5px}
+.blk .s{font-size:13px;color:var(--ink-faint);margin-top:2px}
+.blk .go{background:var(--cobalt);color:#fff;border:none;border-radius:9px;padding:9px 15px;
+font-weight:600;font-size:14px;text-decoration:none;display:inline-block}
+.blk.done .go{background:var(--surface-2);color:var(--ink-soft)}
+.blk .min{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);
+white-space:nowrap;flex:0 0 auto}
+.tag2{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
+.dayhead{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.ring{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:600;color:var(--cobalt)}
+.days{display:flex;gap:4px;flex-wrap:wrap;margin-top:12px}
+.dot{width:25px;height:25px;border-radius:7px;background:var(--surface-2);border:1px solid var(--line);
+font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);cursor:pointer}
+.dot.ok{background:var(--verde-soft);color:var(--verde);border-color:transparent;font-weight:600}
+.dot.part{background:var(--naranja-soft);color:var(--naranja);border-color:transparent}
+.dot.now{border-color:var(--naranja);color:var(--naranja);font-weight:700}
+</style>
+<div class="wrap">
+  <p class="eyebrow"><a href="./" style="text-decoration:none">← Ruta Valencia</a> ·
+     <a href="./trainer.html" style="text-decoration:none">слова</a> ·
+     <a href="./verbos.html" style="text-decoration:none">спряжение</a> ·
+     <a href="./temas.html" style="text-decoration:none">темы</a></p>
+  <h1>Мой день</h1>
+  <p style="color:var(--ink-soft);margin-top:6px">Галочки у тренажёров ставятся сами, как только круг пройден. Остальные отмечаете вручную.</p>
+  <div class="who" id="who"></div>
+  <div class="panel">
+    <div class="dayhead">
+      <div><div style="font-weight:600" id="dayline">—</div>
+           <div class="s" style="font-size:13px;color:var(--ink-faint)" id="sum"></div></div>
+      <div class="row"><select id="daysel"></select><span class="ring" id="ring">—</span></div>
+    </div>
+    <div class="days" id="days"></div>
+  </div>
+  <div class="blocks2" id="list"></div>
+  <footer>Зелёный квадрат — день закрыт полностью, оранжевый — начат. Прогресс хранится в этом браузере.</footer>
+</div>
+<script>
+var DAY_VERBS={"1": ["ser", "estar", "tener", "hacer", "poder"], "2": ["decir", "haber", "ir", "dar", "ver"], "3": ["saber", "querer", "llegar", "pasar", "deber"], "4": ["dejar", "llevar", "encontrar", "seguir", "poner"], "5": ["parecer", "hablar", "pensar", "volver", "conocer"], "6": ["salir", "venir", "tomar", "tratar", "contar"], "7": ["mirar", "esperar", "buscar", "existir", "entrar"], "8": ["trabajar", "escribir", "perder", "producir", "ocurrir"], "9": ["entender", "pedir", "recibir", "recordar", "terminar"], "10": ["permitir", "aparecer", "conseguir", "comenzar", "servir"], "11": ["sacar", "necesitar", "mantener", "resultar", "leer"], "12": ["caer", "cambiar", "presentar", "crear", "abrir"], "13": ["considerar", "oír", "acabar", "convertir", "ganar"], "14": ["formar", "traer", "partir", "aceptar", "realizar"], "15": ["suponer", "comprender", "lograr", "explicar", "preguntar"], "16": ["tocar", "reconocer", "estudiar", "alcanzar", "nacer"], "17": ["correr", "utilizar", "pagar", "ayudar", "gustar"], "18": ["jugar", "escuchar", "cumplir", "ofrecer", "descubrir"], "19": ["levantar", "intentar", "usar", "decidir", "vivir"], "20": ["comprar", "vender", "empezar", "mostrar", "mover"], "21": ["guardar", "meter", "quitar", "tirar", "echar"], "22": ["visitar", "invitar", "cantar"]}, DAY_NAME={"1": "ESP D01 · 24.08 пн · знакомство", "2": "ESP D02 · 25.08 вт · знакомство", "3": "ESP D03 · 26.08 ср · знакомство", "4": "ESP D04 · 27.08 чт · знакомство", "5": "ESP D05 · 28.08 пт · знакомство", "6": "ESP D06 · 29.08 сб · знакомство", "7": "ESP D07 · 30.08 вс · знакомство", "8": "ESP D08 · 31.08 пн · еда и магазин", "9": "ESP D09 · 01.09 вт · еда и магазин", "10": "ESP D10 · 02.09 ср · еда и магазин", "11": "ESP D11 · 03.09 чт · еда и магазин", "12": "ESP D12 · 04.09 пт · еда и магазин", "13": "ESP D13 · 05.09 сб · еда и магазин", "14": "ESP D14 · 06.09 вс · еда и магазин", "15": "ESP D15 · 07.09 пн · квартира", "16": "ESP D16 · 08.09 вт · квартира", "17": "ESP D17 · 09.09 ср · квартира", "18": "ESP D18 · 10.09 чт · квартира", "19": "ESP D19 · 11.09 пт · квартира", "20": "ESP D20 · 12.09 сб · квартира", "21": "ESP D21 · 13.09 вс · квартира", "22": "ESP D22 · 14.09 пн · банк и деньги", "23": "ESP D23 · 15.09 вт · банк и деньги", "24": "ESP D24 · 16.09 ср · банк и деньги", "25": "ESP D25 · 17.09 чт · банк и деньги", "26": "ESP D26 · 18.09 пт · банк и деньги", "27": "ESP D27 · 19.09 сб · банк и деньги", "28": "ESP D28 · 20.09 вс · банк и деньги", "29": "ESP D29 · 21.09 пн · документы", "30": "ESP D30 · 22.09 вт · документы", "31": "ESP D31 · 23.09 ср · документы", "32": "ESP D32 · 24.09 чт · документы", "33": "ESP D33 · 25.09 пт · документы", "34": "ESP D34 · 26.09 сб · документы", "35": "ESP D35 · 27.09 вс · документы", "36": "ESP D36 · 28.09 пн · врач и аптека", "37": "ESP D37 · 29.09 вт · врач и аптека", "38": "ESP D38 · 30.09 ср · врач и аптека", "39": "ESP D39 · 01.10 чт · врач и аптека", "40": "ESP D40 · 02.10 пт · врач и аптека", "41": "ESP D41 · 03.10 сб · врач и аптека", "42": "ESP D42 · 04.10 вс · врач и аптека", "43": "ESP D43 · 05.10 пн · школа и быт", "44": "ESP D44 · 06.10 вт · школа и быт", "45": "ESP D45 · 07.10 ср · школа и быт", "46": "ESP D46 · 08.10 чт · школа и быт", "47": "ESP D47 · 09.10 пт · школа и быт", "48": "ESP D48 · 10.10 сб · школа и быт", "49": "ESP D49 · 11.10 вс · школа и быт", "50": "ESP D50 · 12.10 пн · повторение", "51": "ESP D51 · 13.10 вт · повторение", "52": "ESP D52 · 14.10 ср · повторение"}, VID=[504193, 504175, 504156, 504138, 504139, 504176, 504177, 504194, 504140, 504157, 504195, 504178, 504196, 504179, 504141, 504180], START=new Date(2026,7,24);
+var WHO=[{id:"dmitry",name:"Дмитрий",kid:false},{id:"yulia",name:"Юлия",kid:false},
+         {id:"mihail",name:"Михаил",kid:true},{id:"darya",name:"Дарья",kid:true}];
+var CYCLE=[["numeros","Числа и цены"],["fechas","Дни, месяцы, даты"],["tiempo","Погода и small talk"],
+           ["presentarse","Знакомство и о себе"],["adjetivos","Прилагательные парами"],
+           ["numeros","Числа на слух"],["hora","Время на слух"]];
+var S={who:"dmitry",day:1};
+
+function el(i){return document.getElementById(i)}
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+function today(){var n=new Date();n=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  return Math.max(1,Math.min(52,Math.floor((n-START)/864e5)+1))}
+function who(){return WHO.filter(function(w){return w.id===S.who})[0]}
+function num(k){var v=parseInt(ls(k)||"0",10);return isNaN(v)?0:v}
+function manual(id){return ls("hoy_"+S.who+"_"+S.day+"_"+id)==="1"}
+function setManual(id,on){ls("hoy_"+S.who+"_"+S.day+"_"+id,on?"1":"0")}
+function themeOf(d){return CYCLE[(d-1)%7]}
+
+function blocks(){
+  var d=S.day, kid=who().kid, th=themeOf(d), out=[];
+  if(!kid){
+    out.push({id:"petrov",auto:false,min:45,
+      t: d<=16 ? ("Урок Петрова № "+d) : "Грамматика: повтор и спряжения",
+      s: d<=16 ? "45 минут, отвечать вслух на каждой паузе" : "разбор слабых мест",
+      href: d<=16 ? ("https://smotrim.ru/video/"+VID[d-1]) : "./verbos.html",
+      go: d<=16 ? "Смотреть" : "Открыть"});
+    out.push({id:"verbos",auto:true,min:15,t:"Спряжение глаголов",
+      s:(DAY_VERBS[d]||[]).join(", ")||"повтор пройденных",
+      href:"./verbos.html",go:"Тренировать",
+      done: num("verb_r_"+S.who+"_"+d)>=4});
+  }
+  out.push({id:"words",auto:true,min:kid?10:20,
+    t: kid?"Фразы дня":"Слова дня, 15 штук",
+    s: DAY_NAME[d]||"набор дня", href:"./trainer.html", go:"Учить",
+    done: num("esp2_r_"+S.who+"_"+d)>=5});
+  out.push({id:"audio",auto:false,min:kid?18:25,
+    t: kid?"Видео на испанском":"Аудирование и шэдоуинг",
+    s: kid?"мультик или свой канал":"Notes in Spanish, потом 10 минут повтора вслух",
+    href: kid?"https://www.youtube.com/@PocoyoEspanol":"https://www.notesinspanish.com/category/beginners-podcast/",
+    go:"Открыть"});
+  if(!kid) out.push({id:"speech",auto:false,min:15,t:"Речь по скрипту дня",
+    s:"вслух, вдвоём. Вторник и пятница — обмен в Tandem",
+    href:"https://tandem.net/",go:"Tandem"});
+  out.push({id:"tema",auto:true,min:10,t:"Тема дня: "+th[1],
+    s:"числа, даты, погода, знакомство по кругу",
+    href:"./temas.html#"+th[0], go:"Тренировать",
+    done: num("tema_r_"+S.who+"_"+th[0])>=5});
+  return out;
+}
+function dayState(d){
+  var save=S.day; S.day=d;
+  var b=blocks(), done=0;
+  b.forEach(function(x){ if(x.auto? x.done : manual(x.id)) done++ });
+  S.day=save;
+  return {done:done,total:b.length};
+}
+function renderWho(){el("who").innerHTML=WHO.map(function(w){
+  return '<button data-who="'+w.id+'"'+(w.id===S.who?' class="on"':'')+'>'+w.name+'</button>'}).join("")}
+function renderDays(){
+  var h="",t=today();
+  for(var d=1;d<=52;d++){
+    var st=dayState(d), c="dot";
+    if(st.done>=st.total) c+=" ok"; else if(st.done>0) c+=" part";
+    if(d===S.day) c+=" now";
+    h+='<div class="'+c+'" data-day="'+d+'" title="'+st.done+' из '+st.total+'">'+d+'</div>';
+  }
+  el("days").innerHTML=h;
+}
+function render(){
+  var b=blocks(), done=0;
+  var dt=new Date(START.getTime()+(S.day-1)*864e5);
+  var M=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+  el("dayline").textContent="День "+S.day+" · "+dt.getDate()+" "+M[dt.getMonth()];
+  var h="";
+  b.forEach(function(x){
+    var ok = x.auto ? !!x.done : manual(x.id);
+    if(ok) done++;
+    h+='<div class="blk'+(ok?" done":"")+'">'+
+       '<div class="box'+(ok?" on":"")+(x.auto?" auto":"")+'" data-id="'+x.id+'" data-auto="'+(x.auto?1:0)+'">'+(ok?"✓":"")+'</div>'+
+       '<div class="body"><div class="t">'+x.t+'</div><div class="s">'+x.s+
+       (x.auto?' · <span class="tag2">отмечается сам</span>':'')+'</div></div>'+
+       '<span class="min">'+x.min+' мин</span>'+
+       '<a class="go" href="'+x.href+'"'+(/^http/.test(x.href)?' target="_blank" rel="noopener"':'')+'>'+x.go+'</a></div>';
+  });
+  el("list").innerHTML=h;
+  el("ring").textContent=done+" / "+b.length;
+  el("sum").textContent=(done>=b.length)?"день закрыт":"осталось "+(b.length-done);
+  renderDays();
+}
+function boot(){
+  S.who=ls("esp_who")||"dmitry";
+  if(!WHO.filter(function(w){return w.id===S.who}).length)S.who="dmitry";
+  S.day=today();
+  var o="";for(var d=1;d<=52;d++)o+='<option value="'+d+'">День '+d+'</option>';
+  el("daysel").innerHTML=o; el("daysel").value=S.day;
+  renderWho();
+  el("who").onclick=function(e){var b=e.target.closest("button[data-who]");if(!b)return;
+    S.who=b.dataset.who;ls("esp_who",S.who);renderWho();render()};
+  el("daysel").onchange=function(){S.day=parseInt(this.value,10);render()};
+  el("days").onclick=function(e){var d=e.target.closest(".dot");if(!d)return;
+    S.day=parseInt(d.dataset.day,10);el("daysel").value=S.day;render()};
+  el("list").onclick=function(e){
+    var b=e.target.closest(".box"); if(!b) return;
+    if(b.dataset.auto==="1"){
+      alert("Эта галочка ставится сама, когда Вы пройдёте тренажёр до конца.");
+      return;
+    }
+    setManual(b.dataset.id, !manual(b.dataset.id)); render();
+  };
+  window.addEventListener("focus", render);
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden) render() });
+  render();
+}
+boot();
+</script>
