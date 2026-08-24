@@ -168,6 +168,10 @@ font-size:11px;display:flex;align-items:center;justify-content:center;color:var(
 border:1px solid var(--line);border-radius:999px;padding:4px 11px}
 .more a:hover{color:var(--cobalt);border-color:var(--cobalt)}
 @media(max-width:520px){.more{margin-left:0}}
+.plan{margin-top:12px;padding:10px 13px;border:1px solid var(--naranja);background:var(--naranja-soft);
+border-radius:11px;font-size:13.5px;color:var(--ink);line-height:1.7}
+.plan .btn{margin-left:6px;vertical-align:baseline}
+.dot.plan{outline:2px dashed var(--naranja);outline-offset:1px}
 </style>
 <div class="wrap">
   <p class="eyebrow"><a href="./" style="text-decoration:none">← Ruta Valencia</a> ·
@@ -184,6 +188,7 @@ border:1px solid var(--line);border-radius:999px;padding:4px 11px}
       <div class="row"><select id="daysel"></select><span class="ring" id="ring">—</span></div>
     </div>
     <div class="days" id="days"></div>
+    <div class="plan" id="plan" style="display:none"></div>
   </div>
   <div class="blocks2" id="list"></div>
   <footer>Зелёный квадрат — день закрыт полностью, оранжевый — начат. Прогресс хранится в этом браузере.</footer>
@@ -281,6 +286,22 @@ function dayState(d){
   S.day=save;
   return {done:done,total:b.length};
 }
+function firstOpenDay(){
+  for(var d=1;d<=today();d++){ var st=dayState(d); if(st.done<st.total) return d }
+  return today();
+}
+function planLine(){
+  var plan=today(), open=firstOpenDay();
+  if(S.day===plan && open===plan) return "";
+  var M=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+  var pd=new Date(START.getTime()+(plan-1)*864e5);
+  var txt="По календарю сегодня <b>день "+plan+"</b>, "+pd.getDate()+" "+M[pd.getMonth()]+".";
+  if(open<plan) txt+=" Не закрыт <b>день "+open+"</b>, отставание "+(plan-open)+
+    (plan-open===1?" день":(plan-open<5?" дня":" дней"))+".";
+  if(S.day!==plan) txt+=' <button class="btn ghost sm" id="goplan">Перейти на день '+plan+'</button>';
+  if(open<plan && S.day!==open) txt+=' <button class="btn ghost sm" id="goopen">Доделать день '+open+'</button>';
+  return txt;
+}
 function renderWho(){el("who").innerHTML=WHO.map(function(w){
   return '<button data-who="'+w.id+'"'+(w.id===S.who?' class="on"':'')+'>'+w.name+'</button>'}).join("")}
 function renderDays(){
@@ -288,6 +309,7 @@ function renderDays(){
   for(var d=1;d<=52;d++){
     var st=dayState(d), c="dot";
     if(st.done>=st.total) c+=" ok"; else if(st.done>0) c+=" part";
+    if(d===t) c+=" plan";
     if(d===S.day) c+=" now";
     h+='<div class="'+c+'" data-day="'+d+'" title="'+st.done+' из '+st.total+'">'+d+'</div>';
   }
@@ -312,6 +334,10 @@ function render(){
           return '<a href="'+m.href+'" target="_blank" rel="noopener">'+m.n+'</a>'}).join("")+'</div>':'');
   });
   el("list").innerHTML=h;
+  var pl=planLine();
+  el("plan").innerHTML=pl; el("plan").style.display= pl?"block":"none";
+  if(el("goplan")) el("goplan").onclick=function(){S.day=today();render()};
+  if(el("goopen")) el("goopen").onclick=function(){S.day=firstOpenDay();render()};
   el("ring").textContent=done+" / "+b.length;
   var sit=b.filter(function(x){return !x.fon}).reduce(function(a,x){return a+x.min},0);
   var fon=b.filter(function(x){return x.fon}).reduce(function(a,x){return a+x.min},0);
@@ -324,7 +350,7 @@ function boot(){
   if(whoFromUrl && WHO.some(function(person){return person.id===whoFromUrl})) ls("esp_who",whoFromUrl);
   S.who=ls("esp_who")||"dmitry";
   if(!WHO.filter(function(w){return w.id===S.who}).length)S.who="dmitry";
-  S.day=today();
+  S.day=firstOpenDay();
   var o="";for(var d=1;d<=52;d++)o+='<option value="'+d+'">День '+d+'</option>';
   el("daysel").innerHTML=o; el("daysel").value=S.day;
   renderWho();
