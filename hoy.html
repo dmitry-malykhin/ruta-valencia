@@ -114,6 +114,14 @@ align-items:center;justify-content:center;transition:transform .12s}
 .audio:hover{transform:scale(1.06)}
 .audio:active{transform:scale(.94)}
 .audio.playing{background:var(--cobalt);color:#fff}
+.mic{width:96px;height:96px;border-radius:999px;border:none;cursor:pointer;font-size:38px;
+background:var(--cobalt);color:#fff;display:flex;align-items:center;justify-content:center;
+transition:transform .15s}
+.mic:hover{transform:scale(1.04)}
+.mic.rec{background:var(--naranja);animation:pulse 1.1s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,91,18,.5)}70%{box-shadow:0 0 0 18px rgba(212,91,18,0)}100%{box-shadow:0 0 0 0 rgba(212,91,18,0)}}
+.heard{font-size:19px;color:var(--ink-soft);margin-top:14px;min-height:26px}
+.heard b{color:var(--ink)}
 .card{position:relative}
 .reveal{width:100%;margin-top:12px}
 .kbd{font-family:"IBM Plex Mono",monospace;background:var(--surface-2);border:1px solid var(--line);
@@ -207,10 +215,10 @@ function blocks(){
       href:"./verbos.html",go:"Тренировать",
       done: num("verb_r_"+S.who+"_"+d)>=4});
   }
-  out.push({id:"words",auto:true,min:kid?10:20,
+  out.push({id:"words",auto:true,min:kid?10:25,
     t: kid?"Фразы дня":"Слова дня, 15 штук",
     s: DAY_NAME[d]||"набор дня", href:"./trainer.html", go:"Учить",
-    done: num("esp2_r_"+S.who+"_"+d)>=5});
+    done: num("esp2_r_"+S.who+"_"+d)>=6});
   out.push({id:"audio",auto:false,min:kid?18:25,fon:true,
     t: kid?"Видео на испанском":"Аудирование и шэдоуинг (фоном)",
     s: kid?"мультик или свой канал":"Notes in Spanish, потом 10 минут повтора вслух",
