@@ -60,6 +60,7 @@ align-items:center;justify-content:center;gap:10px;padding:26px 18px;text-align:
 .pill.know{background:var(--verde-soft);color:var(--verde)}
 .acts{display:flex;gap:10px;margin-top:12px}
 .acts .btn{flex:1}
+.acts .btn.ghost{flex:0 0 auto;min-width:56px}
 .acts .no{background:var(--naranja)}
 .acts .yes{background:var(--verde)}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
@@ -187,8 +188,9 @@ function startRound(){
 }
 function nextRound(){ S.round++; if(S.round>=ROUNDS.length) return finish(); startRound(); }
 function head(){
+  var left=Math.max(0,S.queue.length-S.idx);
   return '<div class="counter"><span class="pill learn">Ошибок: '+S.wrong+'</span>'+
-    '<span class="mono">'+Math.min(S.idx+1,S.queue.length)+' / '+S.queue.length+'</span>'+
+    '<span class="mono">Осталось: '+left+'</span>'+
     '<span class="pill know">Верно: '+S.ok+'</span></div>';
 }
 function step(){
@@ -210,25 +212,29 @@ function roundDone(){
 function rCards(){
   var w=S.queue[S.idx];
   el("stage").innerHTML=head()+
-   '<div class="card tap" id="c"><div class="es">'+w[0]+'</div>'+
-   '<button class="spk" id="spk" title="Послушать">🔊</button>'+
-   '<div class="hint" id="b">нажмите на карточку, чтобы увидеть перевод</div></div>'+
-   '<div class="acts"><button class="btn no" id="n">Не вспомнил</button>'+
-   '<button class="btn yes" id="y">Знаю</button></div>';
-  var shown=false;
-  el("spk").onclick=function(e){e.stopPropagation();speak(w[0])};
-  el("c").onclick=function(){ if(shown)return; shown=true;
-    el("b").outerHTML='<div class="ru">'+w[1]+'</div>'; speak(w[0]); };
-  el("n").onclick=function(){S.wrong++;S.queue.push(w);S.idx++;step()};
-  el("y").onclick=function(){S.ok++;S.idx++;step()};
+   '<div class="card"><div class="es">'+w[0]+'</div><div class="hint" id="b">переведите вслух, потом проверьте</div></div>'+
+   '<div class="acts"><button class="btn ghost" id="spk">🔊 Послушать</button>'+
+   '<button class="btn" id="show">Показать перевод</button></div>';
+  el("spk").onclick=function(){speak(w[0])};
+  el("show").onclick=function(){
+    el("b").outerHTML='<div class="ru">'+w[1]+'</div>'; speak(w[0]);
+    el("stage").querySelector(".acts").outerHTML=
+      '<div class="acts"><button class="btn ghost" id="spk2">🔊</button>'+
+      '<button class="btn no" id="n">Не вспомнил</button>'+
+      '<button class="btn yes" id="y">Знаю</button></div>';
+    el("spk2").onclick=function(){speak(w[0])};
+    el("n").onclick=function(){S.wrong++;S.queue.push(w);S.idx++;step()};
+    el("y").onclick=function(){S.ok++;S.idx++;step()};
+  };
 }
 /* ---------- круг 2: выбор перевода ---------- */
 function rChoose(){
   var all=setFor(S.day).w, w=S.queue[S.idx];
   var wrong=sh(all.filter(function(x){return x[1]!==w[1]})).slice(0,3).map(function(x){return x[1]});
   var opts=sh(wrong.concat([w[1]]));
-  var h=head()+'<div class="card"><div class="es">'+w[0]+'</div>'+
-    '<button class="spk" id="spk">🔊</button></div><div class="opts">';
+  var h=head()+'<div class="card"><div class="es">'+w[0]+'</div></div>'+
+    '<div class="acts"><button class="btn ghost" id="spk">🔊 Послушать ещё раз</button></div>'+
+    '<div class="opts">';
   opts.forEach(function(o,i){h+='<button class="opt" data-o="'+i+'">'+o+'</button>'});
   el("stage").innerHTML=h+'</div>';
   el("spk").onclick=function(){speak(w[0])};
