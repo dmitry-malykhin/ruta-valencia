@@ -114,6 +114,14 @@ align-items:center;justify-content:center;transition:transform .12s}
 .audio:hover{transform:scale(1.06)}
 .audio:active{transform:scale(.94)}
 .audio.playing{background:var(--cobalt);color:#fff}
+.mic{width:96px;height:96px;border-radius:999px;border:none;cursor:pointer;font-size:38px;
+background:var(--cobalt);color:#fff;display:flex;align-items:center;justify-content:center;
+transition:transform .15s}
+.mic:hover{transform:scale(1.04)}
+.mic.rec{background:var(--naranja);animation:pulse 1.1s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,91,18,.5)}70%{box-shadow:0 0 0 18px rgba(212,91,18,0)}100%{box-shadow:0 0 0 0 rgba(212,91,18,0)}}
+.heard{font-size:19px;color:var(--ink-soft);margin-top:14px;min-height:26px}
+.heard b{color:var(--ink)}
 .card{position:relative}
 .reveal{width:100%;margin-top:12px}
 .kbd{font-family:"IBM Plex Mono",monospace;background:var(--surface-2);border:1px solid var(--line);
@@ -164,7 +172,7 @@ var DATA={"adults": [{"name": "ESP D01 · 24.08 пн · знакомство", "
 var WHO=[{id:"dmitry",name:"Дмитрий",track:"adults"},{id:"yulia",name:"Юлия",track:"adults"},
          {id:"mihail",name:"Михаил",track:"kids"},{id:"darya",name:"Дарья",track:"kids"}];
 var ROUNDS=[{k:"cards",t:"1. Карточки"},{k:"choose",t:"2. Выбор"},{k:"type",t:"3. Пишу сам"},
-            {k:"listen",t:"4. На слух"},{k:"match",t:"5. Игра"}];
+            {k:"listen",t:"4. На слух"},{k:"speak",t:"5. Говорю"},{k:"match",t:"6. Игра"}];
 var S={who:"dmitry",day:1,round:0,queue:[],idx:0,wrong:0,ok:0,mode:"day",hardList:[]};
 
 function el(i){return document.getElementById(i)}
@@ -199,8 +207,14 @@ function saveState(){
 }
 function clearState(){try{localStorage.removeItem(skey(S.day))}catch(e){}}
 function loadState(){
-  try{var v=JSON.parse(ls(skey(S.day))||"null");
-    if(v&&v.r===S.round&&v.q&&v.q.length){S.queue=v.q;S.idx=v.i;S.ok=v.ok;S.wrong=v.w;return true}
+  try{
+    var v=JSON.parse(ls(skey(S.day))||"null");
+    if(!v||v.r!==S.round||!v.q||!v.q.length) return false;
+    // сохранённая очередь может быть от старой версии набора — проверяем
+    var valid={}; pool().forEach(function(w){ valid[w[0]]=w[1] });
+    var stale=v.q.some(function(w){ return !(w && w[0] in valid) || valid[w[0]]!==w[1] });
+    if(stale){ clearState(); return false }
+    S.queue=v.q; S.idx=v.i; S.ok=v.ok; S.wrong=v.w; return true;
   }catch(e){}
   return false;
 }
@@ -307,6 +321,7 @@ function step(){
   if(k==="choose") return rChoose();
   if(k==="type")   return rType();
   if(k==="listen") return rListen();
+  if(k==="speak")  return rSpeak();
 }
 function roundDone(){
   keys({});
@@ -472,7 +487,88 @@ function rType(){ typingRound({listen:false,next:step}) }
 /* ---------- круг 4: на слух ---------- */
 function rListen(){ typingRound({listen:true,next:step}) }
 
-/* ---------- круг 5: подбор ---------- */
+/* ---------- круг 5: говорю ---------- */
+function lev(a,b){
+  var m=a.length,n=b.length,d=[],i,j;
+  for(i=0;i<=m;i++){d[i]=[i]}
+  for(j=0;j<=n;j++){d[0][j]=j}
+  for(i=1;i<=m;i++)for(j=1;j<=n;j++)
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return d[m][n];
+}
+function speechOK(){
+  return !!(window.SpeechRecognition||window.webkitSpeechRecognition);
+}
+function rSpeak(){
+  if(S.idx>=S.queue.length) return roundDone();
+  if(!speechOK()){
+    el("stage").innerHTML='<div class="panel done"><div class="big">🎤</div>'+
+      '<h2>Микрофон здесь недоступен</h2>'+
+      '<p class="hint" style="margin:8px 0 16px">Распознавание речи работает в Chrome, Edge и Safari. '+
+      'В этом браузере круг можно пропустить.</p>'+
+      '<button class="btn" id="skipspeak">Пропустить круг</button></div>';
+    el("skipspeak").onclick=function(){ S.idx=S.queue.length; roundDone() };
+    return;
+  }
+  var w=S.queue[S.idx], rec=null, tries=0;
+  el("stage").innerHTML=head()+
+    '<div class="card"><div class="hint">произнесите вслух</div>'+
+    '<div class="es">'+w[0]+'</div>'+
+    '<button class="audio" id="spk">🔊</button>'+
+    '<div class="ru" style="font-size:19px">'+w[1]+'</div>'+
+    '<div class="heard" id="heard">нажмите микрофон и скажите слово</div></div>'+
+    '<div class="acts" style="justify-content:center;margin-top:16px">'+
+    '<button class="mic" id="mic" aria-label="Говорить">🎤</button></div>'+
+    '<div class="acts" style="margin-top:14px">'+
+    '<button class="btn ghost" id="count">Засчитать</button>'+
+    '<button class="btn ghost" id="skip">Пропустить слово</button></div>'+
+    '<p class="tip">Скажите слово в микрофон. Если распознавание ошибётся, нажмите «Засчитать»</p>';
+  bindAudio(w[0]);
+  el("skip").onclick=function(){ noteAnswer(w,false); S.wrong++; S.queue.push(w); S.idx++; saveState(); rSpeak() };
+  el("count").onclick=function(){ good(true) };
+  function good(manualOk){
+    if(!manualOk) noteAnswer(w,true); else noteAnswer(w,true);
+    S.ok++; S.idx++; saveState();
+    el("heard").innerHTML='<b style="color:var(--verde)">засчитано</b>';
+    setTimeout(rSpeak,600);
+  }
+  el("mic").onclick=function(){
+    var Rec=window.SpeechRecognition||window.webkitSpeechRecognition;
+    try{ if(rec) rec.abort() }catch(e){}
+    rec=new Rec(); rec.lang="es-ES"; rec.interimResults=false; rec.maxAlternatives=5;
+    el("mic").classList.add("rec"); el("heard").textContent="слушаю…";
+    rec.onresult=function(ev){
+      el("mic").classList.remove("rec");
+      var alts=[], r=ev.results[0];
+      for(var i=0;i<r.length;i++) alts.push(r[i].transcript);
+      var target=norm(w[0]);
+      var hit=alts.some(function(a){
+        var n=norm(a);
+        return n===target || n.indexOf(target)>-1 || lev(n,target)<=Math.max(1,Math.floor(target.length/6));
+      });
+      el("heard").innerHTML='услышал: <b>'+alts[0]+'</b>';
+      if(hit){ setTimeout(function(){good(false)},400) }
+      else{
+        tries++;
+        if(!( S.queue.indexOf(w)>S.idx )) S.queue.push(w);
+        noteAnswer(w,false); S.wrong++;
+        el("heard").innerHTML='услышал: <b>'+alts[0]+'</b> · нужно: <b>'+w[0]+'</b>';
+        speak(w[0]);
+        if(tries>=2){ S.idx++; saveState(); setTimeout(rSpeak,1800) }
+      }
+    };
+    rec.onerror=function(e){
+      el("mic").classList.remove("rec");
+      el("heard").textContent = (e.error==="not-allowed")
+        ? "нет доступа к микрофону: разрешите его в браузере"
+        : "не расслышал, попробуйте ещё раз";
+    };
+    rec.onend=function(){ el("mic").classList.remove("rec") };
+    try{ rec.start() }catch(e){ el("heard").textContent="микрофон занят, попробуйте ещё раз" }
+  };
+}
+
+/* ---------- круг 6: подбор ---------- */
 var M={sel:null,left:0};
 function renderMatch(){
   keys({});
