@@ -157,6 +157,7 @@ border-radius:999px;padding:6px 13px;font-size:13.5px;cursor:pointer}
     <div class="tools">
       <span class="lab" style="font-size:12.5px;color:var(--ink-faint)">День</span>
       <select id="daysel"></select>
+      <label class="auto"><input type="checkbox" id="passed" checked>Только пройденные</label>
       <button class="btn ghost" id="tblbtn">Таблица</button>
       <button class="btn" id="drillbtn">Тренировать</button>
     </div>
@@ -192,22 +193,28 @@ function speak(t){try{if(!esVoice)pickVoice();var u=new SpeechSynthesisUtterance
   u.lang=(esVoice&&esVoice.lang)||"es-ES";u.rate=.9;if(esVoice)u.voice=esVoice;
   speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 
+function onlyPassed(){ return ls("verb_passed")!=="0" }
+function limit(list){
+  if(!onlyPassed()) return list;
+  var f=list.filter(function(x){return x.day>0 && x.day<=S.day});
+  return f.length?f:list.filter(function(x){return x.day>0}).slice(0,5);
+}
 function scopeList(){
   if(S.scope==="day"){
     var f=V.filter(function(x){return x.day===S.day});
     if(!f.length) f=V.filter(function(x){return x.day>0&&x.day<=S.day}).slice(-5);
     return f.length?f:V.slice(0,5);
   }
-  if(S.scope==="irr")  return V.filter(function(x){return x.irr});
-  if(S.scope==="reg")  return V.filter(function(x){return !x.irr});
+  if(S.scope==="irr")  return limit(V.filter(function(x){return x.irr}));
+  if(S.scope==="reg")  return limit(V.filter(function(x){return !x.irr}));
   if(S.scope==="hard"){
     var st=stats(), keys=[];
     for(var k in st){ if(st[k].e>0) keys.push(k) }
     var set={}; keys.forEach(function(k){ set[k.split("|")[0]]=1 });
     var f=V.filter(function(x){return set[x.v]});
-    return f.length?f:V;
+    return f.length?f:limit(V);
   }
-  return V;
+  return limit(V);
 }
 function buildQueue(){
   var out=[];
@@ -218,7 +225,7 @@ function renderWho(){el("who").innerHTML=WHO.map(function(w){
   return '<button data-who="'+w.id+'"'+(w.id===S.who?' class="on"':'')+'>'+w.name+'</button>'}).join("")}
 function renderChips(){
   var opts=[["day","Глаголы дня "+S.day],["irr","Неправильные"],["reg","Правильные"],
-            ["all","Все "+V.length],["hard","Мои ошибки"]];
+            ["all", onlyPassed()?"Все пройденные":"Все "+V.length],["hard","Мои ошибки"]];
   el("chips").innerHTML=opts.map(function(o){
     return '<button class="chip'+(S.scope===o[0]?" on":"")+'" data-s="'+o[0]+'">'+o[1]+'</button>'}).join("");
 }
@@ -234,12 +241,14 @@ function drill(){
   var q=S.queue[S.idx], v=q.v, p=P[q.pi], answer=v.f[q.pi];
   el("stage").innerHTML=head()+
    '<div class="card"><div class="big-v">'+v.v+'</div>'+
+   '<button class="audio" id="spk" aria-label="Послушать">🔊</button>'+
    '<div class="pron">'+p[0]+'  <span style="opacity:.6">('+p[1]+')</span></div>'+
    '<div class="hint">'+v.ru+'</div></div>'+
    '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
    'placeholder="форма глагола"><button class="btn" id="ok">Проверить</button></div>'+
    '<div id="v"></div>'+
-   '<p class="tip"><span class="kbd">Enter</span> проверить · ударения можно не ставить</p>';
+   '<p class="tip"><span class="kbd">Enter</span> проверить · <span class="kbd">R</span> послушать инфинитив · ударения можно не ставить</p>';
+  el("spk").onclick=function(){speak(v.v)};
   var inp=el("inp"); inp.focus(); var locked=false;
   function check(){
     if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
@@ -254,7 +263,10 @@ function drill(){
     S.idx++; setTimeout(drill, good?700:2600);
   }
   el("ok").onclick=check;
-  inp.onkeydown=function(e){ if(e.key==="Enter") check() };
+  inp.onkeydown=function(e){
+    if(e.key==="Enter") check();
+    else if((e.key==="r"||e.key==="к")&&!inp.value){ e.preventDefault(); speak(v.v) }
+  };
 }
 function finish(){
   var acc=(S.ok+S.wrong)?Math.round(S.ok*100/(S.ok+S.wrong)):0;
@@ -296,6 +308,9 @@ function boot(){
   el("chips").onclick=function(e){var b=e.target.closest(".chip");if(!b)return;
     S.scope=b.dataset.s;ls("verb_scope",S.scope);renderChips();
     buildQueue(); S.view==="table"?table():drill()};
+  el("passed").checked=onlyPassed();
+  el("passed").onchange=function(){ ls("verb_passed",this.checked?"1":"0");
+    renderChips(); buildQueue(); S.view==="table"?table():drill() };
   el("tblbtn").onclick=table;
   el("drillbtn").onclick=function(){buildQueue();drill()};
   try{speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
