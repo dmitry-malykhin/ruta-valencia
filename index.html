@@ -1,0 +1,475 @@
+<title>Ruta Valencia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#F4F6FA;
+  --surface:#FFFFFF;
+  --surface-2:#EDF1F8;
+  --line:#D3DCEA;
+  --ink:#0F1C33;
+  --ink-soft:#4A5872;
+  --ink-faint:#7C8AA3;
+  --cobalt:#1B4FA8;
+  --cobalt-soft:#E3EBF9;
+  --naranja:#D45B12;
+  --naranja-soft:#FBE8DB;
+  --verde:#256B4E;
+  --shadow:0 1px 2px rgba(15,28,51,.06),0 8px 24px rgba(15,28,51,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1421;
+    --surface:#141E2F;
+    --surface-2:#1B2740;
+    --line:#2A3958;
+    --ink:#E7EDF8;
+    --ink-soft:#AEBCD4;
+    --ink-faint:#7D8DA8;
+    --cobalt:#7BA6F2;
+    --cobalt-soft:#1B2C4C;
+    --naranja:#F0894A;
+    --naranja-soft:#3A2416;
+    --verde:#5FBF93;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1421;
+  --surface:#141E2F;
+  --surface-2:#1B2740;
+  --line:#2A3958;
+  --ink:#E7EDF8;
+  --ink-soft:#AEBCD4;
+  --ink-faint:#7D8DA8;
+  --cobalt:#7BA6F2;
+  --cobalt-soft:#1B2C4C;
+  --naranja:#F0894A;
+  --naranja-soft:#3A2416;
+  --verde:#5FBF93;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 72px}
+
+h1,h2,h3{font-family:Bitter,Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,4.4vw,44px);font-weight:700;letter-spacing:-.01em;line-height:1.1}
+h2{font-size:20px;font-weight:700;letter-spacing:-.005em}
+h3{font-size:17px;font-weight:700}
+p{margin:0}
+a{color:inherit}
+
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+/* ---------- сегодня ---------- */
+.today{
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);padding:22px 24px;margin:18px 0 32px;
+  display:grid;gap:20px;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+}
+.today-main{display:flex;flex-direction:column;gap:10px;min-width:0}
+.today-task{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.counters{display:flex;gap:26px}
+.counter{text-align:right}
+.counter .num{
+  font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:600;
+  font-variant-numeric:tabular-nums;line-height:1;color:var(--cobalt);
+}
+.counter .lab{font-size:11.5px;color:var(--ink-faint);margin-top:5px}
+.counter.warm .num{color:var(--naranja)}
+
+.pill{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 13px;border-radius:999px;font-size:13.5px;font-weight:500;
+  background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--line);
+  text-decoration:none;
+}
+.pill.hot{background:var(--naranja-soft);color:var(--naranja);border-color:transparent;font-weight:600}
+a.pill:hover{border-color:var(--cobalt);color:var(--cobalt)}
+
+/* ---------- секции ---------- */
+section{margin-top:38px}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.sec-head .note{font-size:13.5px;color:var(--ink-faint)}
+
+.grid{display:grid;gap:14px}
+.people{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.res{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:13px;
+  padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px;
+}
+.card.person{border-top:3px solid var(--cobalt)}
+.card.person.kid{border-top-color:var(--naranja)}
+.who{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.who .age{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint)}
+.blocks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.blocks li{
+  display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--ink-soft);
+  padding-bottom:6px;border-bottom:1px dotted var(--line);
+}
+.blocks li:last-child{border-bottom:none;padding-bottom:0}
+.blocks .min{
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.btn{
+  display:block;text-align:center;text-decoration:none;
+  background:var(--cobalt);color:#fff;font-weight:600;font-size:14.5px;
+  padding:10px 14px;border-radius:9px;margin-top:auto;
+}
+.card.kid .btn{background:var(--naranja)}
+.btn:hover{filter:brightness(1.08)}
+.btn:focus-visible,a:focus-visible{outline:2px solid var(--naranja);outline-offset:2px}
+
+/* ---------- ресурсы ---------- */
+.res .card{gap:9px}
+.res h3{font-size:15.5px}
+.res .why{font-size:13px;color:var(--ink-faint);margin-bottom:2px}
+.links{display:flex;flex-direction:column;gap:2px}
+.links a{
+  display:flex;justify-content:space-between;gap:10px;align-items:baseline;
+  text-decoration:none;font-size:14.5px;color:var(--ink);
+  padding:5px 0;border-bottom:1px solid transparent;
+}
+.links a:hover{color:var(--cobalt);border-bottom-color:var(--line)}
+.links .tag{font-size:11.5px;color:var(--ink-faint);white-space:nowrap}
+
+/* ---------- уроки ---------- */
+.lessons{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.lesson{
+  text-decoration:none;background:var(--surface);border:1px solid var(--line);
+  border-radius:9px;padding:9px 11px;display:flex;flex-direction:column;gap:2px;
+}
+.lesson .n{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--cobalt)}
+.lesson .d{font-size:12px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.lesson:hover{border-color:var(--cobalt)}
+.lesson.done{opacity:.5}
+.lesson.now{border-color:var(--naranja);background:var(--naranja-soft)}
+.lesson.now .n{color:var(--naranja)}
+
+footer{
+  margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:13px;color:var(--ink-faint);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+@media (max-width:640px){
+  .today{grid-template-columns:1fr}
+  .counters{justify-content:flex-start}
+  .counter{text-align:left}
+}
+</style>
+
+<div class="wrap">
+
+  <p class="eyebrow">Валенсия · 15 октября 2026</p>
+  <h1>Ruta Valencia</h1>
+  <p style="color:var(--ink-soft);max-width:62ch;margin-top:8px">
+    Все ссылки семьи в одном месте. Открывается с компьютера, телефона и планшета.
+    Добавьте страницу в закладки на каждом устройстве, и больше ничего искать не придётся.
+  </p>
+
+  <div class="today">
+    <div class="today-main">
+      <p class="eyebrow" id="dateline">Сегодня</p>
+      <h2 id="tasktitle">Сегодня по плану</h2>
+      <div class="today-task" id="taskrow"></div>
+    </div>
+    <div class="counters">
+      <div class="counter"><div class="num" id="dayNum">—</div><div class="lab">день из 52</div></div>
+      <div class="counter warm"><div class="num" id="daysLeft">—</div><div class="lab">до Валенсии</div></div>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <h2>Кто чем занимается</h2>
+      <span class="note">у каждого своя таблица, отмечать только в своей</span>
+    </div>
+    <div class="grid people">
+
+      <div class="card person">
+        <div class="who"><h3>Папа</h3><span class="age">100 мин</span></div>
+        <ul class="blocks">
+          <li><span>Грамматика по-русски</span><span class="min">30</span></li>
+          <li><span>Слова, 15 штук</span><span class="min">20</span></li>
+          <li><span>Аудирование и шэдоуинг</span><span class="min">25</span></li>
+          <li><span>Речь и разбор в чате</span><span class="min">15</span></li>
+          <li><span>Числа и фразы дня</span><span class="min">10</span></li>
+        </ul>
+        <a class="btn" href="https://docs.google.com/spreadsheets/d/1AhTEPYbfttV4IVLTNAOdTDCK_YjtLBFOnp7rBFxh28A">Моя таблица</a>
+      </div>
+
+      <div class="card person">
+        <div class="who"><h3>Мама</h3><span class="age">100 мин</span></div>
+        <ul class="blocks">
+          <li><span>Грамматика по-русски</span><span class="min">30</span></li>
+          <li><span>Слова, 15 штук</span><span class="min">20</span></li>
+          <li><span>Аудирование и шэдоуинг</span><span class="min">25</span></li>
+          <li><span>Речь и разбор в чате</span><span class="min">15</span></li>
+          <li><span>Числа и фразы дня</span><span class="min">10</span></li>
+        </ul>
+        <a class="btn" href="https://docs.google.com/spreadsheets/d/1b97Jb8iycXYGvEp2hn-u7nT1qLBMWEkKPmufCsmgof8">Моя таблица</a>
+      </div>
+
+      <div class="card person kid">
+        <div class="who"><h3>Старший</h3><span class="age">12 лет · 45 мин</span></div>
+        <ul class="blocks">
+          <li><span>Видео на испанском</span><span class="min">15</span></li>
+          <li><span>Duolingo</span><span class="min">10</span></li>
+          <li><span>20 слов в Quizlet</span><span class="min">10</span></li>
+          <li><span>Четыре фразы вслух</span><span class="min">5</span></li>
+          <li><span>Числа и дни недели</span><span class="min">5</span></li>
+        </ul>
+        <a class="btn" href="https://docs.google.com/spreadsheets/d/1AfIuRd8KOh4W2A3lx2F6KJ014yCErRnvmJjA76EZLYQ">Моя таблица</a>
+      </div>
+
+      <div class="card person kid">
+        <div class="who"><h3>Младшая</h3><span class="age">8 лет · 35 мин</span></div>
+        <ul class="blocks">
+          <li><span>Мультик на испанском</span><span class="min">18</span></li>
+          <li><span>Песня</span><span class="min">5</span></li>
+          <li><span>Четыре фразы за мамой</span><span class="min">5</span></li>
+          <li><span>Числа и дни недели</span><span class="min">5</span></li>
+          <li><span>Игра, по средам и субботам</span><span class="min">10</span></li>
+        </ul>
+        <a class="btn" href="https://docs.google.com/spreadsheets/d/1xhA3lFKe73s6YtxTBphPzljGOJIeEGM4nUTbJEu2mpk">Моя таблица</a>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>16 уроков Петрова</h2>
+      <span class="note">вторник, четверг, суббота · каждая ссылка ведёт сразу на нужный урок</span>
+    </div>
+    <div class="lessons" id="lessons"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Ресурсы взрослых</h2></div>
+    <div class="grid res">
+
+      <div class="card">
+        <h3>Грамматика по-русски</h3>
+        <p class="why">объяснения на родном языке</p>
+        <div class="links">
+          <a href="https://smotrim.ru/video/440567">Петров, урок 1<span class="tag">видео</span></a>
+          <a href="https://edespa.com/trenazher-dlya-spryazheniya-glagolov/">Тренажёр спряжений<span class="tag">бесплатно</span></a>
+          <a href="https://entre-amigos.ru/conjugar.html">Спряжение по глаголу<span class="tag">справочник</span></a>
+          <a href="https://tutesp.ru/">Самоучитель с нуля<span class="tag">сайт</span></a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Слова</h3>
+        <p class="why">15 новых в день, режим «Подбор»</p>
+        <div class="links">
+          <a href="https://quizlet.com/">Quizlet<span class="tag">русский интерфейс</span></a>
+          <a href="https://www.clozemaster.com/">Clozemaster<span class="tag">слова в предложениях</span></a>
+          <a href="https://www.digitaldialects.com/numbers/Spanish_numbers.htm">Числа на слух<span class="tag">5 минут</span></a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Слух, испанский Испании</h3>
+        <p class="why">кастильский, без латиноамериканского</p>
+        <div class="links">
+          <a href="https://www.notesinspanish.com/category/beginners-podcast/">Notes in Spanish<span class="tag">для начинающих</span></a>
+          <a href="https://www.youtube.com/@espanolconjuan">Español con Juan<span class="tag">с недели 4</span></a>
+          <a href="https://www.rtve.es/play/">RTVE Play<span class="tag">телевидение</span></a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Речь и произношение</h3>
+        <p class="why">всё бесплатно</p>
+        <div class="links">
+          <a href="https://tandem.net/">Tandem<span class="tag">вт и пт</span></a>
+          <a href="https://www.hellotalk.com/">HelloTalk<span class="tag">обмен</span></a>
+          <a href="https://speechling.com/signup">Speechling<span class="tag">живой коуч</span></a>
+          <a href="https://forvo.com/languages/es/">Forvo<span class="tag">как звучит слово</span></a>
+          <a href="https://www.digitaldialects.com/Spanish/time_learn.htm">Время на слух<span class="tag">тренажёр</span></a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Русскоязычные преподаватели</h3>
+        <p class="why">на проверку, платного пока не берём</p>
+        <div class="links">
+          <a href="https://www.youtube.com/@irinadanilkovaa">Espachicas, Данилкова<span class="tag">клуб A2+</span></a>
+          <a href="https://www.youtube.com/c/BlaBlaeSpanish">Bla-Bla e.Spanish<span class="tag">курс с нуля</span></a>
+          <a href="https://www.youtube.com/c/lenaispanochka">Lena Ispanochka<span class="tag">жизнь в Испании</span></a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Готовые наборы слов</h3>
+        <p class="why">вставить в игру и не печатать руками</p>
+        <div class="links">
+          <a href="https://drive.google.com/drive/folders/1WlGxFgoGmXNdj5DIc9En-4oQ7WfZRg3n">Папка «Наборы слов»<span class="tag">31 файл</span></a>
+          <a href="https://www.blooket.com/">Blooket<span class="tag">аркада</span></a>
+          <a href="https://www.gimkit.com/">Gimkit<span class="tag">для Миши</span></a>
+          <a href="https://kahoot.com/">Kahoot<span class="tag">семьёй вечером</span></a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Документы семьи</h3>
+        <p class="why">таблицы, планы, справочники</p>
+        <div class="links">
+          <a href="https://drive.google.com/drive/folders/1EoZD63bn6Qc6sIo-lCFC0jX1WmAaRNRW">Папка на Google Диске<span class="tag">всё вместе</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Ресурсы детей</h2>
+      <span class="note">открывать прямо на планшете</span>
+    </div>
+    <div class="grid res">
+
+      <div class="card">
+        <h3>Младшая, 8 лет</h3>
+        <p class="why">мультики и песни, никакой грамматики</p>
+        <div class="links">
+          <a href="https://www.youtube.com/@PocoyoEspanol">Pocoyó<span class="tag">мультик</span></a>
+          <a href="https://www.youtube.com/results?search_query=Peppa+Pig+en+espa%C3%B1ol+capitulos+completos">Peppa Pig<span class="tag">поиск</span></a>
+          <a href="https://www.youtube.com/results?search_query=Bluey+en+espa%C3%B1ol+capitulos">Bluey<span class="tag">поиск</span></a>
+          <a href="https://www.youtube.com/@ElReinoInfantil">El Reino Infantil<span class="tag">песни</span></a>
+          <a href="https://www.youtube.com/@rockalingua">Rockalingua<span class="tag">песни-обучалки</span></a>
+          <a href="https://www.gpb.org/education/salsa">Salsa<span class="tag">сериал для детей</span></a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Игры без регистрации</h3>
+        <p class="why">нажал и играешь, ничего настраивать не надо</p>
+        <div class="links">
+          <a href="https://www.digitaldialects.com/Spanish/numbers_1I.htm">Числа 1-12<span class="tag">с озвучкой</span></a>
+          <a href="https://www.digitaldialects.com/Spanish/numbers_2I.htm">Числа 13-20<span class="tag">через неделю</span></a>
+          <a href="https://www.digitaldialects.com/Spanish/numbers_3I.htm">Числа 0-100<span class="tag">потом</span></a>
+          <a href="https://www.digitaldialects.com/Spanish/Daysmonths.htm">Дни и месяцы<span class="tag">викторина</span></a>
+          <a href="https://www.digitaldialects.com/Spanish/time_learn.htm">Который час<span class="tag">с недели 4</span></a>
+          <a href="https://www.rockalingua.com/games">Rockalingua<span class="tag">мультяшные</span></a>
+          <a href="https://wordwall.net/ru/community/%D0%B8%D1%81%D0%BF%D0%B0%D0%BD%D1%81%D0%BA%D0%B8%D0%B9">Wordwall<span class="tag">чужие готовые</span></a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Старший, 12 лет</h3>
+        <p class="why">половина видео из своих каналов</p>
+        <div class="links">
+          <a href="https://www.youtube.com/@DreamingSpanish">Dreaming Spanish<span class="tag">Super Beginner</span></a>
+          <a href="https://www.duolingo.com/">Duolingo<span class="tag">10 минут</span></a>
+          <a href="https://quizlet.com/">Quizlet<span class="tag">20 карточек</span></a>
+          <a href="https://www.youtube.com/@BashoandFriends">Basho &amp; Friends<span class="tag">песни</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <span>Стоимость программы: 0 евро</span>
+    <span>Все ссылки проверены 24 августа 2026</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var START = new Date(2026,7,24);   // 24 августа
+  var ARRIVE = new Date(2026,9,15);  // 15 октября
+  var MS = 86400000;
+
+  var LESSONS = [
+    [1,"25.08",440567],[2,"27.08",440568],[3,"29.08",440641],[4,"01.09",440642],
+    [5,"03.09",440710],[6,"05.09",440649],[7,"08.09",440712],[8,"10.09",381933],
+    [9,"12.09",406261],[10,"15.09",406265],[11,"17.09",446692],[12,"19.09",447995],
+    [13,"22.09",425528],[14,"24.09",425472],[15,"26.09",425529],[16,"29.09",425530]
+  ];
+  var WEEKS = [
+    "Скелет: ser, estar, tener, ir",
+    "Presente всех глаголов. Кафе и магазин",
+    "Будущее и долженствование. Квартира",
+    "Gustar и местоимения. Банк",
+    "Где что находится. Документы",
+    "Прошедшее время. Врач и аптека",
+    "Рассказ о прошлом. Школа и быт",
+    "Генеральная репетиция"
+  ];
+  var MONTHS = ["января","февраля","марта","апреля","мая","июня","июля",
+                "августа","сентября","октября","ноября","декабря"];
+
+  function midnight(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
+  var now = midnight(new Date());
+  var dayNum = Math.floor((now - START)/MS) + 1;
+  var left = Math.round((ARRIVE - now)/MS);
+
+  document.getElementById("dayNum").textContent = dayNum < 1 ? "0" : (dayNum > 52 ? "52" : dayNum);
+  document.getElementById("daysLeft").textContent = left > 0 ? left : "0";
+  document.getElementById("dateline").textContent =
+    now.getDate() + " " + MONTHS[now.getMonth()] + ", сегодня";
+
+  var stamp = ("0"+now.getDate()).slice(-2) + "." + ("0"+(now.getMonth()+1)).slice(-2);
+  var todays = null;
+  for (var i=0;i<LESSONS.length;i++){ if (LESSONS[i][1] === stamp) todays = LESSONS[i]; }
+
+  var wIdx = Math.min(Math.max(Math.floor((dayNum-1)/7),0),7);
+  document.getElementById("tasktitle").textContent =
+    (dayNum >= 1 && dayNum <= 52) ? WEEKS[wIdx] : "Программа: 24 августа — 14 октября";
+
+  var row = document.getElementById("taskrow");
+  function pill(text, href, hot){
+    var el = document.createElement(href ? "a" : "span");
+    el.className = "pill" + (hot ? " hot" : "");
+    if (href){ el.href = href; }
+    el.textContent = text;
+    row.appendChild(el);
+  }
+  if (todays){
+    pill("Урок Петрова № " + todays[0], "https://smotrim.ru/video/" + todays[2], true);
+  } else if (dayNum >= 1 && dayNum <= 52){
+    pill("Повтор таблиц и тренажёр", "https://edespa.com/trenazher-dlya-spryazheniya-glagolov/", true);
+  }
+  var wd = now.getDay();
+  if (wd === 2 || wd === 5) pill("Языковой обмен, 15 мин", "https://tandem.net/");
+  if (wd === 0) pill("Ролевая игра вдвоём, 30 мин");
+  pill("15 слов", "https://quizlet.com/");
+  pill("Аудирование", "https://www.notesinspanish.com/category/beginners-podcast/");
+
+  var box = document.getElementById("lessons");
+  LESSONS.forEach(function(L){
+    var a = document.createElement("a");
+    a.className = "lesson";
+    a.href = "https://smotrim.ru/video/" + L[2];
+    if (todays && L[0] === todays[0]) a.className += " now";
+    else {
+      var p = L[1].split("."), d = new Date(2026, parseInt(p[1],10)-1, parseInt(p[0],10));
+      if (d < now) a.className += " done";
+    }
+    a.innerHTML = '<span class="n">Урок ' + L[0] + '</span><span class="d">' + L[1] + '</span>';
+    box.appendChild(a);
+  });
+})();
+</script>
