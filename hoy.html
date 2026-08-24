@@ -197,8 +197,8 @@ function themeOf(d){return CYCLE[(d-1)%7]}
 function blocks(){
   var d=S.day, kid=who().kid, th=themeOf(d), out=[];
   if(!kid){
-    out.push({id:"petrov",auto:false,min:45,
-      t: d<=16 ? ("Урок Петрова № "+d) : "Грамматика: повтор и спряжения",
+    out.push({id:"petrov",auto:false,min: d<=16?45:20,
+      t: d<=16 ? ("Урок Петрова № "+d) : "Грамматика: повтор таблиц",
       s: d<=16 ? "45 минут, отвечать вслух на каждой паузе" : "разбор слабых мест",
       href: d<=16 ? ("https://smotrim.ru/video/"+VID[d-1]) : "./verbos.html",
       go: d<=16 ? "Смотреть" : "Открыть"});
@@ -211,8 +211,8 @@ function blocks(){
     t: kid?"Фразы дня":"Слова дня, 15 штук",
     s: DAY_NAME[d]||"набор дня", href:"./trainer.html", go:"Учить",
     done: num("esp2_r_"+S.who+"_"+d)>=5});
-  out.push({id:"audio",auto:false,min:kid?18:25,
-    t: kid?"Видео на испанском":"Аудирование и шэдоуинг",
+  out.push({id:"audio",auto:false,min:kid?18:25,fon:true,
+    t: kid?"Видео на испанском":"Аудирование и шэдоуинг (фоном)",
     s: kid?"мультик или свой канал":"Notes in Spanish, потом 10 минут повтора вслух",
     href: kid?"https://www.youtube.com/@PocoyoEspanol":"https://www.notesinspanish.com/category/beginners-podcast/",
     go:"Открыть"});
@@ -257,12 +257,15 @@ function render(){
        '<div class="box'+(ok?" on":"")+(x.auto?" auto":"")+'" data-id="'+x.id+'" data-auto="'+(x.auto?1:0)+'">'+(ok?"✓":"")+'</div>'+
        '<div class="body"><div class="t">'+x.t+'</div><div class="s">'+x.s+
        (x.auto?' · <span class="tag2">отмечается сам</span>':'')+'</div></div>'+
-       '<span class="min">'+x.min+' мин</span>'+
+       '<span class="min">'+x.min+' мин'+(x.fon?' · фоном':'')+'</span>'+
        '<a class="go" href="'+x.href+'"'+(/^http/.test(x.href)?' target="_blank" rel="noopener"':'')+'>'+x.go+'</a></div>';
   });
   el("list").innerHTML=h;
   el("ring").textContent=done+" / "+b.length;
-  el("sum").textContent=(done>=b.length)?"день закрыт":"осталось "+(b.length-done);
+  var sit=b.filter(function(x){return !x.fon}).reduce(function(a,x){return a+x.min},0);
+  var fon=b.filter(function(x){return x.fon}).reduce(function(a,x){return a+x.min},0);
+  el("sum").textContent=(done>=b.length?"день закрыт · ":"осталось "+(b.length-done)+" · ")+
+    sit+" мин за столом + "+fon+" фоном";
   renderDays();
 }
 function boot(){
