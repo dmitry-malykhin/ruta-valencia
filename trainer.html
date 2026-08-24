@@ -408,7 +408,8 @@ function rType(){
     else{ S.wrong++; S.queue.push(w);
       el("v").innerHTML='<div class="verdict bad">Правильно: <b>'+w[0]+'</b><br>'+
       '<span style="font-size:13.5px">вы написали: '+inp.value+'</span></div>'; }
-    speak(w[0]); inp.disabled=true; el("ok").disabled=true; saveState();
+    speak(w[0]); inp.disabled=true; el("ok").disabled=true;
+    S.idx++; saveState();
     setTimeout(step,good?800:2100);
   }
   el("ok").onclick=check;
@@ -431,7 +432,7 @@ function rListen(){
     var good=a===norm(w[0]);
     noteAnswer(w,good);
     if(good){S.ok++} else {S.wrong++;S.queue.push(w)}
-    saveState();
+    S.idx++; saveState();
     el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+w[0]+'</b> — '+w[1]+'</div>';
     speak(w[0]); inp.disabled=true; el("ok").disabled=true; setTimeout(step,good?900:2100);
   }
