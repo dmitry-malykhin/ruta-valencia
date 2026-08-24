@@ -665,6 +665,8 @@ function importProgress(e){
 function boot(){
   var o="";for(var d=1;d<=52;d++)o+='<option value="'+d+'">День '+d+'</option>';
   el("daysel").innerHTML=o;
+  var whoFromUrl=(location.search.match(/who=([a-z]+)/)||[])[1];
+  if(whoFromUrl && WHO.some(function(person){return person.id===whoFromUrl})) ls("esp_who",whoFromUrl);
   S.who=ls("esp_who")||"dmitry"; renderWho();
   el("who").onclick=function(e){var b=e.target.closest("button[data-who]");if(!b)return;
     S.who=b.dataset.who;ls("esp_who",S.who);renderWho();startDay(today())};
