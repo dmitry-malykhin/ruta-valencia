@@ -1,0 +1,1734 @@
+<title>Наборы по дням</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#F4F6FA;
+  --surface:#FFFFFF;
+  --surface-2:#EDF1F8;
+  --line:#D3DCEA;
+  --ink:#0F1C33;
+  --ink-soft:#4A5872;
+  --ink-faint:#7C8AA3;
+  --cobalt:#1B4FA8;
+  --cobalt-soft:#E3EBF9;
+  --naranja:#D45B12;
+  --naranja-soft:#FBE8DB;
+  --verde:#256B4E;
+  --shadow:0 1px 2px rgba(15,28,51,.06),0 8px 24px rgba(15,28,51,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1421;
+    --surface:#141E2F;
+    --surface-2:#1B2740;
+    --line:#2A3958;
+    --ink:#E7EDF8;
+    --ink-soft:#AEBCD4;
+    --ink-faint:#7D8DA8;
+    --cobalt:#7BA6F2;
+    --cobalt-soft:#1B2C4C;
+    --naranja:#F0894A;
+    --naranja-soft:#3A2416;
+    --verde:#5FBF93;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1421;
+  --surface:#141E2F;
+  --surface-2:#1B2740;
+  --line:#2A3958;
+  --ink:#E7EDF8;
+  --ink-soft:#AEBCD4;
+  --ink-faint:#7D8DA8;
+  --cobalt:#7BA6F2;
+  --cobalt-soft:#1B2C4C;
+  --naranja:#F0894A;
+  --naranja-soft:#3A2416;
+  --verde:#5FBF93;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 72px}
+
+h1,h2,h3{font-family:Bitter,Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,4.4vw,44px);font-weight:700;letter-spacing:-.01em;line-height:1.1}
+h2{font-size:20px;font-weight:700;letter-spacing:-.005em}
+h3{font-size:17px;font-weight:700}
+p{margin:0}
+a{color:inherit}
+
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+/* ---------- сегодня ---------- */
+.today{
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);padding:22px 24px;margin:18px 0 32px;
+  display:grid;gap:20px;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+}
+.today-main{display:flex;flex-direction:column;gap:10px;min-width:0}
+.today-task{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.counters{display:flex;gap:26px}
+.counter{text-align:right}
+.counter .num{
+  font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:600;
+  font-variant-numeric:tabular-nums;line-height:1;color:var(--cobalt);
+}
+.counter .lab{font-size:11.5px;color:var(--ink-faint);margin-top:5px}
+.counter.warm .num{color:var(--naranja)}
+
+.pill{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 13px;border-radius:999px;font-size:13.5px;font-weight:500;
+  background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--line);
+  text-decoration:none;
+}
+.pill.hot{background:var(--naranja-soft);color:var(--naranja);border-color:transparent;font-weight:600}
+a.pill:hover{border-color:var(--cobalt);color:var(--cobalt)}
+
+/* ---------- секции ---------- */
+section{margin-top:38px}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.sec-head .note{font-size:13.5px;color:var(--ink-faint)}
+
+.grid{display:grid;gap:14px}
+.people{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.res{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:13px;
+  padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px;
+}
+.card.person{border-top:3px solid var(--cobalt)}
+.card.person.kid{border-top-color:var(--naranja)}
+.who{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.who .age{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint)}
+.blocks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.blocks li{
+  display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--ink-soft);
+  padding-bottom:6px;border-bottom:1px dotted var(--line);
+}
+.blocks li:last-child{border-bottom:none;padding-bottom:0}
+.blocks .min{
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.btn{
+  display:block;text-align:center;text-decoration:none;
+  background:var(--cobalt);color:#fff;font-weight:600;font-size:14.5px;
+  padding:10px 14px;border-radius:9px;margin-top:auto;
+}
+.card.kid .btn{background:var(--naranja)}
+.btn:hover{filter:brightness(1.08)}
+.btn:focus-visible,a:focus-visible{outline:2px solid var(--naranja);outline-offset:2px}
+
+/* ---------- ресурсы ---------- */
+.res .card{gap:9px}
+.res h3{font-size:15.5px}
+.res .why{font-size:13px;color:var(--ink-faint);margin-bottom:2px}
+.links{display:flex;flex-direction:column;gap:2px}
+.links a{
+  display:flex;justify-content:space-between;gap:10px;align-items:baseline;
+  text-decoration:none;font-size:14.5px;color:var(--ink);
+  padding:5px 0;border-bottom:1px solid transparent;
+}
+.links a:hover{color:var(--cobalt);border-bottom-color:var(--line)}
+.links .tag{font-size:11.5px;color:var(--ink-faint);white-space:nowrap}
+
+/* ---------- уроки ---------- */
+.lessons{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.lesson{
+  text-decoration:none;background:var(--surface);border:1px solid var(--line);
+  border-radius:9px;padding:9px 11px;display:flex;flex-direction:column;gap:2px;
+}
+.lesson .n{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--cobalt)}
+.lesson .d{font-size:12px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.lesson:hover{border-color:var(--cobalt)}
+.lesson.done{opacity:.5}
+.lesson.now{border-color:var(--naranja);background:var(--naranja-soft)}
+.lesson.now .n{color:var(--naranja)}
+
+footer{
+  margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:13px;color:var(--ink-faint);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+@media (max-width:640px){
+  .today{grid-template-columns:1fr}
+  .counters{justify-content:flex-start}
+  .counter{text-align:left}
+}
+
+.card button.btn{border:none;cursor:pointer;font-family:inherit}
+</style><div class="wrap">
+<p class="eyebrow"><a href="./" style="text-decoration:none">← Ruta Valencia</a> · <a href="./sets.html" style="text-decoration:none">большие наборы</a></p>
+<h1>Наборы по дням</h1>
+<p style="color:var(--ink-soft);max-width:66ch;margin-top:8px">Один день — один набор. У взрослых ровно <b>15 слов</b>, у детей <b>4 фразы</b>. Думать, где остановиться, не нужно: набор закончился — день закрыт.<br><br>Импортируйте <b>раз в неделю по 7 наборов</b>. Название набора скопируйте из заголовка карточки.</p>
+<section><div class="sec-head"><h2>Взрослые: Дмитрий и Юля</h2><span class="note">по 15 слов в день · 10 по теме недели + 5 глаголов и связок</span></div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 1 · дни 1–7</h3>
+<div class="grid res">
+<div class="card">
+<h3>ESP D01 · 24.08 пн · знакомство</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD012408пнзнакомство1">Копировать</button>
+<textarea id="t_ESPD012408пнзнакомство1" style="position:absolute;left:-9999px;top:0" readonly>hola	привет
+buenos días	доброе утро
+buenas tardes	добрый день
+buenas noches	добрый вечер, спокойной ночи
+adiós	до свидания
+hasta luego	до скорого
+hasta mañana	до завтра
+por favor	пожалуйста (просьба)
+gracias	спасибо
+muchas gracias	большое спасибо
+hacer	делать
+decir	говорить, сказать
+dejar	оставлять, позволять
+pensar	думать
+creer	верить, считать</textarea>
+</div>
+<div class="card">
+<h3>ESP D02 · 25.08 вт · знакомство</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD022508втзнакомство2">Копировать</button>
+<textarea id="t_ESPD022508втзнакомство2" style="position:absolute;left:-9999px;top:0" readonly>de nada	не за что
+perdón	извините
+perdone	извините (вежливо, к незнакомому)
+disculpe	простите, извините
+lo siento	мне жаль, извините
+sí	да
+no	нет
+vale	ладно, хорошо
+claro	конечно
+por supuesto	разумеется
+parecer	казаться
+quedar	оставаться, договориться
+sacar	доставать, вынимать
+tocar	трогать, играть (на инструменте)
+usar	использовать</textarea>
+</div>
+<div class="card">
+<h3>ESP D03 · 26.08 ср · знакомство</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD032608срзнакомство3">Копировать</button>
+<textarea id="t_ESPD032608срзнакомство3" style="position:absolute;left:-9999px;top:0" readonly>tal vez	может быть
+quizás	возможно
+también	тоже, также
+tampoco	тоже не
+pero	но
+y	и
+o	или
+porque	потому что
+por qué	почему
+qué	что, какой
+utilizar	использовать
+decidir	решать
+acabar	заканчивать
+servir	служить, годиться
+nacer	рождаться</textarea>
+</div>
+<div class="card">
+<h3>ESP D04 · 27.08 чт · знакомство</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD042708чтзнакомство4">Копировать</button>
+<textarea id="t_ESPD042708чтзнакомство4" style="position:absolute;left:-9999px;top:0" readonly>quién	кто
+dónde	где
+adónde	куда
+cuándo	когда
+cómo	как
+cuánto	сколько
+cuál	какой (из)
+mucho	много, очень
+poco	мало
+más	больше
+morir	умирать
+tratar	обращаться, пытаться
+llenar	наполнять
+cortar	резать
+romper	ломать, рвать</textarea>
+</div>
+<div class="card">
+<h3>ESP D05 · 28.08 пт · знакомство</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD052808птзнакомство5">Копировать</button>
+<textarea id="t_ESPD052808птзнакомство5" style="position:absolute;left:-9999px;top:0" readonly>menos	меньше
+muy	очень
+bien	хорошо
+mal	плохо
+todo	всё
+nada	ничего
+algo	что-то
+alguien	кто-то
+nadie	никто
+siempre	всегда
+cantar	петь
+bailar	танцевать
+gritar	кричать
+callar	молчать
+reír	смеяться</textarea>
+</div>
+<div class="card">
+<h3>ESP D06 · 29.08 сб · знакомство</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD062908сбзнакомство6">Копировать</button>
+<textarea id="t_ESPD062908сбзнакомство6" style="position:absolute;left:-9999px;top:0" readonly>nunca	никогда
+a veces	иногда
+ahora	сейчас
+hoy	сегодня
+mañana	завтра
+ayer	вчера
+después	потом, после
+antes	раньше, до
+ya	уже
+todavía	ещё
+sonreír	улыбаться
+llorar	плакать
+abrazar	обнимать
+besar	целовать
+amar	любить</textarea>
+</div>
+<div class="card">
+<h3>ESP D07 · 30.08 вс · знакомство</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD073008всзнакомство7">Копировать</button>
+<textarea id="t_ESPD073008всзнакомство7" style="position:absolute;left:-9999px;top:0" readonly>otra vez	ещё раз
+aquí	здесь
+allí	там
+cerca	близко
+lejos	далеко
+yo	я
+tú	ты
+usted	Вы (вежливо)
+él	он
+ella	она
+soñar	мечтать, видеть сон
+invitar	приглашать
+visitar	навещать, посещать
+volar	летать
+montar	садиться верхом, собирать</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 2 · дни 8–14</h3>
+<div class="grid res">
+<div class="card">
+<h3>ESP D08 · 31.08 пн · еда и магазин</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD083108пнедаимагазин8">Копировать</button>
+<textarea id="t_ESPD083108пнедаимагазин8" style="position:absolute;left:-9999px;top:0" readonly>la comida	еда, обед
+el desayuno	завтрак
+el almuerzo	обед
+la cena	ужин
+desayunar	завтракать
+comer	есть, обедать
+cenar	ужинать
+beber	пить
+tomar	брать, выпить, съесть
+probar	пробовать
+cargar	грузить, заряжать
+guardar	хранить, беречь
+meter	засовывать, помещать
+quitar	убирать, снимать
+tirar	бросать, выбрасывать</textarea>
+</div>
+<div class="card">
+<h3>ESP D09 · 01.09 вт · еда и магазин</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD090109втедаимагазин9">Копировать</button>
+<textarea id="t_ESPD090109втедаимагазин9" style="position:absolute;left:-9999px;top:0" readonly>cocinar	готовить
+el agua	вода
+el agua con gas	вода с газом
+el agua sin gas	вода без газа
+el café	кофе
+el café con leche	кофе с молоком
+el café solo	чёрный кофе
+el cortado	кофе с каплей молока
+el té	чай
+la leche	молоко
+echar	бросать, наливать
+caber	помещаться
+mover	двигать
+mostrar	показывать
+ofrecer	предлагать</textarea>
+</div>
+<div class="card">
+<h3>ESP D10 · 02.09 ср · еда и магазин</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD100209средаимагазин10">Копировать</button>
+<textarea id="t_ESPD100209средаимагазин10" style="position:absolute;left:-9999px;top:0" readonly>el zumo	сок
+el zumo de naranja	апельсиновый сок
+la cerveza	пиво
+el vino	вино
+el vino tinto	красное вино
+el pan	хлеб
+la tostada	тост
+el bocadillo	бутерброд, сэндвич
+el croissant	круассан
+la tortilla	омлет, тортилья
+permitir	разрешать
+prohibir	запрещать
+gastar	тратить
+ahorrar	копить, экономить
+prestar	одалживать</textarea>
+</div>
+<div class="card">
+<h3>ESP D11 · 03.09 чт · еда и магазин</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD110309чтедаимагазин11">Копировать</button>
+<textarea id="t_ESPD110309чтедаимагазин11" style="position:absolute;left:-9999px;top:0" readonly>el huevo	яйцо
+el queso	сыр
+el jamón	хамон, ветчина
+la carne	мясо
+el pollo	курица
+la ternera	телятина
+el cerdo	свинина
+el pescado	рыба
+el marisco	морепродукты
+la gamba	креветка
+alquilar	снимать, сдавать (жильё)
+cobrar	получать деньги, взимать
+enchufar	включать в розетку
+durar	длиться
+continuar	продолжать</textarea>
+</div>
+<div class="card">
+<h3>ESP D12 · 04.09 пт · еда и магазин</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD120409птедаимагазин12">Копировать</button>
+<textarea id="t_ESPD120409птедаимагазин12" style="position:absolute;left:-9999px;top:0" readonly>el arroz	рис
+la paella	паэлья
+la pasta	макароны
+la sopa	суп
+la ensalada	салат
+la verdura	овощи
+el tomate	помидор
+la patata	картофель
+la cebolla	лук
+el ajo	чеснок
+traducir	переводить
+imaginar	представлять
+suponer	предполагать
+secar	сушить
+planchar	гладить</textarea>
+</div>
+<div class="card">
+<h3>ESP D13 · 05.09 сб · еда и магазин</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD130509сбедаимагазин13">Копировать</button>
+<textarea id="t_ESPD130509сбедаимагазин13" style="position:absolute;left:-9999px;top:0" readonly>la zanahoria	морковь
+el pepino	огурец
+el pimiento	перец
+la fruta	фрукты
+la manzana	яблоко
+el plátano	банан
+la naranja	апельсин
+el limón	лимон
+la fresa	клубника
+la uva	виноград
+barrer	подметать
+hervir	кипятить
+freír	жарить
+oler	пахнуть
+sentir	чувствовать</textarea>
+</div>
+<div class="card">
+<h3>ESP D14 · 06.09 вс · еда и магазин</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD140609вседаимагазин14">Копировать</button>
+<textarea id="t_ESPD140609вседаимагазин14" style="position:absolute;left:-9999px;top:0" readonly>la sandía	арбуз
+el melón	дыня
+el melocotón	персик
+el aceite	масло (растительное)
+la sal	соль
+el azúcar	сахар
+la pimienta	перец (молотый)
+la mantequilla	сливочное масло
+el yogur	йогурт
+el helado	мороженое
+despertar	будить
+levantar	поднимать
+saltar	прыгать
+crear	создавать
+formar	формировать</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 3 · дни 15–21</h3>
+<div class="grid res">
+<div class="card">
+<h3>ESP D15 · 07.09 пн · квартира</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD150709пнквартира15">Копировать</button>
+<textarea id="t_ESPD150709пнквартира15" style="position:absolute;left:-9999px;top:0" readonly>el documento	документ
+el pasaporte	паспорт
+el DNI	удостоверение личности (испанское)
+el NIE	номер иностранца
+la TIE	карта иностранца
+el visado	виза
+el permiso de residencia	вид на жительство
+la nacionalidad	гражданство
+el certificado	справка, сертификат
+el empadronamiento	прописка
+existir	существовать
+ocurrir	происходить
+producir	производить
+aparecer	появляться
+desaparecer	исчезать</textarea>
+</div>
+<div class="card">
+<h3>ESP D16 · 08.09 вт · квартира</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD160809втквартира16">Копировать</button>
+<textarea id="t_ESPD160809втквартира16" style="position:absolute;left:-9999px;top:0" readonly>el padrón	реестр жителей
+la cita previa	запись на приём
+el trámite	формальность, процедура
+la solicitud	заявление
+el formulario	бланк
+el impreso	бланк, форма
+la firma	подпись
+firmar	подписывать
+rellenar	заполнять
+entregar	сдавать, передавать
+convertir	превращать
+mantener	поддерживать
+obtener	получать
+sostener	держать
+detener	задерживать, останавливать</textarea>
+</div>
+<div class="card">
+<h3>ESP D17 · 09.09 ср · квартира</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD170909срквартира17">Копировать</button>
+<textarea id="t_ESPD170909срквартира17" style="position:absolute;left:-9999px;top:0" readonly>presentar	предъявлять, подавать
+sellar	ставить печать
+el sello	печать, штамп
+la copia	копия
+el original	оригинал
+la fotocopia	ксерокопия
+la traducción	перевод
+el traductor jurado	присяжный переводчик
+la apostilla	апостиль
+el registro	регистрация, реестр
+resultar	оказываться
+significar	означать
+comprender	понимать
+reconocer	узнавать, признавать
+comenzar	начинать</textarea>
+</div>
+<div class="card">
+<h3>ESP D18 · 10.09 чт · квартира</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD181009чтквартира18">Копировать</button>
+<textarea id="t_ESPD181009чтквартира18" style="position:absolute;left:-9999px;top:0" readonly>la oficina de extranjería	отдел по делам иностранцев
+el funcionario	чиновник
+la ventanilla	окошко
+el turno	очередь, талон
+el expediente	дело, досье
+el plazo	срок
+la tasa	пошлина
+el justificante	подтверждение
+el recibo	квитанция
+la factura	счёт, инвойс
+lograr	добиваться
+realizar	осуществлять
+alcanzar	достигать
+cumplir	выполнять, исполняться
+descubrir	открывать, обнаруживать</textarea>
+</div>
+<div class="card">
+<h3>ESP D19 · 11.09 пт · квартира</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD191109птквартира19">Копировать</button>
+<textarea id="t_ESPD191109птквартира19" style="position:absolute;left:-9999px;top:0" readonly>el contrato	договор
+el alquiler	аренда
+el casero	арендодатель
+el inquilino	арендатор
+la inmobiliaria	агентство недвижимости
+la fianza	залог
+el depósito	депозит
+la mensualidad	ежемесячный платёж
+los gastos	расходы, коммуналка
+el suministro	коммунальная услуга
+notar	замечать
+observar	наблюдать
+sufrir	страдать
+soportar	терпеть
+disfrutar	наслаждаться</textarea>
+</div>
+<div class="card">
+<h3>ESP D20 · 12.09 сб · квартира</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD201209сбквартира20">Копировать</button>
+<textarea id="t_ESPD201209сбквартира20" style="position:absolute;left:-9999px;top:0" readonly>el gas	газ
+el internet	интернет
+la compañía	компания
+el proveedor	поставщик
+amueblado	меблированный
+sin amueblar	без мебели
+la reforma	ремонт
+el seguro	страховка
+la cuenta bancaria	банковский счёт
+la cuenta corriente	расчётный счёт
+divertirse	развлекаться
+enfadarse	сердиться
+preocuparse	беспокоиться
+alegrarse	радоваться
+atreverse	осмеливаться</textarea>
+</div>
+<div class="card">
+<h3>ESP D21 · 13.09 вс · квартира</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD211309всквартира21">Копировать</button>
+<textarea id="t_ESPD211309всквартира21" style="position:absolute;left:-9999px;top:0" readonly>el IBAN	IBAN
+la transferencia	перевод
+el ingreso	поступление, доход
+el pago	платёж
+el cobro	списание, получение денег
+la comisión	комиссия
+el saldo	баланс
+el extracto	выписка
+la domiciliación	автоплатёж
+la nómina	зарплатная ведомость
+acordarse	вспоминать
+darse cuenta	осознавать
+tener ganas de	хотеть, иметь желание
+acabar de	только что сделать
+volver a	сделать снова</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 4 · дни 22–28</h3>
+<div class="grid res">
+<div class="card">
+<h3>ESP D22 · 14.09 пн · банк и деньги</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD221409пнбанкиденьги22">Копировать</button>
+<textarea id="t_ESPD221409пнбанкиденьги22" style="position:absolute;left:-9999px;top:0" readonly>el sueldo	зарплата
+el impuesto	налог
+el IVA	НДС
+la declaración	декларация
+la Seguridad Social	соцстрах
+el número de afiliación	номер соцстрахования
+el autónomo	самозанятый
+la empresa	компания, фирма
+el contrato de trabajo	трудовой договор
+el jefe	начальник
+dejar de	перестать
+empezar a	начать
+ir a	собираться сделать
+feliz	счастливый
+seguro	уверенный, безопасный</textarea>
+</div>
+<div class="card">
+<h3>ESP D23 · 15.09 вт · банк и деньги</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD231509втбанкиденьги23">Копировать</button>
+<textarea id="t_ESPD231509втбанкиденьги23" style="position:absolute;left:-9999px;top:0" readonly>el compañero	коллега
+la reunión	встреча, совещание
+el correo electrónico	электронная почта
+la llamada	звонок
+el teléfono	телефон
+el número de teléfono	номер телефона
+llamar	звонить
+colgar	класть трубку
+marcar	набирать номер
+contestar	отвечать
+tonto	глупый
+inteligente	умный
+simpático	приятный, милый
+amable	любезный
+serio	серьёзный</textarea>
+</div>
+<div class="card">
+<h3>ESP D24 · 16.09 ср · банк и деньги</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD241609србанкиденьги24">Копировать</button>
+<textarea id="t_ESPD241609србанкиденьги24" style="position:absolute;left:-9999px;top:0" readonly>preguntar	спрашивать
+responder	отвечать
+explicar	объяснять
+repetir	повторять
+deletrear	диктовать по буквам
+apuntar	записывать
+comprobar	проверять
+confirmar	подтверждать
+cancelar	отменять
+cambiar	менять
+gordo	толстый
+delgado	худой
+guapo	красивый (о человеке)
+rubio	светловолосый
+moreno	темноволосый</textarea>
+</div>
+<div class="card">
+<h3>ESP D25 · 17.09 чт · банк и деньги</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD251709чтбанкиденьги25">Копировать</button>
+<textarea id="t_ESPD251709чтбанкиденьги25" style="position:absolute;left:-9999px;top:0" readonly>enviar	отправлять
+recibir	получать
+mandar	посылать
+avisar	предупреждать
+solicitar	запрашивать
+pedir	просить
+conseguir	добиваться, получать
+tardar	занимать время
+faltar	не хватать
+hacer falta	быть нужным
+mayor	старший, взрослый
+menor	младший
+igual	одинаковый
+diferente	другой, разный
+parecido	похожий</textarea>
+</div>
+<div class="card">
+<h3>ESP D26 · 18.09 пт · банк и деньги</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD261809птбанкиденьги26">Копировать</button>
+<textarea id="t_ESPD261809птбанкиденьги26" style="position:absolute;left:-9999px;top:0" readonly>depender	зависеть
+el horario de atención	часы приёма
+el lunes por la mañana	в понедельник утром
+urgente	срочный
+obligatorio	обязательный
+gratuito	бесплатный
+válido	действительный
+caducado	просроченный
+pendiente	в ожидании
+listo	готовый
+verdadero	настоящий
+falso	ложный
+cierto	верный, определённый
+oscuro	тёмный
+ancho	широкий</textarea>
+</div>
+<div class="card">
+<h3>ESP D27 · 19.09 сб · банк и деньги</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD271909сббанкиденьги27">Копировать</button>
+<textarea id="t_ESPD271909сббанкиденьги27" style="position:absolute;left:-9999px;top:0" readonly>resuelto	решённый
+el problema	проблема
+la duda	сомнение, вопрос
+la ayuda	помощь
+la información	информация
+el requisito	требование
+el motivo	причина
+la respuesta	ответ
+el resultado	результат
+hay que	нужно (безлично)
+estrecho	узкий
+profundo	глубоко, глубокий
+ligero	лёгкий (по весу)
+pesado	тяжёлый
+duro	твёрдый, трудный</textarea>
+</div>
+<div class="card">
+<h3>ESP D28 · 20.09 вс · банк и деньги</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD282009всбанкиденьги28">Копировать</button>
+<textarea id="t_ESPD282009всбанкиденьги28" style="position:absolute;left:-9999px;top:0" readonly>tener que	быть должным
+deber	быть обязанным
+intentar	пытаться
+conseguir cita	записаться на приём
+estar en trámite	находиться в процессе
+el aval	поручительство
+el nómina o contrato	зарплатная справка или договор
+la vivienda	жильё
+el propietario	собственник
+la escritura	акт собственности
+blando	мягкий
+suave	мягкий, нежный
+seco	сухой
+mojado	мокрый
+húmedo	влажный</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 5 · дни 29–35</h3>
+<div class="grid res">
+<div class="card">
+<h3>ESP D29 · 21.09 пн · документы</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD292109пндокументы29">Копировать</button>
+<textarea id="t_ESPD292109пндокументы29" style="position:absolute;left:-9999px;top:0" readonly>la calle	улица
+la plaza	площадь
+la avenida	проспект
+el paseo	бульвар, прогулка
+el barrio	район
+el centro	центр
+las afueras	окраина
+la esquina	угол
+la acera	тротуар
+el semáforo	светофор
+peligroso	опасный
+útil	полезный
+necesario	необходимый
+suficiente	достаточный
+completo	полный</textarea>
+</div>
+<div class="card">
+<h3>ESP D30 · 22.09 вт · документы</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD302209втдокументы30">Копировать</button>
+<textarea id="t_ESPD302209втдокументы30" style="position:absolute;left:-9999px;top:0" readonly>el paso de peatones	пешеходный переход
+el cruce	перекрёсток
+el puente	мост
+el parque	парк
+el jardín	сад
+la playa	пляж
+el mar	море
+el río	река
+la montaña	гора
+el edificio	здание
+único	единственный
+principal	главный
+general	общий
+especial	особый
+normal	обычный</textarea>
+</div>
+<div class="card">
+<h3>ESP D31 · 23.09 ср · документы</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD312309срдокументы31">Копировать</button>
+<textarea id="t_ESPD312309срдокументы31" style="position:absolute;left:-9999px;top:0" readonly>la casa	дом
+el piso	квартира, этаж
+el portal	подъезд
+la puerta	дверь
+la ventana	окно
+el ascensor	лифт
+la escalera	лестница
+la planta baja	первый этаж
+el código postal	почтовый индекс
+la dirección	адрес
+raro	странный, редкий
+común	обычный, общий
+famoso	известный
+pobre	бедный
+tibio	тёплый</textarea>
+</div>
+<div class="card">
+<h3>ESP D32 · 24.09 чт · документы</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD322409чтдокументы32">Копировать</button>
+<textarea id="t_ESPD322409чтдокументы32" style="position:absolute;left:-9999px;top:0" readonly>el mapa	карта
+la iglesia	церковь
+el museo	музей
+el teatro	театр
+el cine	кинотеатр
+la biblioteca	библиотека
+el colegio	школа
+la universidad	университет
+el hospital	больница
+el centro de salud	поликлиника
+próximo	следующий, ближайший
+pasado	прошлый
+siguiente	следующий
+anterior	предыдущий
+actual	нынешний</textarea>
+</div>
+<div class="card">
+<h3>ESP D33 · 25.09 пт · документы</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD332509птдокументы33">Копировать</button>
+<textarea id="t_ESPD332509птдокументы33" style="position:absolute;left:-9999px;top:0" readonly>la comisaría	полицейский участок
+el ayuntamiento	мэрия, муниципалитет
+la oficina	офис
+el banco	банк
+el cajero automático	банкомат
+correos	почта
+la gasolinera	заправка
+el aparcamiento	парковка
+el hotel	отель
+el aeropuerto	аэропорт
+antiguo	старинный
+moderno	современный
+tradicional	традиционный
+local	местный
+nacional	национальный</textarea>
+</div>
+<div class="card">
+<h3>ESP D34 · 26.09 сб · документы</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD342609сбдокументы34">Копировать</button>
+<textarea id="t_ESPD342609сбдокументы34" style="position:absolute;left:-9999px;top:0" readonly>la estación	станция, вокзал
+la parada	остановка
+el metro	метро
+el autobús	автобус
+el tranvía	трамвай
+el tren	поезд
+el taxi	такси
+el coche	машина
+la moto	мотоцикл
+la bicicleta	велосипед
+internacional	международный
+público	общественный
+privado	частный
+personal	личный
+propio	собственный</textarea>
+</div>
+<div class="card">
+<h3>ESP D35 · 27.09 вс · документы</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD352709всдокументы35">Копировать</button>
+<textarea id="t_ESPD352709всдокументы35" style="position:absolute;left:-9999px;top:0" readonly>el patinete	самокат
+el billete	билет
+el abono	проездной
+la tarjeta de transporte	транспортная карта
+el andén	перрон
+la vía	путь
+la línea	линия, маршрут
+el horario	расписание
+la salida	выход, отправление
+la entrada	вход, билет
+ajeno	чужой
+lleno de	полный чего-то
+capaz	способный
+dispuesto	готовый, настроенный
+casi	почти</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 6 · дни 36–42</h3>
+<div class="grid res">
+<div class="card">
+<h3>ESP D36 · 28.09 пн · врач и аптека</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD362809пнврачиаптека36">Копировать</button>
+<textarea id="t_ESPD362809пнврачиаптека36" style="position:absolute;left:-9999px;top:0" readonly>el cuerpo	тело
+la cabeza	голова
+el pelo	волосы
+la cara	лицо
+el ojo	глаз
+la nariz	нос
+la boca	рот
+el diente	зуб
+la muela	коренной зуб
+la oreja	ухо
+apenas	едва
+sólo	только
+incluso	даже
+aunque	хотя
+mientras	пока</textarea>
+</div>
+<div class="card">
+<h3>ESP D37 · 29.09 вт · врач и аптека</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD372909втврачиаптека37">Копировать</button>
+<textarea id="t_ESPD372909втврачиаптека37" style="position:absolute;left:-9999px;top:0" readonly>el oído	ухо (внутреннее), слух
+el cuello	шея
+la garganta	горло
+el hombro	плечо
+el brazo	рука (от плеча)
+el codo	локоть
+la mano	кисть руки
+el dedo	палец
+el pecho	грудь
+la espalda	спина
+cuando	когда
+si	если
+como	как, поскольку
+tan	так, настолько
+tanto	столько</textarea>
+</div>
+<div class="card">
+<h3>ESP D38 · 30.09 ср · врач и аптека</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD383009срврачиаптека38">Копировать</button>
+<textarea id="t_ESPD383009срврачиаптека38" style="position:absolute;left:-9999px;top:0" readonly>la barriga	живот
+el estómago	желудок
+la cintura	талия
+la pierna	нога
+la rodilla	колено
+el pie	ступня
+el tobillo	лодыжка
+el corazón	сердце
+la piel	кожа
+el hueso	кость
+sobre	о, над
+según	согласно
+contra	против
+durante	в течение
+mediante	посредством</textarea>
+</div>
+<div class="card">
+<h3>ESP D39 · 01.10 чт · врач и аптека</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD390110чтврачиаптека39">Копировать</button>
+<textarea id="t_ESPD390110чтврачиаптека39" style="position:absolute;left:-9999px;top:0" readonly>la sangre	кровь
+la salud	здоровье
+la enfermedad	болезнь
+el dolor	боль
+la fiebre	температура, жар
+la tos	кашель
+el resfriado	простуда
+la gripe	грипп
+el catarro	насморк
+la infección	инфекция
+frente a	напротив
+a través de	через
+en vez de	вместо
+a pesar de	несмотря на
+gracias a	благодаря</textarea>
+</div>
+<div class="card">
+<h3>ESP D40 · 02.10 пт · врач и аптека</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD400210птврачиаптека40">Копировать</button>
+<textarea id="t_ESPD400210птврачиаптека40" style="position:absolute;left:-9999px;top:0" readonly>el virus	вирус
+la herida	рана
+el golpe	удар, ушиб
+la quemadura	ожог
+la fractura	перелом
+la náusea	тошнота
+el mareo	головокружение
+la diarrea	диарея
+el vómito	рвота
+la tensión	давление
+por eso	поэтому
+por lo tanto	следовательно
+en cambio	зато, напротив
+por ejemplo	например
+en realidad	на самом деле</textarea>
+</div>
+<div class="card">
+<h3>ESP D41 · 03.10 сб · врач и аптека</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD410310сбврачиаптека41">Копировать</button>
+<textarea id="t_ESPD410310сбврачиаптека41" style="position:absolute;left:-9999px;top:0" readonly>el análisis	анализ
+la radiografía	рентген
+la prueba	тест, анализ
+la vacuna	прививка
+la receta	рецепт
+el medicamento	лекарство
+la pastilla	таблетка
+el jarabe	сироп
+la crema	мазь, крем
+la gota	капля
+de verdad	правда, всерьёз
+desde luego	разумеется
+a lo mejor	может быть
+seguramente	наверняка
+probablemente	вероятно</textarea>
+</div>
+<div class="card">
+<h3>ESP D42 · 04.10 вс · врач и аптека</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD420410всврачиаптека42">Копировать</button>
+<textarea id="t_ESPD420410всврачиаптека42" style="position:absolute;left:-9999px;top:0" readonly>la inyección	укол
+la dosis	доза
+el antibiótico	антибиотик
+el paracetamol	парацетамол
+el ibuprofeno	ибупрофен
+la tirita	пластырь
+la venda	бинт
+el termómetro	градусник
+el médico de cabecera	семейный врач
+el pediatra	педиатр
+afortunadamente	к счастью
+lamentablemente	к сожалению
+rápidamente	быстро
+despacio	медленно
+aparte	отдельно</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 7 · дни 43–49</h3>
+<div class="grid res">
+<div class="card">
+<h3>ESP D43 · 05.10 пн · школа и быт</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD430510пншколаибыт43">Копировать</button>
+<textarea id="t_ESPD430510пншколаибыт43" style="position:absolute;left:-9999px;top:0" readonly>el instituto	старшая школа
+la guardería	детский сад
+la clase	класс, урок
+el aula	учебная аудитория
+el curso	учебный год, класс
+la asignatura	предмет
+la matrícula	запись, зачисление
+matricular	записывать в школу
+el alumno	ученик
+la alumna	ученица
+directamente	напрямую
+enfrente de	напротив
+al lado de	рядом с
+cerca de	около
+lejos de	далеко от</textarea>
+</div>
+<div class="card">
+<h3>ESP D44 · 06.10 вт · школа и быт</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD440610втшколаибыт44">Копировать</button>
+<textarea id="t_ESPD440610втшколаибыт44" style="position:absolute;left:-9999px;top:0" readonly>el compañero de clase	одноклассник
+el maestro	учитель (начальная школа)
+el tutor	классный руководитель
+la tutoría	встреча с классным руководителем
+el director	директор
+la secretaría	канцелярия
+el AMPA	родительский комитет
+el comedor	столовая
+el patio	школьный двор
+el recreo	перемена
+dentro de	внутри, через (время)
+fuera de	вне
+antes de	перед
+después de	после
+alrededor de	вокруг, примерно</textarea>
+</div>
+<div class="card">
+<h3>ESP D45 · 07.10 ср · школа и быт</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD450710сршколаибыт45">Копировать</button>
+<textarea id="t_ESPD450710сршколаибыт45" style="position:absolute;left:-9999px;top:0" readonly>el gimnasio	спортзал
+los deberes	домашнее задание
+el examen	экзамен, контрольная
+la nota	оценка
+el boletín	табель
+el cuaderno	тетрадь
+el estuche	пенал
+el lápiz	карандаш
+la goma	ластик
+la regla	линейка
+por lo menos	по крайней мере
+sobre las tres	около трёх
+la mitad	половина
+el doble	вдвое больше
+la vez	раз</textarea>
+</div>
+<div class="card">
+<h3>ESP D46 · 08.10 чт · школа и быт</h3>
+<p class="why">15 слов</p>
+<button class="btn" data-id="ESPD460810чтшколаибыт46">Копировать</button>
+<textarea id="t_ESPD460810чтшколаибыт46" style="position:absolute;left:-9999px;top:0" readonly>las tijeras	ножницы
+el pegamento	клей
+la carpeta	папка
+el uniforme	форма
+las extraescolares	кружки
+la excursión	экскурсия
+la reunión de padres	родительское собрание
+el idioma valenciano	валенсийский язык
+el castellano	кастильский, испанский
+bilingüe	двуязычный
+una vez	один раз
+dos veces	два раза
+muchas veces	много раз
+pocas veces	редко
+la mayoría	большинство</textarea>
+</div>
+<div class="card">
+<h3>ESP D47 · 09.10 пт · школа и быт</h3>
+<p class="why">14 слов</p>
+<button class="btn" data-id="ESPD470910птшколаибыт47">Копировать</button>
+<textarea id="t_ESPD470910птшколаибыт47" style="position:absolute;left:-9999px;top:0" readonly>el apoyo	поддержка
+el refuerzo	дополнительные занятия
+la adaptación	адаптация
+las matemáticas	математика
+la literatura	литература
+la historia	история
+la geografía	география
+las ciencias	естественные науки
+la educación física	физкультура
+la música	музыка
+algunos	некоторые
+varios	несколько
+ninguno	ни один
+cualquiera	любой</textarea>
+</div>
+<div class="card">
+<h3>ESP D48 · 10.10 сб · школа и быт</h3>
+<p class="why">10 слов</p>
+<button class="btn" data-id="ESPD481010сбшколаибыт48">Копировать</button>
+<textarea id="t_ESPD481010сбшколаибыт48" style="position:absolute;left:-9999px;top:0" readonly>el arte	искусство
+la informática	информатика
+aprender	учить, узнавать
+enseñar	учить, показывать
+repasar	повторять
+practicar	практиковать
+copiar	переписывать
+dibujar	рисовать
+contar	считать, рассказывать
+sumar	складывать</textarea>
+</div>
+<div class="card">
+<h3>ESP D49 · 11.10 вс · школа и быт</h3>
+<p class="why">10 слов</p>
+<button class="btn" data-id="ESPD491110всшколаибыт49">Копировать</button>
+<textarea id="t_ESPD491110всшколаибыт49" style="position:absolute;left:-9999px;top:0" readonly>restar	вычитать
+recordar	помнить, вспоминать
+olvidar	забывать
+equivocarse	ошибаться
+aprobar	сдать, получить зачёт
+suspender	провалить
+el tiempo	погода, время
+hace sol	солнечно
+hace calor	жарко
+hace frío	холодно</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 8 · дни 50–52</h3>
+<div class="grid res">
+<div class="card">
+<h3>ESP D50 · 12.10 пн · повторение</h3>
+<p class="why">10 слов</p>
+<button class="btn" data-id="ESPD501210пнповторение50">Копировать</button>
+<textarea id="t_ESPD501210пнповторение50" style="position:absolute;left:-9999px;top:0" readonly>la queja	жалоба
+la reclamación	претензия
+el reembolso	возврат денег
+la devolución	возврат товара
+la garantía	гарантия
+el defecto	дефект
+la avería	поломка
+el fallo	сбой, ошибка
+el retraso	задержка
+el error	ошибка</textarea>
+</div>
+<div class="card">
+<h3>ESP D51 · 13.10 вт · повторение</h3>
+<p class="why">10 слов</p>
+<button class="btn" data-id="ESPD511310втповторение51">Копировать</button>
+<textarea id="t_ESPD511310втповторение51" style="position:absolute;left:-9999px;top:0" readonly>el pedido	заказ
+el envío	доставка
+el repartidor	курьер
+la entrega	доставка, вручение
+el servicio	обслуживание
+el cliente	клиент
+el encargado	ответственный, менеджер
+el dependiente	продавец
+la atención al cliente	клиентская служба
+devolver	возвращать</textarea>
+</div>
+<div class="card">
+<h3>ESP D52 · 14.10 ср · повторение</h3>
+<p class="why">10 слов</p>
+<button class="btn" data-id="ESPD521410срповторение52">Копировать</button>
+<textarea id="t_ESPD521410срповторение52" style="position:absolute;left:-9999px;top:0" readonly>cambiar por	обменять на
+reclamar	требовать, жаловаться
+protestar	возражать
+funcionar	работать (о вещи)
+estropearse	портиться
+revisar	проверять
+resolver	решать
+solucionar	улаживать
+llegar tarde	опаздывать
+olvidarse	забывать</textarea>
+</div>
+</div>
+</section>
+<section><div class="sec-head"><h2>Дети: Миша и Даша</h2><span class="note">по 4 фразы в день</span></div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 1 · дни 1–7</h3>
+<div class="grid res">
+<div class="card">
+<h3>NINOS D01 · 24.08 пн</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD012408пн1">Копировать</button>
+<textarea id="t_NINOSD012408пн1" style="position:absolute;left:-9999px;top:0" readonly>Hola	Привет
+Buenos días	Доброе утро
+Buenas tardes	Добрый день
+Buenas noches	Спокойной ночи</textarea>
+</div>
+<div class="card">
+<h3>NINOS D02 · 25.08 вт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD022508вт2">Копировать</button>
+<textarea id="t_NINOSD022508вт2" style="position:absolute;left:-9999px;top:0" readonly>Adiós	Пока
+Hasta luego	До скорого
+¿Cómo te llamas?	Как тебя зовут?
+Me llamo ___	Меня зовут ___</textarea>
+</div>
+<div class="card">
+<h3>NINOS D03 · 26.08 ср</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD032608ср3">Копировать</button>
+<textarea id="t_NINOSD032608ср3" style="position:absolute;left:-9999px;top:0" readonly>¿Cómo estás?	Как дела?
+Bien, gracias	Хорошо, спасибо
+Muy bien	Очень хорошо
+Regular	Так себе</textarea>
+</div>
+<div class="card">
+<h3>NINOS D04 · 27.08 чт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD042708чт4">Копировать</button>
+<textarea id="t_NINOSD042708чт4" style="position:absolute;left:-9999px;top:0" readonly>Sí / No	Да / Нет
+Gracias	Спасибо
+De nada	Пожалуйста (в ответ)
+Por favor	Пожалуйста (просьба)</textarea>
+</div>
+<div class="card">
+<h3>NINOS D05 · 28.08 пт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD052808пт5">Копировать</button>
+<textarea id="t_NINOSD052808пт5" style="position:absolute;left:-9999px;top:0" readonly>Perdón	Извини
+uno, dos, tres	1, 2, 3
+cuatro, cinco	4, 5
+seis, siete	6, 7</textarea>
+</div>
+<div class="card">
+<h3>NINOS D06 · 29.08 сб</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD062908сб6">Копировать</button>
+<textarea id="t_NINOSD062908сб6" style="position:absolute;left:-9999px;top:0" readonly>ocho, nueve, diez	8, 9, 10
+rojo	красный
+azul	синий
+verde	зелёный</textarea>
+</div>
+<div class="card">
+<h3>NINOS D07 · 30.08 вс</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD073008вс7">Копировать</button>
+<textarea id="t_NINOSD073008вс7" style="position:absolute;left:-9999px;top:0" readonly>amarillo	жёлтый
+negro / blanco	чёрный / белый
+¿De qué color es?	Какого это цвета?
+Es rojo	Он красный</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 2 · дни 8–14</h3>
+<div class="grid res">
+<div class="card">
+<h3>NINOS D08 · 31.08 пн</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD083108пн8">Копировать</button>
+<textarea id="t_NINOSD083108пн8" style="position:absolute;left:-9999px;top:0" readonly>mamá	мама
+papá	папа
+hermano	брат
+hermana	сестра</textarea>
+</div>
+<div class="card">
+<h3>NINOS D09 · 01.09 вт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD090109вт9">Копировать</button>
+<textarea id="t_NINOSD090109вт9" style="position:absolute;left:-9999px;top:0" readonly>abuela / abuelo	бабушка / дедушка
+Esta es mi mamá	Это моя мама
+Tengo un hermano	У меня есть брат
+Tengo ___ años	Мне ___ лет</textarea>
+</div>
+<div class="card">
+<h3>NINOS D10 · 02.09 ср</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD100209ср10">Копировать</button>
+<textarea id="t_NINOSD100209ср10" style="position:absolute;left:-9999px;top:0" readonly>¿Cuántos años tienes?	Сколько тебе лет?
+agua	вода
+pan	хлеб
+leche	молоко</textarea>
+</div>
+<div class="card">
+<h3>NINOS D11 · 03.09 чт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD110309чт11">Копировать</button>
+<textarea id="t_NINOSD110309чт11" style="position:absolute;left:-9999px;top:0" readonly>manzana	яблоко
+plátano	банан
+queso	сыр
+pollo	курица</textarea>
+</div>
+<div class="card">
+<h3>NINOS D12 · 04.09 пт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD120409пт12">Копировать</button>
+<textarea id="t_NINOSD120409пт12" style="position:absolute;left:-9999px;top:0" readonly>arroz	рис
+helado	мороженое
+Tengo hambre	Я хочу есть
+Tengo sed	Я хочу пить</textarea>
+</div>
+<div class="card">
+<h3>NINOS D13 · 05.09 сб</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD130509сб13">Копировать</button>
+<textarea id="t_NINOSD130509сб13" style="position:absolute;left:-9999px;top:0" readonly>Quiero agua, por favor	Хочу воды, пожалуйста
+Me gusta el helado	Мне нравится мороженое
+No me gusta	Мне не нравится
+Está rico	Вкусно</textarea>
+</div>
+<div class="card">
+<h3>NINOS D14 · 06.09 вс</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD140609вс14">Копировать</button>
+<textarea id="t_NINOSD140609вс14" style="position:absolute;left:-9999px;top:0" readonly>once, doce, trece	11, 12, 13
+catorce, quince	14, 15
+dieciséis, diecisiete, dieciocho	16, 17, 18
+diecinueve, veinte	19, 20</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 3 · дни 15–21</h3>
+<div class="grid res">
+<div class="card">
+<h3>NINOS D15 · 07.09 пн</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD150709пн15">Копировать</button>
+<textarea id="t_NINOSD150709пн15" style="position:absolute;left:-9999px;top:0" readonly>el colegio	школа
+la clase	класс
+el profesor / la profesora	учитель / учительница
+el amigo / la amiga	друг / подруга</textarea>
+</div>
+<div class="card">
+<h3>NINOS D16 · 08.09 вт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD160809вт16">Копировать</button>
+<textarea id="t_NINOSD160809вт16" style="position:absolute;left:-9999px;top:0" readonly>el libro	книга
+el cuaderno	тетрадь
+el lápiz	карандаш
+la mochila	рюкзак</textarea>
+</div>
+<div class="card">
+<h3>NINOS D17 · 09.09 ср</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD170909ср17">Копировать</button>
+<textarea id="t_NINOSD170909ср17" style="position:absolute;left:-9999px;top:0" readonly>la mesa / la silla	стол / стул
+el baño	туалет
+el patio	школьный двор
+el recreo	перемена</textarea>
+</div>
+<div class="card">
+<h3>NINOS D18 · 10.09 чт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD181009чт18">Копировать</button>
+<textarea id="t_NINOSD181009чт18" style="position:absolute;left:-9999px;top:0" readonly>No entiendo	Я не понимаю
+No sé	Я не знаю
+¿Puedes repetir?	Повтори, пожалуйста
+Más despacio, por favor	Помедленнее, пожалуйста</textarea>
+</div>
+<div class="card">
+<h3>NINOS D19 · 11.09 пт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD191109пт19">Копировать</button>
+<textarea id="t_NINOSD191109пт19" style="position:absolute;left:-9999px;top:0" readonly>¿Cómo se dice ___ en español?	Как сказать ___ по-испански?
+¿Puedo ir al baño?	Можно выйти в туалет?
+¿Me ayudas?	Поможешь мне?
+No hablo español todavía	Я пока не говорю по-испански</textarea>
+</div>
+<div class="card">
+<h3>NINOS D20 · 12.09 сб</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD201209сб20">Копировать</button>
+<textarea id="t_NINOSD201209сб20" style="position:absolute;left:-9999px;top:0" readonly>Estoy aprendiendo	Я учусь
+Soy de Rusia	Я из России
+¿Cómo se llama?	Как его зовут?
+¿Qué es esto?	Что это?</textarea>
+</div>
+<div class="card">
+<h3>NINOS D21 · 13.09 вс</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD211309вс21">Копировать</button>
+<textarea id="t_NINOSD211309вс21" style="position:absolute;left:-9999px;top:0" readonly>Es mío	Это моё
+¿Me prestas el lápiz?	Дашь карандаш?
+Ya está	Готово
+Vale	Ладно, окей</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 4 · дни 22–28</h3>
+<div class="grid res">
+<div class="card">
+<h3>NINOS D22 · 14.09 пн</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD221409пн22">Копировать</button>
+<textarea id="t_NINOSD221409пн22" style="position:absolute;left:-9999px;top:0" readonly>la cabeza	голова
+la mano	рука
+el pie	нога
+la barriga	живот</textarea>
+</div>
+<div class="card">
+<h3>NINOS D23 · 15.09 вт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD231509вт23">Копировать</button>
+<textarea id="t_NINOSD231509вт23" style="position:absolute;left:-9999px;top:0" readonly>los ojos	глаза
+la boca	рот
+Me duele la cabeza	У меня болит голова
+Me duele aquí	Болит вот тут</textarea>
+</div>
+<div class="card">
+<h3>NINOS D24 · 16.09 ср</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD241609ср24">Копировать</button>
+<textarea id="t_NINOSD241609ср24" style="position:absolute;left:-9999px;top:0" readonly>Estoy cansado / cansada	Я устал / устала
+Tengo frío	Мне холодно
+Tengo calor	Мне жарко
+Tengo miedo	Мне страшно</textarea>
+</div>
+<div class="card">
+<h3>NINOS D25 · 17.09 чт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD251709чт25">Копировать</button>
+<textarea id="t_NINOSD251709чт25" style="position:absolute;left:-9999px;top:0" readonly>Estoy bien	Я в порядке
+la camiseta	футболка
+los pantalones	штаны
+los zapatos	ботинки</textarea>
+</div>
+<div class="card">
+<h3>NINOS D26 · 18.09 пт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD261809пт26">Копировать</button>
+<textarea id="t_NINOSD261809пт26" style="position:absolute;left:-9999px;top:0" readonly>el abrigo	куртка
+Me pongo el abrigo	Надеваю куртку
+¿Dónde están mis zapatos?	Где мои ботинки?
+veinte, treinta	20, 30</textarea>
+</div>
+<div class="card">
+<h3>NINOS D27 · 19.09 сб</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD271909сб27">Копировать</button>
+<textarea id="t_NINOSD271909сб27" style="position:absolute;left:-9999px;top:0" readonly>cuarenta, cincuenta	40, 50
+veintiuno, veintidós	21, 22
+treinta y cinco	35
+¿Cuántos hay?	Сколько тут?</textarea>
+</div>
+<div class="card">
+<h3>NINOS D28 · 20.09 вс</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD282009вс28">Копировать</button>
+<textarea id="t_NINOSD282009вс28" style="position:absolute;left:-9999px;top:0" readonly>muchos / pocos	много / мало
+grande / pequeño	большой / маленький
+Necesito ayuda	Мне нужна помощь
+Está roto	Сломалось</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 5 · дни 29–35</h3>
+<div class="grid res">
+<div class="card">
+<h3>NINOS D29 · 21.09 пн</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD292109пн29">Копировать</button>
+<textarea id="t_NINOSD292109пн29" style="position:absolute;left:-9999px;top:0" readonly>la casa	дом
+mi habitación	моя комната
+la cocina	кухня
+la cama	кровать</textarea>
+</div>
+<div class="card">
+<h3>NINOS D30 · 22.09 вт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD302209вт30">Копировать</button>
+<textarea id="t_NINOSD302209вт30" style="position:absolute;left:-9999px;top:0" readonly>la ventana	окно
+la puerta	дверь
+En mi habitación hay una cama	В моей комнате есть кровать
+el perro	собака</textarea>
+</div>
+<div class="card">
+<h3>NINOS D31 · 23.09 ср</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD312309ср31">Копировать</button>
+<textarea id="t_NINOSD312309ср31" style="position:absolute;left:-9999px;top:0" readonly>el gato	кот
+el pájaro	птица
+el caballo	лошадь
+Me gustan los perros	Мне нравятся собаки</textarea>
+</div>
+<div class="card">
+<h3>NINOS D32 · 24.09 чт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD322409чт32">Копировать</button>
+<textarea id="t_NINOSD322409чт32" style="position:absolute;left:-9999px;top:0" readonly>¿Tienes mascota?	У тебя есть питомец?
+la mañana	утро
+la tarde	день
+la noche	ночь</textarea>
+</div>
+<div class="card">
+<h3>NINOS D33 · 25.09 пт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD332509пт33">Копировать</button>
+<textarea id="t_NINOSD332509пт33" style="position:absolute;left:-9999px;top:0" readonly>hoy	сегодня
+mañana	завтра
+ayer	вчера
+ahora	сейчас</textarea>
+</div>
+<div class="card">
+<h3>NINOS D34 · 26.09 сб</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD342609сб34">Копировать</button>
+<textarea id="t_NINOSD342609сб34" style="position:absolute;left:-9999px;top:0" readonly>sesenta, setenta	60, 70
+ochenta, noventa, cien	80, 90, 100
+cuarenta y siete	47
+ochenta y tres	83</textarea>
+</div>
+<div class="card">
+<h3>NINOS D35 · 27.09 вс</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD352709вс35">Копировать</button>
+<textarea id="t_NINOSD352709вс35" style="position:absolute;left:-9999px;top:0" readonly>¿Qué hora es?	Который час?
+Son las tres	Три часа
+Es tarde	Поздно
+Vamos	Пошли</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 6 · дни 36–42</h3>
+<div class="grid res">
+<div class="card">
+<h3>NINOS D36 · 28.09 пн</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD362809пн36">Копировать</button>
+<textarea id="t_NINOSD362809пн36" style="position:absolute;left:-9999px;top:0" readonly>jugar	играть
+¿Quieres jugar?	Хочешь поиграть?
+¡Vamos a jugar!	Давай играть!
+Me toca a mí	Моя очередь</textarea>
+</div>
+<div class="card">
+<h3>NINOS D37 · 29.09 вт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD372909вт37">Копировать</button>
+<textarea id="t_NINOSD372909вт37" style="position:absolute;left:-9999px;top:0" readonly>Te toca a ti	Твоя очередь
+¡Qué guay!	Круто!
+¡Genial!	Здорово!
+¡Cuidado!	Осторожно!</textarea>
+</div>
+<div class="card">
+<h3>NINOS D38 · 30.09 ср</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD383009ср38">Копировать</button>
+<textarea id="t_NINOSD383009ср38" style="position:absolute;left:-9999px;top:0" readonly>Espera	Подожди
+Ven aquí	Иди сюда
+Mira	Смотри
+Escucha	Слушай</textarea>
+</div>
+<div class="card">
+<h3>NINOS D39 · 01.10 чт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD390110чт39">Копировать</button>
+<textarea id="t_NINOSD390110чт39" style="position:absolute;left:-9999px;top:0" readonly>¿Dónde?	Где?
+¿Cuándo?	Когда?
+¿Quién?	Кто?
+¿Por qué?	Почему?</textarea>
+</div>
+<div class="card">
+<h3>NINOS D40 · 02.10 пт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD400210пт40">Копировать</button>
+<textarea id="t_NINOSD400210пт40" style="position:absolute;left:-9999px;top:0" readonly>¿Cómo?	Как?
+Porque sí	Потому что
+el fútbol	футбол
+la pelota	мяч</textarea>
+</div>
+<div class="card">
+<h3>NINOS D41 · 03.10 сб</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD410310сб41">Копировать</button>
+<textarea id="t_NINOSD410310сб41" style="position:absolute;left:-9999px;top:0" readonly>el parque	парк
+la playa	пляж
+¿Vamos al parque?	Пойдём в парк?
+Es divertido	Это весело</textarea>
+</div>
+<div class="card">
+<h3>NINOS D42 · 04.10 вс</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD420410вс42">Копировать</button>
+<textarea id="t_NINOSD420410вс42" style="position:absolute;left:-9999px;top:0" readonly>Es aburrido	Скучно
+No quiero	Не хочу
+Sí, quiero	Да, хочу
+¿Puedo jugar con vosotros?	Можно с вами поиграть?</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 7 · дни 43–49</h3>
+<div class="grid res">
+<div class="card">
+<h3>NINOS D43 · 05.10 пн</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD430510пн43">Копировать</button>
+<textarea id="t_NINOSD430510пн43" style="position:absolute;left:-9999px;top:0" readonly>Hola, me llamo ___	Привет, меня зовут ___
+Soy nuevo / nueva	Я новенький / новенькая
+Soy de Rusia	Я из России
+Tengo ___ años	Мне ___ лет</textarea>
+</div>
+<div class="card">
+<h3>NINOS D44 · 06.10 вт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD440610вт44">Копировать</button>
+<textarea id="t_NINOSD440610вт44" style="position:absolute;left:-9999px;top:0" readonly>¿Y tú?	А ты?
+¿En qué clase estás?	В каком ты классе?
+Encantado / Encantada	Приятно познакомиться
+¿Quieres ser mi amigo?	Будешь моим другом?</textarea>
+</div>
+<div class="card">
+<h3>NINOS D45 · 07.10 ср</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD450710ср45">Копировать</button>
+<textarea id="t_NINOSD450710ср45" style="position:absolute;left:-9999px;top:0" readonly>¿Jugamos en el recreo?	Поиграем на перемене?
+¿Me enseñas dónde está el baño?	Покажешь, где туалет?
+¿Qué hay que hacer?	Что надо делать?
+¿Qué deberes hay?	Что задали?</textarea>
+</div>
+<div class="card">
+<h3>NINOS D46 · 08.10 чт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD460810чт46">Копировать</button>
+<textarea id="t_NINOSD460810чт46" style="position:absolute;left:-9999px;top:0" readonly>No lo he entendido	Я не понял
+¿Puedes escribirlo?	Можешь написать?
+Perdona, ¿qué has dicho?	Извини, что ты сказал?
+¿Puedo sentarme aquí?	Можно тут сесть?</textarea>
+</div>
+<div class="card">
+<h3>NINOS D47 · 09.10 пт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD470910пт47">Копировать</button>
+<textarea id="t_NINOSD470910пт47" style="position:absolute;left:-9999px;top:0" readonly>Se me ha olvidado	Я забыл
+He terminado	Я закончил
+Todavía no	Ещё нет
+Un momento	Минутку</textarea>
+</div>
+<div class="card">
+<h3>NINOS D48 · 10.10 сб</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD481010сб48">Копировать</button>
+<textarea id="t_NINOSD481010сб48" style="position:absolute;left:-9999px;top:0" readonly>Lo siento	Извини
+No pasa nada	Ничего страшного
+¿Me lo repites?	Повторишь?
+Gracias por ayudarme	Спасибо, что помог</textarea>
+</div>
+<div class="card">
+<h3>NINOS D49 · 11.10 вс</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD491110вс49">Копировать</button>
+<textarea id="t_NINOSD491110вс49" style="position:absolute;left:-9999px;top:0" readonly>Hola	Привет
+Buenos días	Доброе утро
+Buenas tardes	Добрый день
+Buenas noches	Спокойной ночи</textarea>
+</div>
+</div>
+<h3 style="margin:18px 0 8px;font-size:15px;color:var(--ink-faint)">Неделя 8 · дни 50–52</h3>
+<div class="grid res">
+<div class="card">
+<h3>NINOS D50 · 12.10 пн</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD501210пн50">Копировать</button>
+<textarea id="t_NINOSD501210пн50" style="position:absolute;left:-9999px;top:0" readonly>Adiós	Пока
+Hasta luego	До скорого
+¿Cómo te llamas?	Как тебя зовут?
+Me llamo ___	Меня зовут ___</textarea>
+</div>
+<div class="card">
+<h3>NINOS D51 · 13.10 вт</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD511310вт51">Копировать</button>
+<textarea id="t_NINOSD511310вт51" style="position:absolute;left:-9999px;top:0" readonly>¿Cómo estás?	Как дела?
+Bien, gracias	Хорошо, спасибо
+Muy bien	Очень хорошо
+Regular	Так себе</textarea>
+</div>
+<div class="card">
+<h3>NINOS D52 · 14.10 ср</h3>
+<p class="why">4 слов</p>
+<button class="btn" data-id="NINOSD521410ср52">Копировать</button>
+<textarea id="t_NINOSD521410ср52" style="position:absolute;left:-9999px;top:0" readonly>Sí / No	Да / Нет
+Gracias	Спасибо
+De nada	Пожалуйста (в ответ)
+Por favor	Пожалуйста (просьба)</textarea>
+</div>
+</div>
+</section>
+<footer><span>104 набора · 52 дня</span><span>24 августа — 14 октября</span></footer></div><script>
+document.addEventListener("click", function(e){
+  var b = e.target.closest("button[data-id]");
+  if(!b) return;
+  var ta = document.getElementById("t_" + b.dataset.id);
+  var text = ta.value;
+  function done(){ var old=b.textContent; b.textContent="Скопировано"; b.style.background="var(--verde)";
+    setTimeout(function(){ b.textContent=old; b.style.background=""; },1600); }
+  if (navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else { fallback(); }
+  function fallback(){
+    ta.style.position="static"; ta.style.left="0"; ta.select();
+    try{ document.execCommand("copy"); done(); }catch(err){ b.textContent="Выделите и скопируйте вручную"; }
+    ta.style.position="absolute"; ta.style.left="-9999px";
+  }
+});
+</script>
