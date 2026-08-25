@@ -660,17 +660,22 @@ function oneFrase(v,k){
 /* шаг 4: фраза звучит, текста нет — форму надо узнать на слух */
 function isQuestion(es){ return es.indexOf("¿")>-1 || es.indexOf("?")>-1 }
 function oidoQueue(v){
-  var out=[];
+  var persons = (v.flex && !isQuestion(v.flex.es)) ? v.flex.p.slice() : [];
+  var byPerson = {};
+  persons.forEach(function(pi){ byPerson[pi]={es:v.flex.es,ru:"",p:pi} });
+  // живая фраза заменяет подстановку для своего лица: так звучание разнообразнее
   (v.fr||[]).forEach(function(fr){
-    if(!isQuestion(fr.es)) out.push({es:fr.es,ru:fr.ru,p:fr.p});
+    if(isQuestion(fr.es)) return;
+    if(!byPerson[fr.p] && persons.indexOf(fr.p)<0) persons.push(fr.p);
+    byPerson[fr.p]={es:fr.es,ru:fr.ru,p:fr.p};
   });
-  // добираем утвердительными подстановками, пока не наберётся три фразы
-  if(v.flex && !isQuestion(v.flex.es)){
-    var pool=sh(v.flex.p.slice());
-    for(var i=0;i<pool.length && out.length<3;i++)
-      out.push({es:v.flex.es,ru:"",p:pool[i]});
+  var order=persons.slice();
+  for(var attempt=0;attempt<40;attempt++){
+    var q=sh(order);
+    if(order.length<3||!hasRun(q)){ order=q; break }
+    order=q;
   }
-  return sh(out);
+  return order.map(function(pi){ return byPerson[pi] });
 }
 function oneOido(v){
   if(!S.oq || S.oqv!==v.v){ S.oq=oidoQueue(v); S.oqi=0; S.oqv=v.v }
