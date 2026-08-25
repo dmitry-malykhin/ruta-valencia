@@ -278,8 +278,13 @@ function blocks(){
     done: num("esp2_r_"+S.who+"_"+d)>=6});
   var watch=WATCH[S.who]||WATCH.adult, pick=watch[(d-1)%watch.length];
   out.push({id:"audio",auto:false,min:kid?18:25,fon:true,
-    t: kid?"Видео на испанском":"Аудирование и шэдоуинг (фоном)",
-    s: pick.s, href: pick.href, go:"Смотреть", more: watch});
+    t: kid?"Видео на испанском":"Аудирование фоном",
+    s: pick.s, href: pick.href, go:"Слушать", more: watch});
+  if(!kid) out.push({id:"shadow",auto:true,min:10,
+    t:"Эхо: повтор за голосом",
+    s:"короткие фразы из разобранных глаголов",
+    href:"./shadow.html", go:"Повторять",
+    done: num("shadow_r_"+S.who+"_"+d)>=10});
   if(!kid) out.push({id:"speech",auto:false,min:15,t:"Речь по скрипту дня",
     s:"вслух, вдвоём. Вторник и пятница — обмен в Tandem",
     href:"https://tandem.net/",go:"Tandem"});
