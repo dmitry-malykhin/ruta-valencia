@@ -174,6 +174,7 @@ border:1px solid var(--line);border-radius:999px;padding:4px 11px}
 border-radius:11px;font-size:13.5px;color:var(--ink);line-height:1.7}
 .plan .btn{margin-left:6px;vertical-align:baseline}
 .dot.plan{outline:2px dashed var(--naranja);outline-offset:1px}
+.tag2.opt{background:var(--surface);border:1px solid var(--line);color:var(--ink-faint)}
 </style>
 <div class="wrap">
   <p class="eyebrow"><span style="opacity:.55">Мой день</span> ·
@@ -277,7 +278,7 @@ function blocks(){
     s: DAY_NAME[d]||"набор дня", href:"./trainer.html", go:"Учить",
     done: num("esp2_r_"+S.who+"_"+d)>=6});
   var watch=WATCH[S.who]||WATCH.adult, pick=watch[(d-1)%watch.length];
-  out.push({id:"audio",auto:false,min:kid?18:25,fon:true,
+  out.push({id:"audio",auto:false,min:kid?18:25,fon:true,opt:true,
     t: kid?"Видео на испанском":"Аудирование фоном",
     s: pick.s, href: pick.href, go:"Слушать", more: watch});
   if(!kid) out.push({id:"shadow",auto:true,min:10,
@@ -285,9 +286,12 @@ function blocks(){
     s:"короткие фразы из разобранных глаголов",
     href:"./shadow.html", go:"Повторять",
     done: num("shadow_r_"+S.who+"_"+d)>=10});
-  if(!kid) out.push({id:"speech",auto:false,min:15,t:"Речь по скрипту дня",
-    s:"вслух, вдвоём. Вторник и пятница — обмен в Tandem",
-    href:"https://tandem.net/",go:"Tandem"});
+  if(!kid) out.push({id:"speech",auto:false,min:15,opt:true,t:"Речь по скрипту дня",
+    s:"вслух, вдвоём с Юлией · языковой обмен только если захочется",
+    href:"./shadow.html",go:"Повторять"});
+  out.push({id:"numeros",auto:false,min:10,opt:true,t:"Числа по ступеням",
+    s:"по схемам, а не по одной цифре · диктант и номер телефона",
+    href:"./numeros.html", go:"Тренировать"});
   out.push({id:"tema",auto:true,min:10,t:"Тема дня: "+th[1],
     s:"числа, даты, погода, знакомство по кругу",
     href:"./temas.html#"+th[0], go:"Тренировать",
@@ -296,7 +300,7 @@ function blocks(){
 }
 function dayState(d){
   var save=S.day; S.day=d;
-  var b=blocks(), done=0;
+  var b=blocks().filter(function(x){return !x.opt}), done=0;
   b.forEach(function(x){ if(x.auto? x.done : manual(x.id)) done++ });
   S.day=save;
   return {done:done,total:b.length};
@@ -336,12 +340,14 @@ function render(){
   var M=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
   el("dayline").textContent="День "+S.day+" · "+dt.getDate()+" "+M[dt.getMonth()];
   var h="";
+  var need=b.filter(function(x){return !x.opt}).length;
   b.forEach(function(x){
     var ok = x.auto ? !!x.done : manual(x.id);
-    if(ok) done++;
+    if(ok && !x.opt) done++;
     h+='<div class="blk'+(ok?" done":"")+'">'+
        '<div class="box'+(ok?" on":"")+(x.auto?" auto":"")+'" data-id="'+x.id+'" data-auto="'+(x.auto?1:0)+'">'+(ok?"✓":"")+'</div>'+
-       '<div class="body"><div class="t">'+x.t+'</div><div class="s">'+x.s+
+       '<div class="body"><div class="t">'+x.t+
+       (x.opt?' <span class="tag2 opt">по желанию</span>':'')+'</div><div class="s">'+x.s+
        (x.auto?' · <span class="tag2">отмечается сам</span>':'')+'</div></div>'+
        '<span class="min">'+x.min+' мин'+(x.fon?' · фоном':'')+'</span>'+
        '<a class="go" href="'+x.href+'"'+(/^http/.test(x.href)?' target="_blank" rel="noopener"':'')+'>'+x.go+'</a></div>'+
@@ -353,10 +359,10 @@ function render(){
   el("plan").innerHTML=pl; el("plan").style.display= pl?"block":"none";
   if(el("goplan")) el("goplan").onclick=function(){S.day=today();render()};
   if(el("goopen")) el("goopen").onclick=function(){S.day=firstOpenDay();render()};
-  el("ring").textContent=done+" из "+b.length;
+  el("ring").textContent=done+" из "+need;
   var sit=b.filter(function(x){return !x.fon}).reduce(function(a,x){return a+x.min},0);
   var fon=b.filter(function(x){return x.fon}).reduce(function(a,x){return a+x.min},0);
-  el("sum").textContent=(done>=b.length?"день закрыт · ":"осталось "+(b.length-done)+" · ")+
+  el("sum").textContent=(done>=need?"день закрыт · ":"осталось "+(need-done)+" · ")+
     sit+" мин за столом + "+fon+" фоном";
   renderDays();
 }
