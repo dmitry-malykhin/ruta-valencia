@@ -947,6 +947,14 @@ function rFrases(){
 }
 
 /* ---------- скажи фразу целиком с русского ---------- */
+var MIC_ERRORS={
+  "not-allowed":"браузер не дал доступ к микрофону · разрешите его в адресной строке слева",
+  "service-not-allowed":"распознавание речи отключено в настройках браузера",
+  "audio-capture":"микрофон не найден · проверьте, что он подключён и выбран в системе",
+  "no-speech":"ничего не услышал · говорите ближе к микрофону и чуть громче",
+  "aborted":"запись прервалась, нажмите микрофон ещё раз",
+  "network":"нет связи с распознаванием · нужен интернет"
+};
 function speechOK(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
 function lev(a,b){var m=a.length,n=b.length,d=[],i,j;for(i=0;i<=m;i++)d[i]=[i];
   for(j=0;j<=n;j++)d[0][j]=j;
@@ -991,7 +999,10 @@ function rSpeak(){
         return n===target||n.indexOf(target)>-1||lev(n,target)<=Math.max(2,Math.floor(target.length/6))});
       finish(hit);
     };
-    rec.onerror=function(){el("mic").textContent="🎤 Сказать";el("mic").disabled=false};
+    rec.onerror=function(ev){
+      var why=MIC_ERRORS[ev&&ev.error]||("не получилось: "+((ev&&ev.error)||"неизвестная ошибка"));
+      var box=el("heard"); if(box) box.textContent=why;
+      el("mic").textContent="🎤 Ещё раз"; el("mic").disabled=false};
     rec.onend=function(){if(!done){el("mic").textContent="🎤 Ещё раз";el("mic").disabled=false}};
     try{rec.start()}catch(e){el("mic").disabled=false}
   };
