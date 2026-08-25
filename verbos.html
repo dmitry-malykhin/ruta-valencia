@@ -376,8 +376,8 @@ function finishDay(){
 
 /* ---------- фаза 1: один глагол через все режимы подряд ---------- */
 // сначала блок по одному глаголу (запись формы в память), перемешивание идёт следующими кругами
-var BLOCK=["learn","table","subst","frase","frase"];
-var STEP_NAMES=["Знакомство","Таблица форм","Все шесть лиц","Фраза","Ещё фраза"];
+var BLOCK=["learn","table","subst","frase"];
+var STEP_NAMES=["Знакомство","Таблица форм","Все шесть лиц","Фраза"];
 function stepStrip(){
   // отдельная полоса шагов: круги вверху и шаги внутри глагола легко перепутать
   var h='<div class="steps">';
@@ -395,7 +395,7 @@ function rBlock(){
   if(stage==="learn") return oneLearn(v);
   if(stage==="table") return oneTable(v);
   if(stage==="subst") return oneSubst(v);
-  return oneFrase(v, S.step-3);
+  return oneFrase(v, 0);
 }
 function blockNext(){
   S.step++;
@@ -408,9 +408,19 @@ function blockNext(){
 }
 
 /* шаг 3: одна фраза, все лица вразброс — форму надо не узнать, а построить */
+function hasRun(list){
+  for(var i=0;i+1<list.length;i++) if(list[i+1]===list[i]+1) return true;
+  return false;
+}
 function substQueue(v){
   if(!v.flex) return [];
-  return sh(v.flex.p.slice());
+  var base=v.flex.p.slice();
+  if(base.length<3) return sh(base);
+  for(var attempt=0;attempt<40;attempt++){
+    var q=sh(base);
+    if(!hasRun(q)) return q;
+  }
+  return sh(base);
 }
 function oneSubst(v){
   if(!v.flex) return blockNext();
