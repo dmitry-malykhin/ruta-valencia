@@ -270,7 +270,8 @@ text-align:center;font-weight:600}
 var STEPS=[{"id": "u1", "name": "0-10", "why": "Основа. Эти десять слов входят во всё остальное.", "nums": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "w": [[0, "cero"], [1, "uno"], [2, "dos"], [3, "tres"], [4, "cuatro"], [5, "cinco"], [6, "seis"], [7, "siete"], [8, "ocho"], [9, "nueve"], [10, "diez"]]}, {"id": "u2", "name": "11-15", "why": "Отдельные слова, все на -ce. Их просто заучивают.", "nums": [11, 12, 13, 14, 15], "w": [[11, "once"], [12, "doce"], [13, "trece"], [14, "catorce"], [15, "quince"]]}, {"id": "u3", "name": "16-19", "why": "Здесь начинается схема: diez + y + единица, слитно.", "nums": [16, 17, 18, 19], "w": [[16, "dieciséis"], [17, "diecisiete"], [18, "dieciocho"], [19, "diecinueve"]]}, {"id": "u4", "name": "Десятки", "why": "Опорные точки: 20, 30, 40 … 90.", "nums": [20, 30, 40, 50, 60, 70, 80, 90], "w": [[20, "veinte"], [30, "treinta"], [40, "cuarenta"], [50, "cincuenta"], [60, "sesenta"], [70, "setenta"], [80, "ochenta"], [90, "noventa"]]}, {"id": "u5", "name": "21-29", "why": "Ещё слитные: veinti + единица.", "nums": [21, 22, 23, 24, 25, 26, 27, 28, 29], "w": [[21, "veintiuno"], [22, "veintidós"], [23, "veintitrés"], [24, "veinticuatro"], [25, "veinticinco"], [26, "veintiséis"], [27, "veintisiete"], [28, "veintiocho"], [29, "veintinueve"]]}, {"id": "u6", "name": "Сборка 31-99", "why": "Разборная схема: десяток + y + единица, тремя словами.", "nums": [31, 35, 42, 47, 53, 58, 64, 66, 72, 78, 81, 85, 93, 99], "w": [[31, "treinta y uno"], [35, "treinta y cinco"], [42, "cuarenta y dos"], [47, "cuarenta y siete"], [53, "cincuenta y tres"], [58, "cincuenta y ocho"], [64, "sesenta y cuatro"], [66, "sesenta y seis"], [72, "setenta y dos"], [78, "setenta y ocho"], [81, "ochenta y uno"], [85, "ochenta y cinco"], [93, "noventa y tres"], [99, "noventa y nueve"]]}, {"id": "u7", "name": "Сотни", "why": "100 отдельно (cien), дальше -cientos. 500, 700, 900 нестандартные.", "nums": [100, 200, 300, 400, 500, 600, 700, 800, 900], "w": [[100, "cien"], [200, "doscientos"], [300, "trescientos"], [400, "cuatrocientos"], [500, "quinientos"], [600, "seiscientos"], [700, "setecientos"], [800, "ochocientos"], [900, "novecientos"]]}, {"id": "u8", "name": "Сборка 101-999", "why": "Сотня + десяток + единица. 100 внутри числа звучит как ciento.", "nums": [101, 115, 128, 134, 156, 199, 230, 247, 305, 372, 418, 543, 615, 728, 890, 945], "w": [[101, "ciento uno"], [115, "ciento quince"], [128, "ciento veintiocho"], [134, "ciento treinta y cuatro"], [156, "ciento cincuenta y seis"], [199, "ciento noventa y nueve"], [230, "doscientos treinta"], [247, "doscientos cuarenta y siete"], [305, "trescientos cinco"], [372, "trescientos setenta y dos"], [418, "cuatrocientos dieciocho"], [543, "quinientos cuarenta y tres"], [615, "seiscientos quince"], [728, "setecientos veintiocho"], [890, "ochocientos noventa"], [945, "novecientos cuarenta y cinco"]]}, {"id": "u9", "name": "Тысячи", "extra": true, "why": "Дополнительно. Нужны для зарплаты, аренды и цен на технику: mil, dos mil, diez mil.", "nums": [1000, 2000, 5000, 10000, 20000, 50000], "w": [[1000, "mil"], [2000, "dos mil"], [5000, "cinco mil"], [10000, "diez mil"], [20000, "veinte mil"], [50000, "cincuenta mil"]]}, {"id": "u10", "name": "Сотни тысяч и миллион", "extra": true, "why": "Дополнительно. Встречаются в ценах на жильё: cien mil, un millón. Millón во множественном millones.", "nums": [100000, 200000, 500000, 1000000, 2000000], "w": [[100000, "cien mil"], [200000, "doscientos mil"], [500000, "quinientos mil"], [1000000, "un millón"], [2000000, "dos millones"]]}];
 var WHO=[{id:"dmitry",name:"Дмитрий"},{id:"yulia",name:"Юлия"},{id:"mihail",name:"Михаил"},{id:"darya",name:"Дарья"}];
 var MODES=[{k:"learn",t:"1. Знакомство"},{k:"read",t:"2. Вижу цифру"},
-           {k:"write",t:"3. Пишу словом"},{k:"dictado",t:"4. Слышу, пишу цифрой"}];
+           {k:"write",t:"3. Пишу словом"},{k:"dictado",t:"4. Слышу, пишу цифрой"},
+           {k:"say",t:"5. Говорю вслух"}];
 var S={who:"dmitry",step:0,mode:0,queue:[],idx:0,ok:0,wrong:0,phone:null};
 
 function el(i){return document.getElementById(i)}
@@ -332,7 +333,8 @@ function startMode(){
   if(k==="learn"){ S.queue=pool.slice(); return rLearn() }
   if(k==="read"){ S.queue=sh(pool); return rRead() }
   if(k==="write"){ S.queue=sh(pool); return rWrite() }
-  S.queue=sh(pool); return rDictado();
+  if(k==="dictado"){ S.queue=sh(pool); return rDictado() }
+  S.queue=sh(pool); return rSay();
 }
 function modeDoneScreen(){
   markMode(S.step,S.mode); renderSteps(); renderModes();
@@ -347,6 +349,76 @@ function modeDoneScreen(){
   if(el("nextstep")) el("nextstep").onclick=function(){
     if(S.step<STEPS.length-1){S.step++;S.mode=0;startMode()} else {S.mode=0;startMode()}};
   el("re").onclick=startMode;
+}
+
+
+/* ---------- микрофон ---------- */
+var MIC_ERRORS={
+  "not-allowed":"браузер не дал доступ к микрофону · разрешите его в адресной строке слева",
+  "service-not-allowed":"распознавание речи отключено в настройках браузера",
+  "audio-capture":"микрофон не найден · проверьте, что он подключён и выбран в системе",
+  "no-speech":"ничего не услышал · говорите ближе к микрофону и чуть громче",
+  "aborted":"запись прервалась, нажмите микрофон ещё раз",
+  "network":"нет связи с распознаванием · нужен интернет"
+};
+function speechOK(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
+function lev(a,b){var m=a.length,n=b.length,d=[],i,j;for(i=0;i<=m;i++)d[i]=[i];
+  for(j=0;j<=n;j++)d[0][j]=j;
+  for(i=1;i<=m;i++)for(j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,
+    d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
+function heardMatches(alts, word, digits){
+  var target=norm(word), dg=String(digits);
+  return alts.some(function(a){
+    var n=norm(a);
+    if(n===target||n.indexOf(target)>-1) return true;
+    if(n.replace(/\D/g,"")===dg) return true;   // распознаватель часто отдаёт цифрами
+    return lev(n,target)<=Math.max(1,Math.floor(target.length/6));
+  });
+}
+function micRound(opts){
+  var box=el("heard"), btn=el("mic");
+  if(!btn) return;
+  btn.onclick=function(){
+    var Rec=window.SpeechRecognition||window.webkitSpeechRecognition, rec=new Rec();
+    rec.lang="es-ES"; rec.maxAlternatives=5; rec.interimResults=false;
+    btn.textContent="🎤 слушаю…"; btn.disabled=true;
+    rec.onresult=function(ev){
+      var alts=[]; for(var i=0;i<ev.results[0].length;i++) alts.push(ev.results[0][i].transcript);
+      var hit=heardMatches(alts, opts.word, opts.digits);
+      box.innerHTML=(hit?'<b style="color:var(--verde)">совпало: </b>':'не совпало · услышал: ')+alts[0];
+      btn.textContent="🎤 Сказать ещё раз"; btn.disabled=false;
+      opts.done(hit);
+    };
+    rec.onerror=function(ev){
+      box.textContent=MIC_ERRORS[ev&&ev.error]||("не получилось: "+((ev&&ev.error)||"ошибка"));
+      btn.textContent="🎤 Ещё раз"; btn.disabled=false;
+    };
+    rec.onend=function(){ if(btn.disabled){btn.textContent="🎤 Ещё раз";btn.disabled=false} };
+    try{rec.start()}catch(e){btn.disabled=false}
+  };
+}
+
+/* ---------- 5. говорю вслух ---------- */
+function rSay(){
+  if(S.idx>=S.queue.length) return modeDoneScreen();
+  var it=S.queue[S.idx];
+  el("stage").innerHTML=head()+
+    '<div class="card"><div class="digit">'+it[0]+'</div>'+
+    '<div class="hint" style="margin-top:12px">скажите это число по-испански</div>'+
+    '<div id="heard" class="hint" style="min-height:22px;margin-top:10px"></div></div>'+
+    '<div class="acts">'+
+    (speechOK()?'<button class="btn" id="mic">🎤 Сказать</button>':'')+
+    '<button class="btn ghost" id="hear">🔊 Как звучит</button>'+
+    '<button class="btn ghost" id="skip">Дальше</button></div>'+
+    '<p class="tip">'+(speechOK()
+      ?'Пока не совпало — пробуйте ещё. «Дальше» переходит по вашему решению'
+      :'Этот браузер не слышит речь · скажите вслух и проверьте себя кнопкой «Как звучит»')+'</p>';
+  el("hear").onclick=function(){speak(it[1])};
+  el("skip").onclick=function(){S.idx++;rSay()};
+  micRound({word:it[1],digits:it[0],done:function(hit){
+    if(hit){ S.ok++; S.idx++; speak(it[1]); setTimeout(rSay,900) }
+    else { S.wrong++ }
+  }});
 }
 
 /* ---------- 1. знакомство: цифра, слово, звук вместе ---------- */
@@ -477,8 +549,10 @@ function numWord(n){
   var t=Math.floor(n/10)*10, u=n%10;
   return u? tens[t]+" y "+all[u] : tens[t];
 }
-function rPhone(rate){
+function rPhone(rate,mode){
   if(!S.phone) S.phone={groups:phoneDigits(),tries:0};
+  S.phoneMode=mode||S.phoneMode||"escuchar";
+  if(S.phoneMode==="decir") return rPhoneSay(rate);
   var g=S.phone.groups, target=g.join("");
   el("stage").innerHTML=head()+
     '<div class="card"><div class="hint">вам диктуют номер · запишите цифрами</div>'+
@@ -490,7 +564,9 @@ function rPhone(rate){
     '<div class="type"><input id="inp" inputmode="numeric" autocomplete="off" '+
     'placeholder="шесть цифр"><button class="btn" id="ok">Проверить</button></div>'+
     '<div id="v"></div>'+
-    '<div class="acts" style="margin-top:8px"><button class="btn ghost" id="skip">Другой номер</button></div>'+
+    '<div class="acts" style="margin-top:8px">'+
+    '<button class="btn ghost" id="skip">Другой номер</button>'+
+    '<button class="btn ghost" id="flip">Наоборот: продиктовать самому</button></div>'+
     '<p class="tip">В Испании номер диктуют парами: 65 · 43 · 12</p>';
   function say(r){ speakAt(phoneText(g), r) }
   el("spk").onclick=function(){say(rate||.75)};
@@ -499,6 +575,7 @@ function rPhone(rate){
   };
   setTimeout(function(){say(rate||.75)},350);
   el("skip").onclick=function(){S.phone=null;rPhone(rate)};
+  el("flip").onclick=function(){S.phone=null;rPhone(rate,"decir")};
   var inp=el("inp"); inp.focus();
   el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
   function check(){
@@ -510,6 +587,28 @@ function rPhone(rate){
     say(.6);
     if(good){ S.phone=null; setTimeout(function(){rPhone(rate)},2200) }
   }
+}
+
+
+function rPhoneSay(rate){
+  var g=S.phone.groups, word=phoneText(g), digits=g.join("");
+  el("stage").innerHTML=head()+
+    '<div class="card"><div class="hint">продиктуйте этот номер по-испански, парами</div>'+
+    '<div class="phone">'+g.join(" · ")+'</div>'+
+    '<div id="heard" class="hint" style="min-height:22px;margin-top:12px"></div></div>'+
+    '<div class="acts">'+
+    (speechOK()?'<button class="btn" id="mic">🎤 Сказать</button>':'')+
+    '<button class="btn ghost" id="hear">🔊 Послушать образец</button>'+
+    '<button class="btn ghost" id="skip">Другой номер</button>'+
+    '<button class="btn ghost" id="flip">Наоборот: записать на слух</button></div>'+
+    '<p class="tip">Говорите парами, как в Испании: sesenta y cinco, cuarenta y tres…</p>';
+  el("hear").onclick=function(){speakAt(word,rate||.75)};
+  el("skip").onclick=function(){S.phone=null;rPhoneSay(rate)};
+  el("flip").onclick=function(){S.phone=null;rPhone(rate,"escuchar")};
+  micRound({word:word,digits:digits,done:function(hit){
+    if(hit){ S.ok++; speakAt(word,.7); S.phone=null; setTimeout(function(){rPhoneSay(rate)},2000) }
+    else { S.wrong++ }
+  }});
 }
 
 function boot(){
@@ -530,6 +629,12 @@ function boot(){
     if(v){esVoice=v;ls("esp_voice",v.name);speak("uno, dos, tres")}};
   try{speechSynthesis.onvoiceschanged=collectVoices}catch(e){}
   collectVoices();
+  if(location.hash==="#phone"){
+    S.phone=null; S.ok=0; S.wrong=0; S.queue=[];
+    renderSteps(); renderModes();
+    el("why").textContent="Диктовка номера · записать на слух и продиктовать самому.";
+    return rPhone(.75,"escuchar");
+  }
   // продолжаем с первой незакрытой ступени
   for(var i=0;i<STEPS.length;i++){ if(!STEPS[i].extra && !stepDone(i)){S.step=i;break} }
   for(var m=0;m<MODES.length;m++){ if(!modeDone(S.step,m)){S.mode=m;break} }
