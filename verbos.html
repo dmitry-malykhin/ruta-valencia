@@ -387,7 +387,10 @@ function requeue(q){
 }
 function pairs(){var out=[];S.verbs.forEach(function(v){P.forEach(function(p,i){out.push({v:v,pi:i})})});return out}
 function roundDone(){
-  if(ROUNDS[S.round] && ROUNDS[S.round].k==="block") markLearned(S.day);
+  if(ROUNDS[S.round] && ROUNDS[S.round].k==="block"){
+    markLearned(S.day);
+    ls("verb_done_"+S.who+"_"+S.day,"1");
+  }
   if(S.round+1>rdone(S.day)) saveR(S.day,S.round+1);
   renderRounds();
   el("stage").innerHTML='<div class="panel done"><div class="big">✓</div><h2>'+ROUNDS[S.round].t+
