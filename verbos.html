@@ -294,9 +294,10 @@ function collectVoices(){
     return '<option value="'+x.name.replace(/"/g,"")+'"'+(esVoice&&x.name===esVoice.name?" selected":"")+'>'+
       x.name+(/premium|enhanced|natural/i.test(x.name)?" ★":"")+'</option>'}).join(""):'<option>голосов нет</option>';
 }
-function speak(t){try{if(!esVoice)collectVoices();
-  var u=new SpeechSynthesisUtterance(t);u.lang=(esVoice&&esVoice.lang)||"es-ES";u.rate=.88;
+function speakAt(t,rate){try{if(!esVoice)collectVoices();
+  var u=new SpeechSynthesisUtterance(t);u.lang=(esVoice&&esVoice.lang)||"es-ES";u.rate=rate||.88;
   if(esVoice)u.voice=esVoice;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function speak(t){speakAt(t,.88)}
 
 /* ---------- каркас ---------- */
 function renderWho(){el("who").innerHTML=WHO.map(function(w){
@@ -354,7 +355,7 @@ function startDay(d){
   startRound();
 }
 function startRound(){
-  renderRounds(); S.vi=0; S.idx=0; S.ok=0; S.wrong=0; S.sq=null; S.token=(S.token||0)+1;
+  renderRounds(); S.vi=0; S.idx=0; S.ok=0; S.wrong=0; S.sq=null; S.oq=null; S.token=(S.token||0)+1;
   var k=ROUNDS[S.round].k; S.step=0;
   if(k==="warm")   { S.queue=warmQueue(S.day); return rWarm() }
   if(k==="block"){
@@ -399,8 +400,8 @@ function finishDay(){
 
 /* ---------- фаза 1: один глагол через все режимы подряд ---------- */
 // сначала блок по одному глаголу (запись формы в память), перемешивание идёт следующими кругами
-var BLOCK=["learn","table","subst","frase"];
-var STEP_NAMES=["Знакомство","Таблица форм","Все шесть лиц","Фраза"];
+var BLOCK=["learn","table","subst","oido"];
+var STEP_NAMES=["Знакомство","Таблица форм","Все шесть лиц","Фраза на слух"];
 function stepStrip(){
   // отдельная полоса шагов: круги вверху и шаги внутри глагола легко перепутать
   var v=S.verbs[S.vi], whole=v&&isVerbDone(S.day,v.v);
@@ -419,7 +420,7 @@ function bindSteps(){
   var box=el("stage").querySelector(".steps"); if(!box) return;
   box.onclick=function(e){
     var d=e.target.closest(".stp.open"); if(!d) return;
-    S.step=+d.dataset.step; S.sq=null; S.token=(S.token||0)+1; rBlock();
+    S.step=+d.dataset.step; S.sq=null; S.oq=null; S.token=(S.token||0)+1; rBlock();
   };
 }
 function rBlock(){
@@ -429,7 +430,7 @@ function rBlock(){
   if(stage==="learn") return oneLearn(v);
   if(stage==="table") return oneTable(v);
   if(stage==="subst") return oneSubst(v);
-  return oneFrase(v, 0);
+  return oneOido(v);
 }
 function blockNext(){
   S.step++;
@@ -639,6 +640,76 @@ function oneFrase(v,k){
     speak(fraseText(v,fr));
     inp.value=""; inp.placeholder="наберите: "+ans; inp.focus();
   }
+  el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
+}
+
+
+/* шаг 4: фраза звучит, текста нет — форму надо узнать на слух */
+function oidoQueue(v){
+  var out=[];
+  (v.fr||[]).forEach(function(fr){ out.push({es:fr.es,ru:fr.ru,p:fr.p}) });
+  if(v.flex){
+    var pool=v.flex.p.slice(), pi=pool[Math.floor(Math.random()*pool.length)];
+    out.push({es:v.flex.es,ru:"",p:pi});
+  }
+  return sh(out);
+}
+function oneOido(v){
+  if(!S.oq || S.oqv!==v.v){ S.oq=oidoQueue(v); S.oqi=0; S.oqv=v.v }
+  if(S.oqi>=S.oq.length){ S.oq=null; return blockNext() }
+  var q=S.oq[S.oqi], ans=v.f[q.p];
+  var full=fraseShown(q.es.replace("{}",ans));
+  el("stage").innerHTML= blockHead(v)+
+    '<div class="counter" style="margin-top:-6px">'+
+    '<span class="mono">фраза '+(S.oqi+1)+' из '+S.oq.length+'</span>'+
+    '<span class="pill know">верно '+S.ok+'</span></div>'+
+    '<div class="card"><div class="hint">послушайте фразу и напишите форму, которую услышали</div>'+
+    '<button class="audio" id="spk" title="повторить фразу">🔊</button>'+
+    '<div class="taskline">глагол <b>'+v.v+'</b> · '+v.ru+'</div>'+
+    '<div id="heard" class="frase-ru" style="min-height:20px"></div></div>'+
+    '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
+    'placeholder="форма, которую услышали"><button class="btn" id="ok">Проверить</button></div>'+
+    '<div id="v"></div>'+
+    '<div class="acts" style="margin-top:8px">'+
+    '<button class="btn ghost" id="slow">🐢 Медленнее</button>'+
+    '<button class="btn ghost" id="idk">Не расслышал</button></div>'+
+    '<p class="tip">Текста нет специально. 🔊 повторяет сколько угодно</p>';
+  bindSteps();
+  function say(rate){ speakAt(full, rate) }
+  el("spk").onclick=function(){say(.85)};
+  el("slow").onclick=function(){say(.6)};
+  say(.85);
+  var inp=el("inp"); inp.focus(); var locked=false, token=S.token, retype=false;
+  function go(){ S.oqi++; if(token===S.token) oneOido(v) }
+  function reveal(good){
+    el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+full+'</b>'+
+      (q.ru?'<br>'+q.ru:'')+'</div>';
+  }
+  function check(){
+    if(locked) return; var a=norm(inp.value); if(!a) return;
+    if(retype){
+      if(a!==norm(ans)){
+        el("heard").textContent="пока не совпадает, наберите "+ans;
+        return;
+      }
+      locked=true; inp.disabled=true; el("ok").disabled=true; say(.85);
+      setTimeout(go,900); return;
+    }
+    var good=a===norm(ans); note(v.v+"|"+q.p,good);
+    if(good){
+      S.ok++; locked=true; inp.disabled=true; el("ok").disabled=true;
+      reveal(true); say(.85); setTimeout(go,1500); return;
+    }
+    S.wrong++; retype=true; S.oq.push(q);
+    reveal(false); say(.6);
+    inp.value=""; inp.placeholder="наберите: "+ans; inp.focus();
+  }
+  el("idk").onclick=function(){
+    if(locked||retype) return;
+    S.wrong++; retype=true; note(v.v+"|"+q.p,false); S.oq.push(q);
+    reveal(false); say(.6);
+    inp.value=""; inp.placeholder="наберите: "+ans; inp.focus();
+  };
   el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
 }
 
