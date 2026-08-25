@@ -3,6 +3,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
+.exs{margin-top:16px;display:flex;flex-direction:column;gap:8px;width:100%}
+.ex{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;
+padding:9px 12px;text-align:left}
+.ex b{display:block;font-size:16px;font-weight:600}
+.ex span{display:block;font-size:13.5px;color:var(--ink-soft);margin-top:2px}
+
 :root{--ground:#F4F6FA;--surface:#FFFFFF;--surface-2:#EDF1F8;--line:#D3DCEA;
 --ink:#0F1C33;--ink-soft:#4A5872;--ink-faint:#7C8AA3;--cobalt:#1B4FA8;--cobalt-soft:#E3EBF9;
 --naranja:#D45B12;--naranja-soft:#FBE8DB;--verde:#256B4E;--verde-soft:#DFF0E6;
@@ -332,13 +338,13 @@ function blocks(){
         (vdone
           ? (vall?"":" · разбор закрыт, остальные этапы по желанию")
           : (vr>0?" · пройдено этапов: "+vr:"")),
-      href:"./verbos.html",go:"Тренировать",
+      href:"./verbos.html?day="+d,go:"Тренировать",
       done: vdone});
   }
   out.push({id:"words",auto:true,min:kid?10:25,
     prog:{done:Math.min(num("esp2_r_"+S.who+"_"+d),6),total:6},
     t: kid?"Фразы дня":"Слова дня, 15 штук",
-    s: DAY_NAME[d]||"набор дня", href:"./trainer.html", go:"Учить",
+    s: DAY_NAME[d]||"набор дня", href:"./trainer.html?day="+d, go:"Учить",
     done: num("esp2_r_"+S.who+"_"+d)>=6});
   var watch=WATCH[S.who]||WATCH.adult, pick=watch[(d-1)%watch.length];
   out.push({id:"audio",auto:false,min:kid?18:25,fon:true,opt:true,
@@ -348,11 +354,11 @@ function blocks(){
     prog:{done:Math.min(num("shadow_r_"+S.who+"_"+d),10),total:10},
     t:"Эхо: повтор за голосом",
     s:"короткие фразы из разобранных глаголов",
-    href:"./shadow.html", go:"Повторять",
+    href:"./shadow.html?day="+d, go:"Повторять",
     done: num("shadow_r_"+S.who+"_"+d)>=10});
   if(!kid) out.push({id:"speech",auto:false,min:15,opt:true,t:"Речь по скрипту дня",
     s:"вслух, вдвоём с Юлией · языковой обмен только если захочется",
-    href:"./shadow.html",go:"Повторять"});
+    href:"./shadow.html?day="+d,go:"Повторять"});
   if(!kid && ls("hoy_phone_off_"+S.who)!=="1")
     out.push({id:"phone",auto:false,min:5,opt:true,t:"Номер телефона на слух",
       s:"записать продиктованный номер и продиктовать самому · три скорости",
