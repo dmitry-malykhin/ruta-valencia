@@ -185,6 +185,12 @@ border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05e
 .cell .hintbtn{width:34px;height:34px;font-weight:700;flex:none}
 .rnd.ok{cursor:pointer}
 .rnd.ok:hover{border-color:var(--verde)}
+.dlabel{font-weight:600;margin-right:10px}
+.vchip{background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
+border-radius:999px;padding:5px 13px;margin:3px 6px 3px 0;font-size:14px;cursor:pointer}
+.vchip:hover{border-color:var(--cobalt)}
+.vchip.done{background:var(--verde-soft);border-color:var(--verde);color:var(--verde);font-weight:600}
+.vchip.now{outline:2px solid var(--naranja);outline-offset:1px}
 </style>
 <div class="wrap">
   <p class="eyebrow"><a href="./hoy.html" style="text-decoration:none">← Мой день</a> ·
@@ -282,18 +288,34 @@ function renderRounds(){
     S.round=+d.dataset.round; startRound();
   };
 }
+function renderVerbChips(){
+  var d=S.day, h='<span class="dlabel">День '+d+'</span>';
+  S.verbs.forEach(function(v,i){
+    var done=isVerbDone(d,v.v);
+    h+='<button class="vchip'+(done?" done":"")+(i===S.vi?" now":"")+'" data-verb="'+i+'"'+
+       ' title="'+(done?"разобран, можно пройти заново":"перейти к этому глаголу")+'">'+
+       v.v+(done?' ✓':'')+'</button>';
+  });
+  el("setname").innerHTML=h;
+}
 function startDay(d){
   S.day=d; S.verbs=dayVerbs(d); buildRounds(d);
   var r=rdone(d); S.round=(r>=ROUNDS.length?0:r);
   el("daysel").value=d;
-  el("setname").textContent="День "+d+": "+S.verbs.map(function(x){return x.v}).join(", ");
+  ls("verb_day_"+S.who,String(d));
+  renderVerbChips();
   startRound();
 }
 function startRound(){
   renderRounds(); S.vi=0; S.idx=0; S.ok=0; S.wrong=0; S.sq=null; S.token=(S.token||0)+1;
   var k=ROUNDS[S.round].k; S.step=0;
   if(k==="warm")   { S.queue=warmQueue(S.day); return rWarm() }
-  if(k==="block")  return rBlock();
+  if(k==="block"){
+    for(var i=0;i<S.verbs.length;i++) if(!isVerbDone(S.day,S.verbs[i].v)){S.vi=i;break}
+    if(S.vi>=S.verbs.length) S.vi=0;
+    renderVerbChips();
+    return rBlock();
+  }
   if(k==="frases") { S.queue=frasesQueue(); return rFrases() }
   if(k==="listen"){ S.queue=sh(pairs()).slice(0,8); return rListen() }
   if(k==="speak")  { S.queue=sh(fraseQueue(0).concat(fraseQueue(1))); return rSpeak() }
@@ -346,7 +368,11 @@ function rBlock(){
 }
 function blockNext(){
   S.step++;
-  if(S.step>=BLOCK.length){ S.step=0; S.vi++ }
+  if(S.step>=BLOCK.length){
+    markVerbDone(S.day, S.verbs[S.vi].v);
+    S.step=0; S.vi++;
+  }
+  renderVerbChips();
   rBlock();
 }
 
@@ -602,6 +628,14 @@ function rListen(){
 }
 
 /* ---------- разминка: глаголы прошлых дней ---------- */
+function vdkey(d){return "verb_v_"+S.who+"_"+d}
+function verbsDone(d){try{return JSON.parse(ls(vdkey(d))||"[]")}catch(e){return[]}}
+function markVerbDone(d,name){
+  var a=verbsDone(d); if(a.indexOf(name)<0){a.push(name);ls(vdkey(d),JSON.stringify(a))}
+}
+function isVerbDone(d,name){return verbsDone(d).indexOf(name)>-1}
+function lastDay(){var v=parseInt(ls("verb_day_"+S.who)||"0",10);
+  return (v>=1&&v<=52)?v:today()}
 function lkey(d){return "verb_learned_"+S.who+"_"+d}
 function markLearned(d){ls(lkey(d),"1")}
 function learned(d){
@@ -782,15 +816,23 @@ function boot(){
   el("daysel").innerHTML=o;
   renderWho();
   el("who").onclick=function(e){var b=e.target.closest("button[data-who]");if(!b)return;
-    S.who=b.dataset.who;ls("esp_who",S.who);renderWho();startDay(S.day)};
+    S.who=b.dataset.who;ls("esp_who",S.who);renderWho();startDay(lastDay())};
   el("daysel").onchange=function(){startDay(parseInt(this.value,10))};
+  el("setname").onclick=function(e){
+    var b=e.target.closest(".vchip"); if(!b) return;
+    var bi=ROUNDS.map(function(r){return r.k}).indexOf("block");
+    if(bi<0) return;
+    S.round=bi; renderRounds(); S.idx=0; S.ok=0; S.wrong=0; S.sq=null;
+    S.token=(S.token||0)+1; S.vi=+b.dataset.verb; S.step=0;
+    renderVerbChips(); rBlock();
+  };
   el("ref").onclick=refTable;
   el("restart").onclick=function(){saveR(S.day,0);startDay(S.day)};
   el("voice").onchange=function(){
     var name=this.value, v=VOICES.filter(function(x){return x.name===name})[0];
     if(v){esVoice=v;ls("esp_voice",v.name);speak("Hola, buenos días")}};
   try{speechSynthesis.onvoiceschanged=collectVoices}catch(e){}
-  collectVoices(); startDay(today());
+  collectVoices(); startDay(lastDay());
 }
 boot();
 </script>
