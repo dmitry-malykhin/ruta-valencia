@@ -274,6 +274,11 @@ function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorag
 function sh(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
 function norm(s){return (s||"").toLowerCase().trim().replace(/[.,!?¡¿]/g,"")
   .normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ")}
+function dayFromUrl(){
+  var q=(location.search.match(/day=(\d+)/)||[])[1];
+  var v=q?parseInt(q,10):0;
+  return (v>=1&&v<=52)?v:0;
+}
 function today(){var n=new Date(); n=new Date(n.getTime()-4*36e5);
   n=new Date(n.getFullYear(),n.getMonth(),n.getDate());
   return Math.max(1,Math.min(52,Math.floor((n-START)/864e5)+1))}
@@ -461,7 +466,7 @@ function boot(){
   if(whoFromUrl && WHO.some(function(p){return p.id===whoFromUrl})) ls("esp_who",whoFromUrl);
   S.who=ls("esp_who")||"dmitry";
   if(!WHO.filter(function(w){return w.id===S.who}).length) S.who="dmitry";
-  S.day=today();
+  S.day=dayFromUrl()||today();
   var o="";for(var d=1;d<=52;d++)o+='<option value="'+d+'"'+(d===S.day?" selected":"")+'>День '+d+'</option>';
   el("daysel").innerHTML=o;
   renderWho();
