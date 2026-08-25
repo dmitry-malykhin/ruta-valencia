@@ -178,6 +178,16 @@ border-radius:11px;font-size:13.5px;color:var(--ink);line-height:1.7}
 .dot.corner{position:relative}
 .dot.corner::after{content:"";position:absolute;top:-2px;right:-2px;width:8px;height:8px;
 border-radius:2px;background:var(--naranja)}
+/* рамка сама говорит, что за задание и сделано ли оно */
+.blk{border:1.5px solid var(--naranja)}
+.blk.done{border-color:var(--verde)}
+.blk.opt{border:1.5px solid var(--cielo);border-style:solid}
+.blk.opt.done{border-color:var(--verde)}
+.grouphead.extra{color:var(--cielo);opacity:1}
+.more a:hover{color:var(--cielo);border-color:var(--cielo)}
+/* квадрат дня: зелёный, а недоделанное дополнительное подчёркнуто голубым */
+.dot.corner::after{content:"";position:absolute;left:3px;right:3px;bottom:2px;height:3px;
+border-radius:2px;background:var(--cielo);top:auto;width:auto}
 </style>
 <div class="wrap">
   <p class="eyebrow"><span style="opacity:.55">Мой день</span> ·
