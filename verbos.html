@@ -225,6 +225,9 @@ text-transform:uppercase;color:var(--ink-faint);margin:2px 0 6px}
 color:var(--ink-soft);padding:8px 2px}
 .rndline b{color:var(--ink)}
 .striplabel .btn{margin-left:8px;vertical-align:middle}
+.pairline{margin-top:10px;font-size:clamp(20px,4vw,28px);font-weight:700;letter-spacing:.01em}
+.verdict.ok .pairline{color:var(--verde)}
+.verdict.bad .pairline{color:var(--naranja)}
 </style>
 <div class="wrap">
   <p class="eyebrow"><a href="./hoy.html" style="text-decoration:none">← Мой день</a> ·
@@ -700,6 +703,7 @@ function oneOido(v){
   if(S.oqi>=S.oq.length){ S.oq=null; return blockNext() }
   var q=S.oq[S.oqi], ans=v.f[q.p];
   var full=fraseShown(q.es.replace("{}",ans));
+  var pair=P[q.p][0]+" "+ans;          // местоимение с нужной формой
   el("stage").innerHTML= blockHead(v)+
     '<div class="counter" style="margin-top:-6px">'+
     '<span class="mono">фраза '+(S.oqi+1)+' из '+S.oq.length+'</span>'+
@@ -713,6 +717,8 @@ function oneOido(v){
     '<div id="v"></div>'+
     '<div class="acts" style="margin-top:8px">'+
     '<button class="btn ghost" id="slow">🐢 Медленнее</button>'+
+    (q.ru?'<button class="btn ghost" id="tr">Перевести фразу</button>':'')+
+    '<button class="btn ghost" id="form">Подсказать форму</button>'+
     '<button class="btn ghost" id="idk">Не расслышал</button></div>'+
     '<p class="tip">Текста нет специально. 🔊 повторяет сколько угодно</p>';
   bindSteps();
@@ -722,10 +728,28 @@ function oneOido(v){
   var startToken=S.token;
   setTimeout(function(){ if(startToken===S.token) say(.85) },SAY_DELAY);
   var inp=el("inp"); inp.focus(); var locked=false, token=S.token, retype=false;
-  function go(){ S.oqi++; if(token===S.token) oneOido(v) }
-  function reveal(good){
-    el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+full+'</b>'+
-      (q.ru?'<br>'+q.ru:'')+'</div>';
+
+  // перевод показывается по кнопке и подсвечивает нужную форму в паре с местоимением
+  if(el("tr")) el("tr").onclick=function(){
+    if(locked) return;
+    el("heard").innerHTML=q.ru+' · <b class="gap" style="border:0">'+pair+'</b>';
+  };
+  if(el("form")) el("form").onclick=function(){
+    if(locked) return;
+    S.wrong++; note(v.v+"|"+q.p,false);
+    el("heard").innerHTML='подсказка: <b class="gap" style="border:0">'+pair+'</b>';
+  };
+
+  function revealFull(good){
+    // после ответа экран сам не уезжает: читаем сколько нужно и жмём «Дальше»
+    el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'">'+
+      '<b>'+full+'</b>'+(q.ru?'<br>'+q.ru:'')+
+      '<div class="pairline">'+pair+'</div></div>'+
+      '<div class="acts" style="margin-top:10px">'+
+      '<button class="btn ghost" id="again2">🔊 Ещё раз</button>'+
+      '<button class="btn" id="next2">Дальше</button></div>';
+    el("again2").onclick=function(){say(.8)};
+    el("next2").onclick=function(){ S.oqi++; if(token===S.token) oneOido(v) };
   }
   function check(){
     if(locked) return; var a=norm(inp.value); if(!a) return;
@@ -735,21 +759,25 @@ function oneOido(v){
         return;
       }
       locked=true; inp.disabled=true; el("ok").disabled=true; say(.85);
-      whenQuiet(go); return;
+      revealFull(false); return;
     }
     var good=a===norm(ans); note(v.v+"|"+q.p,good);
     if(good){
       S.ok++; locked=true; inp.disabled=true; el("ok").disabled=true;
-      reveal(true); say(.85); whenQuiet(go); return;
+      say(.85); revealFull(true); return;
     }
     S.wrong++; retype=true; S.oq.push(q);
-    reveal(false); say(.6);
+    el("v").innerHTML='<div class="verdict bad"><b>'+full+'</b>'+
+      (q.ru?'<br>'+q.ru:'')+'<div class="pairline">'+pair+'</div></div>';
+    say(.6);
     inp.value=""; inp.placeholder="наберите: "+ans; inp.focus();
   }
   el("idk").onclick=function(){
     if(locked||retype) return;
     S.wrong++; retype=true; note(v.v+"|"+q.p,false); S.oq.push(q);
-    reveal(false); say(.6);
+    el("v").innerHTML='<div class="verdict bad"><b>'+full+'</b>'+
+      (q.ru?'<br>'+q.ru:'')+'<div class="pairline">'+pair+'</div></div>';
+    say(.6);
     inp.value=""; inp.placeholder="наберите: "+ans; inp.focus();
   };
   el("ok").onclick=check; inp.onkeydown=function(e){if(e.key==="Enter")check()};
