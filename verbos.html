@@ -309,7 +309,8 @@ function roundDone(){
   el("re").onclick=startRound;
 }
 function finishDay(){
-  saveR(S.day,ROUNDS.length); S.round=ROUNDS.length; renderRounds();
+  saveR(S.day,ROUNDS.length); ls("verb_done_"+S.who+"_"+S.day,"1");
+  S.round=ROUNDS.length; renderRounds();
   el("stage").innerHTML='<div class="panel done"><div class="big">🍊</div>'+
     '<h2>Спряжения дня '+S.day+' закрыты</h2>'+
     '<p class="hint" style="margin:8px 0 16px">Пять глаголов отработаны во всех шести формах</p>'+
