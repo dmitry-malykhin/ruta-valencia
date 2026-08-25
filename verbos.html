@@ -188,6 +188,8 @@ border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05e
 .cell .mini{flex:0 0 auto}
 .cell .hintbtn{width:36px;height:36px;font-weight:700}
 .cell [data-play]{width:36px;height:36px}
+.rnd.free{cursor:pointer}
+.rnd.free:hover{border-color:var(--cobalt)}
 .rnd.ok{cursor:pointer}
 .rnd.ok:hover{border-color:var(--verde)}
 .dlabel{font-weight:600;margin-right:10px}
@@ -331,18 +333,20 @@ function renderRounds(){
     el("stripToggle").onclick=function(){ls("verb_strip_"+S.who,"1");renderRounds()};
     return;
   }
+  var freeAll=dayMainDone(S.day);
   ROUNDS.forEach(function(r,i){
-    var c=(i===S.round?"now":(i<passed?"ok":"lock"));
+    var open=(i<passed)||freeAll;
+    var c=(i===S.round?"now":(open?"ok":"lock"));
     var extra=(c==="now"&&roundProgress())?'<span class="rp">'+roundProgress()+'</span>':'';
-    h+='<div class="rnd '+c+'" data-round="'+i+'"'+
-       (c==="ok"?' title="пройти заново"':'')+'>'+r.t+(c==="ok"?" ✓":"")+extra+'</div>'});
+    h+='<div class="rnd '+c+(open?" free":"")+'" data-round="'+i+'"'+
+       (open?' title="перейти к этому этапу"':'')+'>'+r.t+(i<passed?" ✓":"")+extra+'</div>'});
   var head='<div class="striplabel">этапы дня'+
     (longBlock?' <button class="btn ghost sm" id="stripToggle">свернуть</button>':'')+'</div>';
   el("rounds").innerHTML=head+h;
   if(el("stripToggle")) el("stripToggle").onclick=function(){
     ls("verb_strip_"+S.who,"0");renderRounds()};
   el("rounds").onclick=function(e){
-    var d=e.target.closest(".rnd.ok"); if(!d) return;
+    var d=e.target.closest(".rnd.free"); if(!d) return;
     S.round=+d.dataset.round; startRound();
   };
 }
@@ -357,7 +361,7 @@ function renderVerbChips(){
   el("setname").innerHTML=h;
 }
 function startDay(d){
-  S.day=d; S.verbs=dayVerbs(d); buildRounds(d);
+  S.day=d; S.verbs=dayVerbs(d); checkDayDone(d); buildRounds(d);
   var r=rdone(d); S.round=(r>=ROUNDS.length?0:r);
   el("daysel").value=d;
   ls("verb_day_"+S.who,String(d));
@@ -814,6 +818,18 @@ function vdkey(d){return "verb_v_"+S.who+"_"+d}
 function verbsDone(d){try{return JSON.parse(ls(vdkey(d))||"[]")}catch(e){return[]}}
 function markVerbDone(d,name){
   var a=verbsDone(d); if(a.indexOf(name)<0){a.push(name);ls(vdkey(d),JSON.stringify(a))}
+  checkDayDone(d);
+}
+function dayMainDone(d){
+  var list=dayVerbs(d), done=verbsDone(d);
+  return list.length>0 && list.every(function(v){return done.indexOf(v.v)>-1});
+}
+function checkDayDone(d){
+  if(dayMainDone(d)){
+    markLearned(d);
+    ls("verb_done_"+S.who+"_"+d,"1");
+    if(rdone(d)<1) saveR(d,1);
+  }
 }
 function isVerbDone(d,name){return verbsDone(d).indexOf(name)>-1}
 function lastDay(){var v=parseInt(ls("verb_day_"+S.who)||"0",10);
