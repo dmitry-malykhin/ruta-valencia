@@ -197,6 +197,14 @@ border-radius:2px;background:var(--cielo);top:auto;width:auto}
 .group.full{border-color:var(--verde)}
 .group .grouphead{margin-top:0}
 .group .blk{margin-bottom:10px}
+.prog{display:flex;align-items:center;gap:9px;margin-top:8px}
+.pbar{flex:1;height:6px;border-radius:99px;background:var(--line);overflow:hidden;min-width:80px}
+.pbar i{display:block;height:100%;background:var(--naranja);transition:width .25s}
+.prog.started .pbar i{background:var(--naranja)}
+.prog.full .pbar i{background:var(--verde)}
+.blk.opt .pbar i{background:var(--cielo)}
+.blk.opt .prog.full .pbar i{background:var(--verde)}
+.pnum{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-faint);white-space:nowrap}
 </style>
 <div class="wrap">
   <p class="eyebrow"><span style="opacity:.55">Мой день</span> ·
@@ -273,6 +281,18 @@ function who(){return WHO.filter(function(w){return w.id===S.who})[0]}
 function num(k){var v=parseInt(ls(k)||"0",10);return isNaN(v)?0:v}
 function manual(id){return ls("hoy_"+S.who+"_"+S.day+"_"+id)==="1"}
 function setManual(id,on){ls("hoy_"+S.who+"_"+S.day+"_"+id,on?"1":"0")}
+function numStepsDone(ids){
+  var modes=["learn","read","write","dictado","say"], done=0;
+  ids.forEach(function(id){
+    modes.forEach(function(mo){ if(ls("num_"+S.who+"_"+id+"_"+mo)==="1") done++ });
+  });
+  return {done:done,total:ids.length*modes.length};
+}
+function verbsProgress(d){
+  var list=(DAY_VERBS[d]||[]);
+  var arr=[]; try{arr=JSON.parse(ls("verb_v_"+S.who+"_"+d)||"[]")}catch(e){}
+  return {done:Math.min(arr.length,list.length),total:list.length||5};
+}
 function moduleOf(d){
   for(var i=0;i<PLAN.length;i++) if(d>=PLAN[i].from && d<=PLAN[i].to) return PLAN[i];
   return PLAN[PLAN.length-1];
@@ -307,7 +327,7 @@ function blocks(){
       go: d<=16 ? "Смотреть" : "Открыть"});
     var vr=num("verb_r_"+S.who+"_"+d), vdone=ls("verb_done_"+S.who+"_"+d)==="1";
     var vall=num("verb_r_"+S.who+"_"+d)>=5;
-    out.push({id:"verbos",auto:true,min:25,t:"Спряжение глаголов",
+    out.push({id:"verbos",auto:true,min:25,t:"Спряжение глаголов",prog:verbsProgress(d),
       s:((DAY_VERBS[d]||[]).join(", ")||"повтор пройденных")+
         (vdone
           ? (vall?"":" · разбор закрыт, остальные этапы по желанию")
@@ -316,6 +336,7 @@ function blocks(){
       done: vdone});
   }
   out.push({id:"words",auto:true,min:kid?10:25,
+    prog:{done:Math.min(num("esp2_r_"+S.who+"_"+d),6),total:6},
     t: kid?"Фразы дня":"Слова дня, 15 штук",
     s: DAY_NAME[d]||"набор дня", href:"./trainer.html", go:"Учить",
     done: num("esp2_r_"+S.who+"_"+d)>=6});
@@ -324,6 +345,7 @@ function blocks(){
     t: kid?"Видео на испанском":"Аудирование фоном",
     s: pick.s, href: pick.href, go:"Слушать", more: watch});
   if(!kid) out.push({id:"shadow",auto:true,min:10,opt:true,
+    prog:{done:Math.min(num("shadow_r_"+S.who+"_"+d),10),total:10},
     t:"Эхо: повтор за голосом",
     s:"короткие фразы из разобранных глаголов",
     href:"./shadow.html", go:"Повторять",
@@ -346,6 +368,8 @@ function blocks(){
       (isNum?" · сегодня только эта ступень":""),
     href: isNum ? "./numeros.html?day="+Math.min(inDay,6) : "./temas.html#"+mod.id,
     go:"Тренировать",
+    prog: isNum ? numStepsDone(numSteps[Math.min(inDay,6)-1])
+                : {done:Math.min(num("tema_r_"+S.who+"_"+mod.id),5),total:5},
     done: isNum ? numDayDone(numSteps[Math.min(inDay,6)-1]) : moduleDone(mod)});
   return out;
 }
@@ -406,7 +430,13 @@ function render(){
     var row='<div class="blk'+(ok?" done":"")+(x.opt?" opt":"")+'">'+
        '<div class="box'+(ok?" on":"")+(x.auto?" auto":"")+'" data-id="'+x.id+'" data-auto="'+(x.auto?1:0)+'">'+(ok?"✓":"")+'</div>'+
        '<div class="body"><div class="t">'+x.t+'</div><div class="s">'+x.s+
-       (x.auto?' · <span class="tag2">отмечается сам</span>':'')+'</div></div>'+
+       (x.auto?' · <span class="tag2">отмечается сам</span>':'')+'</div>'+
+       (x.prog&&x.prog.total?
+         '<div class="prog'+(ok?" full":(x.prog.done>0?" started":""))+'">'+
+         '<div class="pbar"><i style="width:'+
+           Math.round(100*Math.min(x.prog.done,x.prog.total)/x.prog.total)+'%"></i></div>'+
+         '<span class="pnum">'+Math.min(x.prog.done,x.prog.total)+' из '+x.prog.total+'</span></div>':'')+
+       '</div>'+
        '<span class="min">'+x.min+' мин'+(x.fon?' · фоном':'')+'</span>'+
        '<a class="go" href="'+x.href+'"'+(/^http/.test(x.href)?' target="_blank" rel="noopener"':'')+'>'+x.go+'</a></div>'+
        (x.more?'<div class="more">'+x.more.map(function(m){
