@@ -990,13 +990,22 @@ function rSpeak(){
   el("show").onclick=function(){finish(false)};
   if(speechOK()) el("mic").onclick=function(){
     var Rec=window.SpeechRecognition||window.webkitSpeechRecognition, rec=new Rec();
-    rec.lang="es-ES"; rec.maxAlternatives=5; rec.interimResults=false;
+    rec.lang="es-ES"; rec.maxAlternatives=5; rec.interimResults=true;
     el("mic").textContent="🎤 слушаю…"; el("mic").disabled=true;
+    var settled=false;
     rec.onresult=function(ev){
-      var alts=[]; for(var i=0;i<ev.results[0].length;i++) alts.push(ev.results[0][i].transcript);
-      el("heard").textContent="услышал: "+alts[0];
+      var alts=[], last="";
+      for(var r=0;r<ev.results.length;r++)
+        for(var i=0;i<ev.results[r].length;i++){
+          alts.push(ev.results[r][i].transcript);
+          if(i===0) last=ev.results[r][i].transcript;
+        }
       var hit=alts.some(function(a){var n=norm(a);
         return n===target||n.indexOf(target)>-1||lev(n,target)<=Math.max(2,Math.floor(target.length/6))});
+      if(!hit && !ev.results[ev.results.length-1].isFinal) return;
+      if(settled) return; settled=true;
+      try{rec.stop()}catch(e){}
+      el("heard").textContent="услышал: "+last;
       finish(hit);
     };
     rec.onerror=function(ev){
