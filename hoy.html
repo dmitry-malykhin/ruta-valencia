@@ -192,6 +192,11 @@ border-radius:2px;background:var(--naranja)}
 /* квадрат дня: зелёный, а недоделанное дополнительное подчёркнуто голубым */
 .dot.corner::after{content:"";position:absolute;left:3px;right:3px;bottom:2px;height:3px;
 border-radius:2px;background:var(--cielo);top:auto;width:auto}
+.group{border:2px solid var(--naranja);border-radius:16px;padding:14px 14px 4px;margin-top:26px}
+.group.ext{border-color:var(--cielo)}
+.group.full{border-color:var(--verde)}
+.group .grouphead{margin-top:0}
+.group .blk{margin-bottom:10px}
 </style>
 <div class="wrap">
   <p class="eyebrow"><span style="opacity:.55">Мой день</span> ·
@@ -277,6 +282,12 @@ function moduleDone(m){
     ? ls("num_"+S.who+"_done_"+m.id)==="1" || numModuleDone()
     : num("tema_r_"+S.who+"_"+m.id)>=5;
 }
+function numDayDone(ids){
+  var modes=["learn","read","write","dictado","say"];
+  return ids.every(function(id){
+    return modes.every(function(mo){ return ls("num_"+S.who+"_"+id+"_"+mo)==="1" });
+  });
+}
 function numModuleDone(){
   // числа считаются пройденными, когда закрыты все обязательные ступени тренажёра
   var ids=["u1","u2","u3","u4","u5","u6","u7","u8"];
@@ -324,14 +335,18 @@ function blocks(){
     out.push({id:"phone",auto:false,min:5,opt:true,t:"Номер телефона на слух",
       s:"записать продиктованный номер и продиктовать самому · три скорости",
       href:"./numeros.html#phone", go:"Тренировать"});
-  var mod=moduleOf(d);
+  var mod=moduleOf(d), inDay=d-mod.from+1, ofDays=mod.to-mod.from+1;
+  var numTitles=["0-10","11-15 и 16-19","Десятки","21-29","Сборка 31-99","Сотни и сборка 101-999"];
+  var numSteps=[["u1"],["u2","u3"],["u4"],["u5"],["u6"],["u7","u8"]];
+  var isNum=mod.kind==="numeros";
   out.push({id:"tema",auto:true,min:10,
-    t:"Тема "+(PLAN.indexOf(mod)+1)+" из "+PLAN.length+": "+mod.name,
-    s:"дни "+mod.from+"-"+mod.to+" по программе"+
-      (mod.kind==="numeros"?" · ступени, диктант, номер телефона":""),
-    href: mod.kind==="numeros" ? "./numeros.html" : "./temas.html#"+mod.id,
+    t:"Тема "+(PLAN.indexOf(mod)+1)+" из "+PLAN.length+": "+mod.name+
+      (isNum?" · "+numTitles[Math.min(inDay,6)-1]:""),
+    s:"часть "+inDay+" из "+ofDays+" в этой теме"+
+      (isNum?" · сегодня только эта ступень":""),
+    href: isNum ? "./numeros.html?day="+Math.min(inDay,6) : "./temas.html#"+mod.id,
     go:"Тренировать",
-    done: moduleDone(mod)});
+    done: isNum ? numDayDone(numSteps[Math.min(inDay,6)-1]) : moduleDone(mod)});
   return out;
 }
 function dayState(d){
@@ -399,9 +414,12 @@ function render(){
     if(x.opt){ extraH+=row } else { h+=row }
   });
   el("list").innerHTML=
-    '<div class="grouphead">Обязательное на день · '+done+' из '+need+'</div>'+h+
-    (extraH?'<div class="grouphead extra">Дополнительно, если есть время · '+
-       extraDone+' из '+extraTotal+'</div>'+extraH:'');
+    '<section class="group req'+(done>=need?" full":"")+'">'+
+      '<div class="grouphead">Обязательное на день · '+done+' из '+need+'</div>'+h+
+    '</section>'+
+    (extraH?'<section class="group ext'+(extraDone>=extraTotal?" full":"")+'">'+
+      '<div class="grouphead extra">Дополнительно, если есть время · '+
+       extraDone+' из '+extraTotal+'</div>'+extraH+'</section>':'');
   var pl=planLine();
   el("plan").innerHTML=pl; el("plan").style.display= pl?"block":"none";
   if(el("goplan")) el("goplan").onclick=function(){S.day=today();render()};
