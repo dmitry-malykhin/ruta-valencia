@@ -178,6 +178,10 @@ border-radius:11px;font-size:13.5px;color:var(--ink);line-height:1.7}
 .dot.corner{position:relative}
 .dot.corner::after{content:"";position:absolute;top:-2px;right:-2px;width:8px;height:8px;
 border-radius:2px;background:var(--naranja)}
+/* голубой для дополнительных заданий, обе темы */
+:root{--cielo:#1E7FA8;--cielo-soft:#DEF0F7}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--cielo:#5CC1E8;--cielo-soft:#102C3A}}
+:root[data-theme="dark"]{--cielo:#5CC1E8;--cielo-soft:#102C3A}
 /* рамка сама говорит, что за задание и сделано ли оно */
 .blk{border:1.5px solid var(--naranja)}
 .blk.done{border-color:var(--verde)}
@@ -252,9 +256,7 @@ var WATCH={
 WATCH.dmitry=WATCH.adult; WATCH.yulia=WATCH.adult;
 var WHO=[{id:"dmitry",name:"Дмитрий",kid:false},{id:"yulia",name:"Юлия",kid:false},
          {id:"mihail",name:"Михаил",kid:true},{id:"darya",name:"Дарья",kid:true}];
-var CYCLE=[["numeros","Числа и цены"],["fechas","Дни, месяцы, даты"],["tiempo","Погода и small talk"],
-           ["presentarse","Знакомство и о себе"],["adjetivos","Прилагательные парами"],
-           ["numeros","Числа на слух"],["hora","Время на слух"]];
+var PLAN=[{"id": "numeros", "name": "Числа", "kind": "numeros", "from": 1, "to": 6}, {"id": "dias", "name": "Дни недели", "kind": "temas", "from": 7, "to": 9}, {"id": "meses", "name": "Месяцы и даты", "kind": "temas", "from": 10, "to": 13}, {"id": "hora", "name": "Время", "kind": "temas", "from": 14, "to": 18}, {"id": "presentarse", "name": "Знакомство и о себе", "kind": "temas", "from": 19, "to": 23}, {"id": "tiempo", "name": "Погода и small talk", "kind": "temas", "from": 24, "to": 35}, {"id": "adjetivos", "name": "Прилагательные парами", "kind": "temas", "from": 36, "to": 52}];
 var S={who:"dmitry",day:1};
 
 function el(i){return document.getElementById(i)}
@@ -266,10 +268,26 @@ function who(){return WHO.filter(function(w){return w.id===S.who})[0]}
 function num(k){var v=parseInt(ls(k)||"0",10);return isNaN(v)?0:v}
 function manual(id){return ls("hoy_"+S.who+"_"+S.day+"_"+id)==="1"}
 function setManual(id,on){ls("hoy_"+S.who+"_"+S.day+"_"+id,on?"1":"0")}
-function themeOf(d){return CYCLE[(d-1)%7]}
+function moduleOf(d){
+  for(var i=0;i<PLAN.length;i++) if(d>=PLAN[i].from && d<=PLAN[i].to) return PLAN[i];
+  return PLAN[PLAN.length-1];
+}
+function moduleDone(m){
+  return m.kind==="numeros"
+    ? ls("num_"+S.who+"_done_"+m.id)==="1" || numModuleDone()
+    : num("tema_r_"+S.who+"_"+m.id)>=5;
+}
+function numModuleDone(){
+  // числа считаются пройденными, когда закрыты все обязательные ступени тренажёра
+  var ids=["u1","u2","u3","u4","u5","u6","u7","u8"];
+  var modes=["learn","read","write","dictado"];
+  return ids.every(function(id){
+    return modes.every(function(mo){ return ls("num_"+S.who+"_"+id+"_"+mo)==="1" });
+  });
+}
 
 function blocks(){
-  var d=S.day, kid=who().kid, th=themeOf(d), out=[];
+  var d=S.day, kid=who().kid, out=[];
   if(!kid){
     out.push({id:"petrov",auto:false,min: d<=16?45:20,
       t: d<=16 ? ("Урок Петрова № "+d) : "Грамматика: повтор таблиц",
@@ -302,13 +320,14 @@ function blocks(){
   if(!kid) out.push({id:"speech",auto:false,min:15,opt:true,t:"Речь по скрипту дня",
     s:"вслух, вдвоём с Юлией · языковой обмен только если захочется",
     href:"./shadow.html",go:"Повторять"});
-  out.push({id:"numeros",auto:false,min:10,opt:true,t:"Числа по ступеням",
-    s:"по схемам, а не по одной цифре · диктант и номер телефона",
-    href:"./numeros.html", go:"Тренировать"});
-  out.push({id:"tema",auto:true,min:10,t:"Тема дня: "+th[1],
-    s:"числа, даты, погода, знакомство по кругу",
-    href:"./temas.html#"+th[0], go:"Тренировать",
-    done: num("tema_r_"+S.who+"_"+th[0])>=5});
+  var mod=moduleOf(d);
+  out.push({id:"tema",auto:true,min:10,
+    t:"Тема "+(PLAN.indexOf(mod)+1)+" из "+PLAN.length+": "+mod.name,
+    s:"дни "+mod.from+"-"+mod.to+" по программе"+
+      (mod.kind==="numeros"?" · ступени, диктант, номер телефона":""),
+    href: mod.kind==="numeros" ? "./numeros.html" : "./temas.html#"+mod.id,
+    go:"Тренировать",
+    done: moduleDone(mod)});
   return out;
 }
 function dayState(d){
