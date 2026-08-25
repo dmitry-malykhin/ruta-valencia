@@ -180,6 +180,8 @@ border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05e
 .vtable td.v{font-weight:600;white-space:nowrap}
 .vtable td.f{font-family:"IBM Plex Mono",monospace;font-size:13.5px;color:var(--ink-soft)}
 .vtable tr.irr td.v{color:var(--naranja)}
+.taskline{margin-top:16px;font-size:16.5px;color:var(--ink-soft);line-height:1.6}
+.taskline b{color:var(--ink);font-weight:600}
 </style>
 <div class="wrap">
   <p class="eyebrow"><a href="./hoy.html" style="text-decoration:none">← Мой день</a> ·
@@ -485,12 +487,13 @@ function rMix(){
     (v.day===S.day?'':'<span class="warm">повтор дня '+v.day+'</span>')+
     '<span class="pill know">верно '+S.ok+'</span></div>'+
     '<div class="card"><div class="big-v" style="font-size:30px">'+v.v+'</div>'+
+    '<button class="audio" id="spk" title="послушать '+v.v+'">🔊</button>'+
     '<div class="ru">'+v.ru+'</div>'+
-    '<div class="pron" style="margin-top:14px">'+p[0]+' · '+p[1]+'</div></div>'+
+    '<div class="taskline">Напишите форму <b>'+v.v+'</b> для <b>'+p[0]+'</b> · '+p[1]+'</div></div>'+
     '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
-    'placeholder="форма"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
-    '<p class="tip">Вперемешку, случайное лицо. Ошиблись — вопрос вернётся в конец</p>';
-  var inp=el("inp"); inp.focus(); var locked=false;
+    'placeholder="форма для '+p[0]+'"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
+    '<p class="tip">Вперемешку, случайное лицо. 🔊 читает инфинитив. Ошиблись — вопрос вернётся позже</p>';
+  var inp=el("inp"); inp.focus(); el("spk").onclick=function(){speak(v.v)}; var locked=false;
   function check(){
     if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
     var good=a===norm(ans); note(v.v+"|"+q.pi,good);
@@ -560,12 +563,13 @@ function rWarm(){
     '<span class="mono">осталось '+(S.queue.length-S.idx)+'</span>'+
     '<span class="pill know">верно '+S.ok+'</span></div>'+
     '<div class="card"><div class="big-v" style="font-size:30px">'+v.v+'</div>'+
+    '<button class="audio" id="spk" title="послушать '+v.v+'">🔊</button>'+
     '<div class="ru">'+v.ru+'</div>'+
-    '<div class="pron" style="margin-top:14px">'+p[0]+' · '+p[1]+'</div></div>'+
+    '<div class="taskline">Напишите форму <b>'+v.v+'</b> для <b>'+p[0]+'</b> · '+p[1]+'</div></div>'+
     '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
-    'placeholder="форма"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
-    '<p class="tip">Глагол из прошлых дней. Не помните — напишите что угодно, покажу ответ</p>';
-  var inp=el("inp"); inp.focus(); var locked=false;
+    'placeholder="форма для '+p[0]+'"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
+    '<p class="tip">Глагол из прошлых дней. 🔊 читает инфинитив. Не помните — напишите что угодно, покажу ответ</p>';
+  var inp=el("inp"); inp.focus(); el("spk").onclick=function(){speak(v.v)}; var locked=false;
   function check(){
     if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
     var good=a===norm(ans); note(v.v+"|"+q.pi,good);
