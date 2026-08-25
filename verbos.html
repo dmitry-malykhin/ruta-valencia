@@ -294,6 +294,16 @@ function collectVoices(){
     return '<option value="'+x.name.replace(/"/g,"")+'"'+(esVoice&&x.name===esVoice.name?" selected":"")+'>'+
       x.name+(/premium|enhanced|natural/i.test(x.name)?" ★":"")+'</option>'}).join(""):'<option>голосов нет</option>';
 }
+var STEP_PAUSE=900, SAY_DELAY=450;
+function whenQuiet(cb,gap){
+  var started=Date.now();
+  (function poll(){
+    var busy=false;
+    try{ busy=speechSynthesis.speaking||speechSynthesis.pending }catch(e){}
+    if(busy && Date.now()-started<8000) return setTimeout(poll,120);
+    setTimeout(cb, gap===undefined?STEP_PAUSE:gap);
+  })();
+}
 function speakAt(t,rate){try{if(!esVoice)collectVoices();
   var u=new SpeechSynthesisUtterance(t);u.lang=(esVoice&&esVoice.lang)||"es-ES";u.rate=rate||.88;
   if(esVoice)u.voice=esVoice;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
@@ -425,6 +435,7 @@ function bindSteps(){
 }
 function rBlock(){
   if(S.vi>=S.verbs.length) return roundDone();
+  S.token=(S.token||0)+1;
   renderRounds();
   var v=S.verbs[S.vi], stage=BLOCK[S.step];
   if(stage==="learn") return oneLearn(v);
@@ -439,7 +450,8 @@ function blockNext(){
     S.step=0; S.vi++;
   }
   renderVerbChips();
-  rBlock();
+  var token=S.token;
+  whenQuiet(function(){ if(token===S.token) rBlock() });
 }
 
 /* шаг 3: одна фраза, все лица вразброс — форму надо не узнать, а построить */
@@ -484,13 +496,13 @@ function oneSubst(v){
         return;
       }
       locked=true; inp.disabled=true; el("ok").disabled=true; speak(full);
-      setTimeout(go,900); return;
+      whenQuiet(go); return;
     }
     var good=a===norm(ans); note(v.v+"|"+pi,good);
     if(good){
       S.ok++; locked=true; inp.disabled=true; el("ok").disabled=true;
       el("v").innerHTML='<div class="verdict ok"><b>'+full+'</b></div>';
-      speak(full); setTimeout(go,1200); return;
+      speak(full); whenQuiet(go); return;
     }
     S.wrong++; retype=true; S.sq.push(pi);
     el("v").innerHTML='<div class="verdict bad"><b>'+full+'</b><br>наберите форму сами, тогда пойдём дальше</div>';
@@ -526,7 +538,8 @@ function oneLearn(v){
     speak(v.f[+b.dataset.form]);
   };
   el("next").onclick=function(){S.ok++;blockNext()};
-  speak(v.v);
+  var startToken=S.token;
+  setTimeout(function(){ if(startToken===S.token) speak(v.v) },SAY_DELAY);
 }
 
 function oneTable(v){
@@ -678,7 +691,8 @@ function oneOido(v){
   function say(rate){ speakAt(full, rate) }
   el("spk").onclick=function(){say(.85)};
   el("slow").onclick=function(){say(.6)};
-  say(.85);
+  var startToken=S.token;
+  setTimeout(function(){ if(startToken===S.token) say(.85) },SAY_DELAY);
   var inp=el("inp"); inp.focus(); var locked=false, token=S.token, retype=false;
   function go(){ S.oqi++; if(token===S.token) oneOido(v) }
   function reveal(good){
@@ -693,12 +707,12 @@ function oneOido(v){
         return;
       }
       locked=true; inp.disabled=true; el("ok").disabled=true; say(.85);
-      setTimeout(go,900); return;
+      whenQuiet(go); return;
     }
     var good=a===norm(ans); note(v.v+"|"+q.p,good);
     if(good){
       S.ok++; locked=true; inp.disabled=true; el("ok").disabled=true;
-      reveal(true); say(.85); setTimeout(go,1500); return;
+      reveal(true); say(.85); whenQuiet(go); return;
     }
     S.wrong++; retype=true; S.oq.push(q);
     reveal(false); say(.6);
