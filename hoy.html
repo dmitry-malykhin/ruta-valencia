@@ -175,6 +175,9 @@ border-radius:11px;font-size:13.5px;color:var(--ink);line-height:1.7}
 .plan .btn{margin-left:6px;vertical-align:baseline}
 .dot.plan{outline:2px dashed var(--naranja);outline-offset:1px}
 .tag2.opt{background:var(--surface);border:1px solid var(--line);color:var(--ink-faint)}
+.dot.corner{position:relative}
+.dot.corner::after{content:"";position:absolute;top:-2px;right:-2px;width:8px;height:8px;
+border-radius:2px;background:var(--naranja)}
 </style>
 <div class="wrap">
   <p class="eyebrow"><span style="opacity:.55">Мой день</span> ·
@@ -281,7 +284,7 @@ function blocks(){
   out.push({id:"audio",auto:false,min:kid?18:25,fon:true,opt:true,
     t: kid?"Видео на испанском":"Аудирование фоном",
     s: pick.s, href: pick.href, go:"Слушать", more: watch});
-  if(!kid) out.push({id:"shadow",auto:true,min:10,
+  if(!kid) out.push({id:"shadow",auto:true,min:10,opt:true,
     t:"Эхо: повтор за голосом",
     s:"короткие фразы из разобранных глаголов",
     href:"./shadow.html", go:"Повторять",
@@ -300,10 +303,13 @@ function blocks(){
 }
 function dayState(d){
   var save=S.day; S.day=d;
-  var b=blocks().filter(function(x){return !x.opt}), done=0;
-  b.forEach(function(x){ if(x.auto? x.done : manual(x.id)) done++ });
+  var all=blocks(), req=0, reqDone=0, ext=0, extDone=0;
+  all.forEach(function(x){
+    var ok = x.auto? x.done : manual(x.id);
+    if(x.opt){ ext++; if(ok) extDone++ } else { req++; if(ok) reqDone++ }
+  });
   S.day=save;
-  return {done:done,total:b.length};
+  return {done:reqDone,total:req,extra:extDone,extraTotal:ext};
 }
 function firstOpenDay(){
   for(var d=1;d<=today();d++){ var st=dayState(d); if(st.done<st.total) return d }
@@ -327,10 +333,14 @@ function renderDays(){
   var h="",t=today();
   for(var d=1;d<=52;d++){
     var st=dayState(d), c="dot";
-    if(st.done>=st.total) c+=" ok"; else if(st.done>0) c+=" part";
+    if(st.done>=st.total){
+      c+=" ok";
+      if(st.extra<st.extraTotal) c+=" corner";
+    } else if(st.done>0) c+=" part";
     if(d===t) c+=" plan";
     if(d===S.day) c+=" now";
-    h+='<div class="'+c+'" data-day="'+d+'" title="'+st.done+' из '+st.total+'">'+d+'</div>';
+    h+='<div class="'+c+'" data-day="'+d+'" title="обязательное '+st.done+' из '+st.total+
+      ', дополнительно '+st.extra+' из '+st.extraTotal+'">'+d+'</div>';
   }
   el("days").innerHTML=h;
 }
@@ -339,22 +349,26 @@ function render(){
   var dt=new Date(START.getTime()+(S.day-1)*864e5);
   var M=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
   el("dayline").textContent="День "+S.day+" · "+dt.getDate()+" "+M[dt.getMonth()];
-  var h="";
+  var h="", extraH="", extraDone=0, extraTotal=0;
   var need=b.filter(function(x){return !x.opt}).length;
   b.forEach(function(x){
     var ok = x.auto ? !!x.done : manual(x.id);
     if(ok && !x.opt) done++;
-    h+='<div class="blk'+(ok?" done":"")+'">'+
+    if(x.opt){ extraTotal++; if(ok) extraDone++ }
+    var row='<div class="blk'+(ok?" done":"")+(x.opt?" opt":"")+'">'+
        '<div class="box'+(ok?" on":"")+(x.auto?" auto":"")+'" data-id="'+x.id+'" data-auto="'+(x.auto?1:0)+'">'+(ok?"✓":"")+'</div>'+
-       '<div class="body"><div class="t">'+x.t+
-       (x.opt?' <span class="tag2 opt">по желанию</span>':'')+'</div><div class="s">'+x.s+
+       '<div class="body"><div class="t">'+x.t+'</div><div class="s">'+x.s+
        (x.auto?' · <span class="tag2">отмечается сам</span>':'')+'</div></div>'+
        '<span class="min">'+x.min+' мин'+(x.fon?' · фоном':'')+'</span>'+
        '<a class="go" href="'+x.href+'"'+(/^http/.test(x.href)?' target="_blank" rel="noopener"':'')+'>'+x.go+'</a></div>'+
        (x.more?'<div class="more">'+x.more.map(function(m){
           return '<a href="'+m.href+'" target="_blank" rel="noopener">'+m.n+'</a>'}).join("")+'</div>':'');
+    if(x.opt){ extraH+=row } else { h+=row }
   });
-  el("list").innerHTML=h;
+  el("list").innerHTML=
+    '<div class="grouphead">Обязательное на день · '+done+' из '+need+'</div>'+h+
+    (extraH?'<div class="grouphead extra">Дополнительно, если есть время · '+
+       extraDone+' из '+extraTotal+'</div>'+extraH:'');
   var pl=planLine();
   el("plan").innerHTML=pl; el("plan").style.display= pl?"block":"none";
   if(el("goplan")) el("goplan").onclick=function(){S.day=today();render()};
