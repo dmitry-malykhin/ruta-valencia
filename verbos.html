@@ -206,6 +206,8 @@ border-radius:999px;background:var(--line);color:var(--ink-soft);font-size:11px;
 .stp.now .n{background:var(--naranja);color:#fff}
 .stp.done{border-color:var(--verde);background:var(--verde-soft);color:var(--verde)}
 .stp.done .n{background:var(--verde);color:#fff}
+.rnd .rp{display:block;font-size:10.5px;font-weight:500;opacity:.85;margin-top:3px;
+font-family:"IBM Plex Mono",monospace;letter-spacing:.02em}
 </style>
 <div class="wrap">
   <p class="eyebrow"><a href="./hoy.html" style="text-decoration:none">← Мой день</a> ·
@@ -291,12 +293,19 @@ function speak(t){try{if(!esVoice)collectVoices();
 /* ---------- каркас ---------- */
 function renderWho(){el("who").innerHTML=WHO.map(function(w){
   return '<button data-who="'+w.id+'"'+(w.id===S.who?' class="on"':'')+'>'+w.name+'</button>'}).join("")}
+function roundProgress(){
+  var k=ROUNDS[S.round]&&ROUNDS[S.round].k;
+  if(k==="block") return verbsDone(S.day).length+" из "+S.verbs.length+" глаголов";
+  if(S.queue&&S.queue.length) return Math.min(S.idx+1,S.queue.length)+" из "+S.queue.length;
+  return "";
+}
 function renderRounds(){
   var passed=rdone(S.day),h="";
   ROUNDS.forEach(function(r,i){
     var c=(i===S.round?"now":(i<passed?"ok":"lock"));
+    var extra=(c==="now"&&roundProgress())?'<span class="rp">'+roundProgress()+'</span>':'';
     h+='<div class="rnd '+c+'" data-round="'+i+'"'+
-       (c==="ok"?' title="пройти заново"':'')+'>'+r.t+(c==="ok"?" ✓":"")+'</div>'});
+       (c==="ok"?' title="пройти заново"':'')+'>'+r.t+(c==="ok"?" ✓":"")+extra+'</div>'});
   el("rounds").innerHTML=h;
   el("rounds").onclick=function(e){
     var d=e.target.closest(".rnd.ok"); if(!d) return;
@@ -381,6 +390,7 @@ function stepStrip(){
 }
 function rBlock(){
   if(S.vi>=S.verbs.length) return roundDone();
+  renderRounds();
   var v=S.verbs[S.vi], stage=BLOCK[S.step];
   if(stage==="learn") return oneLearn(v);
   if(stage==="table") return oneTable(v);
@@ -596,6 +606,7 @@ function mixQueue(){
 function rMix(){
   var token=S.token;
   if(S.idx>=S.queue.length||!S.queue[S.idx]) return roundDone();
+  renderRounds();
   var q=S.queue[S.idx], v=q.v, p=P[q.pi], ans=v.f[q.pi];
   el("stage").innerHTML=
     '<div class="counter"><span class="mono">осталось '+(S.queue.length-S.idx)+'</span>'+
@@ -624,6 +635,7 @@ function rMix(){
 function rListen(){
   var token=S.token;
   if(S.idx>=S.queue.length||!S.queue[S.idx]) return roundDone();
+  renderRounds();
   var q=S.queue[S.idx], v=q.v, p=P[q.pi], ans=v.f[q.pi];
   el("stage").innerHTML=
     '<div class="counter"><span class="pill learn">Ошибок: '+S.wrong+'</span>'+
@@ -686,6 +698,7 @@ function warmQueue(d){
 function rWarm(){
   var token=S.token;
   if(S.idx>=S.queue.length||!S.queue[S.idx]) return roundDone();
+  renderRounds();
   var q=S.queue[S.idx], v=q.v, p=P[q.pi], ans=v.f[q.pi];
   el("stage").innerHTML=
     '<div class="counter"><span class="warm">повтор дня '+v.day+'</span>'+
@@ -735,6 +748,7 @@ function frasesQueue(){
 function rFrases(){
   var token=S.token;
   if(S.idx>=S.queue.length||!S.queue[S.idx]) return roundDone();
+  renderRounds();
   var q=S.queue[S.idx], v=q.v, fr=q.fr;
   var full=fraseShown(fraseText(v,fr));
   var gapMode=q.mode==="gap";
@@ -775,6 +789,7 @@ function lev(a,b){var m=a.length,n=b.length,d=[],i,j;for(i=0;i<=m;i++)d[i]=[i];
 function rSpeak(){
   var token=S.token;
   if(S.idx>=S.queue.length||!S.queue[S.idx]) return roundDone();
+  renderRounds();
   var q=S.queue[S.idx], v=q.v, fr=q.fr, full=fraseShown(fraseText(v,fr)), target=norm(full);
   el("stage").innerHTML=
     '<div class="counter"><span class="mono">фраза '+(S.idx+1)+' из '+S.queue.length+'</span>'+
