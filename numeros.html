@@ -539,7 +539,7 @@ function rDictado(){
     '<button class="btn ghost sm" data-rate="0.75">медленно</button>'+
     '<button class="btn ghost sm" data-rate="1">обычно</button></div></div>'+
     '<div class="type"><input id="inp" inputmode="numeric" autocomplete="off" '+
-    'placeholder="цифрами"><button class="btn" id="ok">Проверить</button></div>'+
+    'placeholder="цифрами, например 12"><button class="btn" id="ok">Проверить</button></div>'+
     '<div id="v"></div><p class="tip">Пишите арабскими цифрами · 🔊 повторяет</p>';
   el("spk").onclick=function(){speak(it[1])};
   el("stage").querySelector(".speedrow").onclick=function(e){
@@ -549,9 +549,16 @@ function rDictado(){
   setTimeout(function(){speak(it[1])},350);
   var inp=el("inp"); inp.focus(); var locked=false;
   function check(){
-    if(locked) return; var a=inp.value.replace(/\D/g,""); if(!a) return;
+    if(locked) return;
+    var raw=inp.value.trim(); if(!raw) return;
+    var digits=raw.replace(/\D/g,"");
+    var asWord=norm(raw)===norm(it[1]);
+    if(!digits && !asWord){
+      el("v").innerHTML='<div class="verdict bad">здесь нужны цифры · например 12, а не словами</div>';
+      return;
+    }
     locked=true;
-    var good=parseInt(a,10)===it[0];
+    var good=asWord || parseInt(digits,10)===it[0];
     if(good){S.ok++;S.idx++} else {S.wrong++;S.queue.push(it)}
     el("v").innerHTML='<div class="verdict '+(good?"ok":"bad")+'"><b>'+it[0]+' — '+it[1]+'</b></div>';
     speak(it[1]);
