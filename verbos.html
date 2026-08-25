@@ -188,6 +188,7 @@ border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05e
 .cell .mini{flex:0 0 auto}
 .cell .hintbtn{width:36px;height:36px;font-weight:700}
 .cell [data-play]{width:36px;height:36px}
+.rnd.todo{border-color:var(--line);background:var(--surface-2);color:var(--ink-soft)}
 .rnd.free{cursor:pointer}
 .rnd.free:hover{border-color:var(--cobalt)}
 .rnd.ok{cursor:pointer}
@@ -335,11 +336,12 @@ function renderRounds(){
   }
   var freeAll=dayMainDone(S.day);
   ROUNDS.forEach(function(r,i){
-    var open=(i<passed)||freeAll;
-    var c=(i===S.round?"now":(open?"ok":"lock"));
+    var done=i<passed, open=done||freeAll;
+    var c = i===S.round ? "now" : (done ? "ok" : (open ? "todo" : "lock"));
     var extra=(c==="now"&&roundProgress())?'<span class="rp">'+roundProgress()+'</span>':'';
     h+='<div class="rnd '+c+(open?" free":"")+'" data-round="'+i+'"'+
-       (open?' title="перейти к этому этапу"':'')+'>'+r.t+(i<passed?" ✓":"")+extra+'</div>'});
+       (open?(done?' title="пройти заново"':' title="ещё не пройден, можно начать"'):'')+'>'+
+       r.t+(done?" ✓":"")+extra+'</div>'});
   var head='<div class="striplabel">этапы дня'+
     (longBlock?' <button class="btn ghost sm" id="stripToggle">свернуть</button>':'')+'</div>';
   el("rounds").innerHTML=head+h;
