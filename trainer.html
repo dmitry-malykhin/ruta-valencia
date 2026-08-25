@@ -523,6 +523,14 @@ function lev(a,b){
     d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
   return d[m][n];
 }
+var MIC_ERRORS={
+  "not-allowed":"браузер не дал доступ к микрофону · разрешите его в адресной строке слева",
+  "service-not-allowed":"распознавание речи отключено в настройках браузера",
+  "audio-capture":"микрофон не найден · проверьте, что он подключён и выбран в системе",
+  "no-speech":"ничего не услышал · говорите ближе к микрофону и чуть громче",
+  "aborted":"запись прервалась, нажмите микрофон ещё раз",
+  "network":"нет связи с распознаванием · нужен интернет"
+};
 function speechOK(){
   return !!(window.SpeechRecognition||window.webkitSpeechRecognition);
 }
@@ -586,9 +594,8 @@ function rSpeak(){
     };
     rec.onerror=function(e){
       el("mic").classList.remove("rec");
-      el("heard").textContent = (e.error==="not-allowed")
-        ? "нет доступа к микрофону: разрешите его в браузере"
-        : "не расслышал, попробуйте ещё раз";
+      el("heard").textContent = MIC_ERRORS[e&&e.error] ||
+        ("не получилось: "+((e&&e.error)||"неизвестная ошибка"));
     };
     rec.onend=function(){ el("mic").classList.remove("rec") };
     try{ rec.start() }catch(e){ el("heard").textContent="микрофон занят, попробуйте ещё раз" }
