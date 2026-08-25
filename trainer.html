@@ -570,12 +570,19 @@ function rSpeak(){
   el("mic").onclick=function(){
     var Rec=window.SpeechRecognition||window.webkitSpeechRecognition;
     try{ if(rec) rec.abort() }catch(e){}
-    rec=new Rec(); rec.lang="es-ES"; rec.interimResults=false; rec.maxAlternatives=5;
+    rec=new Rec(); rec.lang="es-ES"; rec.interimResults=true; rec.maxAlternatives=5;
     el("mic").classList.add("rec"); el("heard").textContent="слушаю…";
+    var settled=false;
     rec.onresult=function(ev){
+      var alts=[];
+      for(var k=0;k<ev.results.length;k++)
+        for(var i=0;i<ev.results[k].length;i++) alts.push(ev.results[k][i].transcript);
+      var quick=alts.some(function(a){var n=norm(a);var tg=norm(w[0]);
+        return n===tg||n.indexOf(tg)>-1||lev(n,tg)<=Math.max(1,Math.floor(tg.length/6))});
+      if(!quick && !ev.results[ev.results.length-1].isFinal) return;
+      if(settled) return; settled=true;
+      try{rec.stop()}catch(e){}
       el("mic").classList.remove("rec");
-      var alts=[], r=ev.results[0];
-      for(var i=0;i<r.length;i++) alts.push(r[i].transcript);
       var target=norm(w[0]);
       var hit=alts.some(function(a){
         var n=norm(a);
