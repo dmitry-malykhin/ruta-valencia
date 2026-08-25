@@ -3,6 +3,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
+.exs{margin-top:16px;display:flex;flex-direction:column;gap:8px;width:100%}
+.ex{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;
+padding:9px 12px;text-align:left}
+.ex b{display:block;font-size:16px;font-weight:600}
+.ex span{display:block;font-size:13.5px;color:var(--ink-soft);margin-top:2px}
+
 :root{--ground:#F4F6FA;--surface:#FFFFFF;--surface-2:#EDF1F8;--line:#D3DCEA;
 --ink:#0F1C33;--ink-soft:#4A5872;--ink-faint:#7C8AA3;--cobalt:#1B4FA8;--cobalt-soft:#E3EBF9;
 --naranja:#D45B12;--naranja-soft:#FBE8DB;--verde:#256B4E;--verde-soft:#DFF0E6;
@@ -834,7 +840,14 @@ function checkDayDone(d){
   }
 }
 function isVerbDone(d,name){return verbsDone(d).indexOf(name)>-1}
-function lastDay(){var v=parseInt(ls("verb_day_"+S.who)||"0",10);
+function dayFromUrl(){
+  var q=(location.search.match(/day=(\d+)/)||[])[1];
+  var v=q?parseInt(q,10):0;
+  return (v>=1&&v<=52)?v:0;
+}
+function lastDay(){
+  var fromUrl=dayFromUrl(); if(fromUrl) return fromUrl;
+  var v=parseInt(ls("verb_day_"+S.who)||"0",10);
   return (v>=1&&v<=52)?v:today()}
 function lkey(d){return "verb_learned_"+S.who+"_"+d}
 function markLearned(d){ls(lkey(d),"1")}
