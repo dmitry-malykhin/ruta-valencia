@@ -256,7 +256,7 @@ var V=[{"v": "ser", "ru": "быть (кто/какой)", "f": ["soy", "eres", "
 var P=[["yo","я"],["tú","ты"],["él / ella / usted","он, она, Вы"],
        ["nosotros","мы"],["vosotros","вы"],["ellos / ustedes","они"]];
 var WHO=[{id:"dmitry",name:"Дмитрий"},{id:"yulia",name:"Юлия"},{id:"mihail",name:"Михаил"}];
-var ALL_ROUNDS=[{k:"warm",t:"Разминка"},{k:"block",t:"Разбор по одному"},
+var ALL_ROUNDS=[{k:"warm",t:"Разминка: прошлые дни"},{k:"block",t:"Разбор по одному"},
                 {k:"frases",t:"Фразы вперемешку"},{k:"listen",t:"Вперемешку на слух"},
                 {k:"speak",t:"Скажи фразу"},{k:"mix",t:"Случайный добор"}];
 var ROUNDS=ALL_ROUNDS;
@@ -399,6 +399,7 @@ function requeue(q){
 }
 function pairs(){var out=[];S.verbs.forEach(function(v){P.forEach(function(p,i){out.push({v:v,pi:i})})});return out}
 function roundDone(){
+  if(ROUNDS[S.round] && ROUNDS[S.round].k==="warm") clearWarmQueue(S.day);
   if(ROUNDS[S.round] && ROUNDS[S.round].k==="block"){
     markLearned(S.day);
     ls("verb_done_"+S.who+"_"+S.day,"1");
@@ -869,11 +870,21 @@ function warmPool(d){
   });
   return pool;
 }
+function wqkey(d){return "verb_warmq_"+S.who+"_"+d}
 function warmQueue(d){
+  var saved=null;
+  try{saved=JSON.parse(ls(wqkey(d))||"null")}catch(e){}
+  if(saved && saved.length){
+    var byName={}; V.forEach(function(v){byName[v.v]=v});
+    var ok=saved.every(function(x){return byName[x.v] && x.pi>=0 && x.pi<6});
+    if(ok) return saved.map(function(x){return {v:byName[x.v],pi:x.pi}});
+  }
   var pool=warmPool(d), out=[];
   sh(pool).slice(0,6).forEach(function(v){ out.push({v:v,pi:Math.floor(Math.random()*6)}) });
+  ls(wqkey(d), JSON.stringify(out.map(function(x){return {v:x.v.v,pi:x.pi}})));
   return out;
 }
+function clearWarmQueue(d){ try{localStorage.removeItem(wqkey(d))}catch(e){} }
 function rWarm(){
   var token=S.token;
   if(S.idx>=S.queue.length||!S.queue[S.idx]) return roundDone();
@@ -889,8 +900,16 @@ function rWarm(){
     '<div class="taskline">Напишите форму <b>'+v.v+'</b> для <b>'+p[0]+'</b> · '+p[1]+'</div></div>'+
     '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
     'placeholder="форма для '+p[0]+'"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
-    '<p class="tip">Глагол из прошлых дней. 🔊 читает инфинитив. Не помните — напишите что угодно, покажу ответ</p>';
-  var inp=el("inp"); inp.focus(); el("spk").onclick=function(){speak(v.v)}; var locked=false;
+    '<div class="acts" style="margin-top:8px">'+
+    '<button class="btn ghost" id="skipwarm">Пропустить разминку</button></div>'+
+    '<p class="tip">Это <b>повтор дня '+v.day+'</b>, не сегодняшний глагол. '+
+    'Сегодняшние пять начнутся на этапе «Разбор по одному». 🔊 читает инфинитив</p>';
+  var inp=el("inp"); inp.focus(); el("spk").onclick=function(){speak(v.v)};
+  el("skipwarm").onclick=function(){
+    var bi=ROUNDS.map(function(r){return r.k}).indexOf("block");
+    if(bi>-1){ clearWarmQueue(S.day); S.round=bi; startRound() }
+  };
+  var locked=false;
   function check(){
     if(locked) return; var a=norm(inp.value); if(!a) return; locked=true;
     var good=a===norm(ans); note(v.v+"|"+q.pi,good);
