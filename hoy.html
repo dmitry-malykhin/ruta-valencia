@@ -265,7 +265,7 @@ function blocks(){
     out.push({id:"verbos",auto:true,min:25,t:"Спряжение глаголов",
       s:(DAY_VERBS[d]||[]).join(", ")||"повтор пройденных",
       href:"./verbos.html",go:"Тренировать",
-      done: num("verb_r_"+S.who+"_"+d)>=(d>=2?5:4)});
+      done: ls("verb_done_"+S.who+"_"+d)==="1"});
   }
   out.push({id:"words",auto:true,min:kid?10:25,
     t: kid?"Фразы дня":"Слова дня, 15 штук",
