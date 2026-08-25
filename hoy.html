@@ -359,6 +359,13 @@ function blocks(){
   if(!kid) out.push({id:"speech",auto:false,min:15,opt:true,t:"Речь по скрипту дня",
     s:"вслух, вдвоём с Юлией · языковой обмен только если захочется",
     href:"./shadow.html?day="+d,go:"Повторять"});
+  if(!kid) out.push({id:"banco",auto:false,min:10,opt:true,t:"Банк изученного",
+    s:"повтор пройденных слов и глаголов вразброс",
+    href:"./banco.html?who="+S.who, go:"Повторять"});
+  if(!kid && d%7===0) out.push({id:"test",auto:false,min:15,opt:true,
+    t:"Недельный тест · неделя "+Math.ceil(d/7),
+    s:"двадцать вопросов без подсказок, проверка для себя",
+    href:"./banco.html?who="+S.who+"#test", go:"Пройти тест"});
   if(!kid && ls("hoy_phone_off_"+S.who)!=="1")
     out.push({id:"phone",auto:false,min:5,opt:true,t:"Номер телефона на слух",
       s:"записать продиктованный номер и продиктовать самому · три скорости",
