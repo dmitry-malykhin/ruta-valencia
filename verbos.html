@@ -299,6 +299,7 @@ function requeue(q){
 }
 function pairs(){var out=[];S.verbs.forEach(function(v){P.forEach(function(p,i){out.push({v:v,pi:i})})});return out}
 function roundDone(){
+  if(ROUNDS[S.round] && ROUNDS[S.round].k==="block") markLearned(S.day);
   if(S.round+1>rdone(S.day)) saveR(S.day,S.round+1);
   renderRounds();
   el("stage").innerHTML='<div class="panel done"><div class="big">✓</div><h2>'+ROUNDS[S.round].t+
@@ -535,16 +536,22 @@ function rListen(){
 }
 
 /* ---------- разминка: глаголы прошлых дней ---------- */
+function lkey(d){return "verb_learned_"+S.who+"_"+d}
+function markLearned(d){ls(lkey(d),"1")}
+function learned(d){
+  if(ls(lkey(d))==="1") return true;
+  return rdone(d)>=2;   // прогресс, записанный до появления отметки
+}
 function warmPool(d){
   // интервальный повтор: вчера, три дня назад, неделю назад, плюс всё, где были ошибки
   var back=[1,3,7,14], seen={}, pool=[];
   back.forEach(function(b){
-    var target=d-b; if(target<1) return;
+    var target=d-b; if(target<1||!learned(target)) return;
     V.forEach(function(v){ if(v.day===target && !seen[v.v]){seen[v.v]=1;pool.push(v)} });
   });
   var st=stats();
   V.forEach(function(v){
-    if(!v.day||v.day>=d||seen[v.v]) return;
+    if(!v.day||v.day>=d||seen[v.v]||!learned(v.day)) return;
     for(var i=0;i<6;i++){ var r=st[v.v+"|"+i]; if(r&&r.e>r.ok){seen[v.v]=1;pool.push(v);return} }
   });
   return pool;
