@@ -208,6 +208,10 @@ border-radius:999px;background:var(--line);color:var(--ink-soft);font-size:11px;
 .stp.done .n{background:var(--verde);color:#fff}
 .rnd .rp{display:block;font-size:10.5px;font-weight:500;opacity:.85;margin-top:3px;
 font-family:"IBM Plex Mono",monospace;letter-spacing:.02em}
+.striplabel{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;
+text-transform:uppercase;color:var(--ink-faint);margin:2px 0 6px}
+.stp.open{cursor:pointer}
+.stp.open:hover{border-color:var(--cobalt)}
 </style>
 <div class="wrap">
   <p class="eyebrow"><a href="./hoy.html" style="text-decoration:none">← Мой день</a> ·
@@ -306,7 +310,7 @@ function renderRounds(){
     var extra=(c==="now"&&roundProgress())?'<span class="rp">'+roundProgress()+'</span>':'';
     h+='<div class="rnd '+c+'" data-round="'+i+'"'+
        (c==="ok"?' title="пройти заново"':'')+'>'+r.t+(c==="ok"?" ✓":"")+extra+'</div>'});
-  el("rounds").innerHTML=h;
+  el("rounds").innerHTML='<div class="striplabel">этапы дня</div>'+h;
   el("rounds").onclick=function(e){
     var d=e.target.closest(".rnd.ok"); if(!d) return;
     S.round=+d.dataset.round; startRound();
@@ -380,13 +384,24 @@ var BLOCK=["learn","table","subst","frase"];
 var STEP_NAMES=["Знакомство","Таблица форм","Все шесть лиц","Фраза"];
 function stepStrip(){
   // отдельная полоса шагов: круги вверху и шаги внутри глагола легко перепутать
-  var h='<div class="steps">';
+  var v=S.verbs[S.vi], whole=v&&isVerbDone(S.day,v.v);
+  var h='<div class="striplabel">шаги глагола '+(v?v.v:"")+'</div><div class="steps">';
   BLOCK.forEach(function(k,i){
-    var c=(i===S.step?"now":(i<S.step?"done":"next"));
-    h+='<div class="stp '+c+'"><span class="n">'+(i+1)+'</span>'+STEP_NAMES[i]+
-       (c==="done"?" ✓":"")+'</div>';
+    var passed=whole||i<S.step;
+    var c=(i===S.step?"now":(passed?"done":"next"));
+    var open=passed||i===S.step;
+    h+='<div class="stp '+c+(open?" open":"")+'" data-step="'+i+'"'+
+       (open?' title="пройти этот шаг заново"':'')+'>'+
+       '<span class="n">'+(i+1)+'</span>'+STEP_NAMES[i]+(c==="done"?" ✓":"")+'</div>';
   });
   return h+'</div>';
+}
+function bindSteps(){
+  var box=el("stage").querySelector(".steps"); if(!box) return;
+  box.onclick=function(e){
+    var d=e.target.closest(".stp.open"); if(!d) return;
+    S.step=+d.dataset.step; S.sq=null; S.token=(S.token||0)+1; rBlock();
+  };
 }
 function rBlock(){
   if(S.vi>=S.verbs.length) return roundDone();
@@ -438,6 +453,7 @@ function oneSubst(v){
     '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
     'placeholder="форма для '+P[pi][0]+'"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
     '<p class="tip">Одна фраза, все лица вразброс. Ошиблись — вопрос вернётся в конец этого шага</p>';
+  bindSteps();
   var inp=el("inp"); inp.focus(); var locked=false, token=S.token, retype=false;
   function go(){ S.sqi++; if(token===S.token) oneSubst(v) }
   function check(){
@@ -482,6 +498,7 @@ function oneLearn(v){
     '<div class="acts"><button class="btn ghost" id="all">🔊 Все формы</button>'+
     '<button class="btn" id="next">Запомнил, дальше</button></div>'+
     '<p class="tip">🔊 у любой формы озвучивает именно её. Дальше этот же глагол пойдёт в таблицу и во фразу</p>';
+  bindSteps();
   el("spk").onclick=function(){speak(v.v)};
   el("all").onclick=function(){speak(v.f.join(", "))};
   el("stage").querySelector(".formlist").onclick=function(e){
@@ -510,6 +527,7 @@ function oneTable(v){
     '<button class="btn ghost" id="hint">Не помню, подскажи</button>'+
     '<button class="btn" id="done" disabled>Дальше</button></div>'+
     '<p class="tip"><span class="kbd">Enter</span> проверить · слева единственное число, справа множественное</p></div>';
+  bindSteps();
   el("spkv").onclick=function(){speak(v.v)};
   var inputs=el("stage").querySelectorAll(".conjgrid input");
   function focusNext(from){
@@ -575,6 +593,7 @@ function oneFrase(v,k){
     '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
     'placeholder="форма глагола"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
     '<p class="tip">Вставьте форму, потом прочитайте предложение вслух целиком</p>';
+  bindSteps();
   var inp=el("inp"); inp.focus(); var locked=false, token=S.token, retype=false;
   function check(){
     if(locked) return; var a=norm(inp.value); if(!a) return;
