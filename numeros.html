@@ -394,20 +394,35 @@ function micRound(opts){
   if(!btn) return;
   btn.onclick=function(){
     var Rec=window.SpeechRecognition||window.webkitSpeechRecognition, rec=new Rec();
-    rec.lang="es-ES"; rec.maxAlternatives=5; rec.interimResults=false;
+    rec.lang="es-ES"; rec.maxAlternatives=5; rec.interimResults=true;
     btn.textContent="🎤 слушаю…"; btn.disabled=true;
-    rec.onresult=function(ev){
-      var alts=[]; for(var i=0;i<ev.results[0].length;i++) alts.push(ev.results[0][i].transcript);
-      var hit=heardMatches(alts, opts.word, opts.digits);
-      box.innerHTML=(hit?'<b style="color:var(--verde)">совпало: </b>':'не совпало · услышал: ')+alts[0];
+    var settled=false;
+    function settle(hit, said){
+      if(settled) return; settled=true;
+      try{rec.stop()}catch(e){}
+      box.innerHTML=(hit?'<b style="color:var(--verde)">совпало: </b>':'не совпало · услышал: ')+said;
       btn.textContent="🎤 Сказать ещё раз"; btn.disabled=false;
       opts.done(hit);
+    }
+    rec.onresult=function(ev){
+      var alts=[], last="";
+      for(var r=0;r<ev.results.length;r++){
+        for(var i=0;i<ev.results[r].length;i++){
+          var tr=ev.results[r][i].transcript;
+          alts.push(tr); if(i===0) last=tr;
+        }
+      }
+      if(heardMatches(alts, opts.word, opts.digits)) return settle(true, last);
+      // не совпало: ждём окончательный результат, промежуточный мог быть обрывком
+      if(ev.results[ev.results.length-1].isFinal) settle(false, last);
     };
     rec.onerror=function(ev){
       box.textContent=MIC_ERRORS[ev&&ev.error]||("не получилось: "+((ev&&ev.error)||"ошибка"));
       btn.textContent="🎤 Ещё раз"; btn.disabled=false;
     };
-    rec.onend=function(){ if(btn.disabled){btn.textContent="🎤 Ещё раз";btn.disabled=false} };
+    rec.onend=function(){
+      if(!settled && btn.disabled){ btn.textContent="🎤 Ещё раз"; btn.disabled=false }
+    };
     try{rec.start()}catch(e){btn.disabled=false}
   };
 }
