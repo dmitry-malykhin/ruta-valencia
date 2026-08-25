@@ -182,6 +182,9 @@ border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05e
 .vtable tr.irr td.v{color:var(--naranja)}
 .taskline{margin-top:16px;font-size:16.5px;color:var(--ink-soft);line-height:1.6}
 .taskline b{color:var(--ink);font-weight:600}
+.cell .hintbtn{width:34px;height:34px;font-weight:700;flex:none}
+.rnd.ok{cursor:pointer}
+.rnd.ok:hover{border-color:var(--verde)}
 </style>
 <div class="wrap">
   <p class="eyebrow"><a href="./hoy.html" style="text-decoration:none">← Мой день</a> ·
@@ -271,8 +274,13 @@ function renderRounds(){
   var passed=rdone(S.day),h="";
   ROUNDS.forEach(function(r,i){
     var c=(i===S.round?"now":(i<passed?"ok":"lock"));
-    h+='<div class="rnd '+c+'">'+r.t+(c==="ok"?" ✓":"")+'</div>'});
+    h+='<div class="rnd '+c+'" data-round="'+i+'"'+
+       (c==="ok"?' title="пройти заново"':'')+'>'+r.t+(c==="ok"?" ✓":"")+'</div>'});
   el("rounds").innerHTML=h;
+  el("rounds").onclick=function(e){
+    var d=e.target.closest(".rnd.ok"); if(!d) return;
+    S.round=+d.dataset.round; startRound();
+  };
 }
 function startDay(d){
   S.day=d; S.verbs=dayVerbs(d); buildRounds(d);
@@ -421,6 +429,7 @@ function oneTable(v){
   var cells=P.map(function(p,i){
     return '<div class="cell" data-i="'+i+'"><div class="p"><b>'+p[0]+'</b>'+p[1]+'</div>'+
       '<input data-i="'+i+'" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="форма">'+
+      '<button class="mini hintbtn" data-hint="'+i+'" title="показать форму для '+p[0]+'">?</button>'+
       '<button class="mini" data-play="'+i+'" disabled>🔊</button></div>'}).join("");
   el("stage").innerHTML= blockHead(v)+
     '<div class="panel"><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">'+
@@ -449,6 +458,7 @@ function oneTable(v){
       var b=el("stage").querySelector('[data-play="'+i+'"]');
       b.disabled=false; b.classList.add("on");
       b.onclick=function(){speak(v.f[i])};
+      var h=el("stage").querySelector('[data-hint="'+i+'"]'); if(h) h.disabled=true;
       speak(v.f[i]);
       el("cleft").textContent = left ? ("осталось "+left) : "все шесть верно";
       if(!left){ el("done").disabled=false; el("done").focus() } else focusNext(i);
@@ -464,15 +474,22 @@ function oneTable(v){
     inp.onkeydown=function(e){ if(e.key==="Enter"){e.preventDefault();check(i)} };
     inp.onblur=function(){ if(inp.value.trim()) check(i,true) };
   });
-  el("hint").onclick=function(){
-    var i=-1; for(var j=0;j<6;j++) if(!solved[j]){i=j;break}
-    if(i<0) return;
+  function showHint(i){
+    if(solved[i]) return;
     var inp=inputs[i], cell=inp.parentNode;
     note(v.v+"|"+i,false); S.wrong++;
     speak(v.f[i]);
     inp.value=""; inp.placeholder="перепишите: "+v.f[i]; inp.focus();
     cell.classList.add("bad");
-    el("stage").querySelector(".tip").innerHTML='Наберите <b>'+v.f[i]+'</b> целиком, так форма запомнится.';
+    el("stage").querySelector(".tip").innerHTML=
+      'Форма для <b>'+P[i][0]+'</b> — <b>'+v.f[i]+'</b>. Наберите её целиком, так она запомнится.';
+  }
+  el("stage").querySelector(".conjgrid").onclick=function(e){
+    var b=e.target.closest(".hintbtn"); if(!b) return;
+    showHint(+b.dataset.hint);
+  };
+  el("hint").onclick=function(){
+    for(var j=0;j<6;j++) if(!solved[j]) return showHint(j);
   };
   el("done").onclick=blockNext;
   inputs[0].focus();
