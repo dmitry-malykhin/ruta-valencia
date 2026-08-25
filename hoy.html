@@ -262,7 +262,7 @@ function blocks(){
       s: d<=16 ? "45 минут, отвечать вслух на каждой паузе" : "разбор слабых мест",
       href: d<=16 ? ("https://smotrim.ru/video/"+VID[d-1]) : "./verbos.html",
       go: d<=16 ? "Смотреть" : "Открыть"});
-    out.push({id:"verbos",auto:true,min:15,t:"Спряжение глаголов",
+    out.push({id:"verbos",auto:true,min:25,t:"Спряжение глаголов",
       s:(DAY_VERBS[d]||[]).join(", ")||"повтор пройденных",
       href:"./verbos.html",go:"Тренировать",
       done: num("verb_r_"+S.who+"_"+d)>=(d>=2?5:4)});
