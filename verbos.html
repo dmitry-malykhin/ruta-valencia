@@ -212,6 +212,10 @@ font-family:"IBM Plex Mono",monospace;letter-spacing:.02em}
 text-transform:uppercase;color:var(--ink-faint);margin:2px 0 6px}
 .stp.open{cursor:pointer}
 .stp.open:hover{border-color:var(--cobalt)}
+.rndline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;
+color:var(--ink-soft);padding:8px 2px}
+.rndline b{color:var(--ink)}
+.striplabel .btn{margin-left:8px;vertical-align:middle}
 </style>
 <div class="wrap">
   <p class="eyebrow"><a href="./hoy.html" style="text-decoration:none">← Мой день</a> ·
@@ -303,14 +307,29 @@ function roundProgress(){
   if(S.queue&&S.queue.length) return Math.min(S.idx+1,S.queue.length)+" из "+S.queue.length;
   return "";
 }
+function stripOpen(){return ls("verb_strip_"+S.who)==="1"}
 function renderRounds(){
-  var passed=rdone(S.day),h="";
+  var passed=rdone(S.day), h="", open=stripOpen();
+  // разбор по одному длится 45 экранов: развёрнутая полоса всё это время выглядит замершей
+  var longBlock = ROUNDS[S.round] && ROUNDS[S.round].k==="block";
+  if(longBlock && !open){
+    h='<div class="rndline"><b>Этап '+(S.round+1)+' из '+ROUNDS.length+'</b> · '+
+      ROUNDS[S.round].t.replace(/^\d+\.\s*/,"")+' · <span class="mono">'+roundProgress()+'</span>'+
+      '<button class="btn ghost sm" id="stripToggle">все этапы дня</button></div>';
+    el("rounds").innerHTML=h;
+    el("stripToggle").onclick=function(){ls("verb_strip_"+S.who,"1");renderRounds()};
+    return;
+  }
   ROUNDS.forEach(function(r,i){
     var c=(i===S.round?"now":(i<passed?"ok":"lock"));
     var extra=(c==="now"&&roundProgress())?'<span class="rp">'+roundProgress()+'</span>':'';
     h+='<div class="rnd '+c+'" data-round="'+i+'"'+
        (c==="ok"?' title="пройти заново"':'')+'>'+r.t+(c==="ok"?" ✓":"")+extra+'</div>'});
-  el("rounds").innerHTML='<div class="striplabel">этапы дня</div>'+h;
+  var head='<div class="striplabel">этапы дня'+
+    (longBlock?' <button class="btn ghost sm" id="stripToggle">свернуть</button>':'')+'</div>';
+  el("rounds").innerHTML=head+h;
+  if(el("stripToggle")) el("stripToggle").onclick=function(){
+    ls("verb_strip_"+S.who,"0");renderRounds()};
   el("rounds").onclick=function(e){
     var d=e.target.closest(".rnd.ok"); if(!d) return;
     S.round=+d.dataset.round; startRound();
