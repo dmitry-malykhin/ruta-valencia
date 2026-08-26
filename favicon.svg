@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ruta Valencia">
+  <!-- испанский флаг: красная-жёлтая-красная полосы, пропорции 1:2:1 -->
+  <defs>
+    <clipPath id="r"><rect x="2" y="2" width="60" height="60" rx="13"/></clipPath>
+  </defs>
+  <g clip-path="url(#r)">
+    <rect x="0" y="0" width="64" height="64" fill="#C60B1E"/>
+    <rect x="0" y="18" width="64" height="28" fill="#FFC400"/>
+  </g>
+  <rect x="2" y="2" width="60" height="60" rx="13" fill="none" stroke="#8E0713" stroke-width="2"/>
+
+  <!-- академическая шапочка поверх флага -->
+  <g transform="translate(32 33)">
+    <path d="M-21 -5 L0 -14 L21 -5 L0 4 Z" fill="#14213D"/>
+    <path d="M-21 -5 L0 -14 L21 -5 L0 4 Z" fill="none" stroke="#0B1526" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M-11 -0.5 L-11 8 C-11 12 11 12 11 8 L11 -0.5 L0 4 Z" fill="#1B2C4C"/>
+    <path d="M-11 -0.5 L-11 8 C-11 12 11 12 11 8 L11 -0.5" fill="none" stroke="#0B1526"
+          stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M18 -3.7 L18 9" stroke="#0B1526" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="18" cy="11" r="2.6" fill="#C60B1E" stroke="#8E0713" stroke-width="1"/>
+  </g>
+</svg>
