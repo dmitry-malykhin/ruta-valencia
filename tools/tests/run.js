@@ -88,6 +88,18 @@ async function testReglas() {
   // 1. таблица
   ok("таблица: шесть строк", doc.querySelectorAll(".endcell").length === 6,
      doc.querySelectorAll(".endcell").length + " строк");
+  const css = fs.readFileSync(path.join(SITE, "reglas.html"), "utf8").split("<style>")[1];
+  const endrow = (css.match(/\.endrow\{[^}]*\}/g) || [])[0] || "";
+  ok("таблица: две колонки по три",
+     /grid-template-columns:repeat\(2,1fr\)/.test(endrow) &&
+     /grid-template-rows:repeat\(3,auto\)/.test(endrow) &&
+     /grid-auto-flow:column/.test(endrow), endrow);
+  ok("таблица: порядок в разметке yo, tú, él, nosotros, vosotros, ellos",
+     [...doc.querySelectorAll(".endcell .who2 b")].map(x => x.textContent).join("|") ===
+     w.P.map(p => p[0]).join("|"),
+     [...doc.querySelectorAll(".endcell .who2 b")].map(x => x.textContent).join("|"));
+  ok("таблица: на узком экране колонка одна",
+     /@media\(max-width:640px\)\{\.endrow\{grid-template-columns:1fr/.test(css));
   ok("таблица: окончание выделено", doc.querySelectorAll(".form2 u").length === 6);
   ok("таблица: у каждой строки своя озвучка",
      doc.querySelectorAll(".endrow [data-say]").length === 6);

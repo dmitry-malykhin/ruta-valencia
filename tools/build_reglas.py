@@ -30,7 +30,9 @@ CSS += """
 border-radius:999px;padding:7px 16px;font-size:15px;cursor:pointer;font-family:"IBM Plex Mono",monospace}
 .grp button.on{background:var(--cobalt);border-color:transparent;color:#fff;font-weight:600}
 .grp button.done{border-color:var(--verde);color:var(--verde)}
-.endrow{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}
+.endrow{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,auto);
+grid-auto-flow:column;gap:10px 16px;margin-top:14px}
+@media(max-width:640px){.endrow{grid-template-columns:1fr;grid-auto-flow:row}}
 .endcell{display:flex;align-items:center;gap:10px;background:var(--surface-2);
 border:1px solid var(--line);border-radius:11px;padding:10px 12px;flex-wrap:wrap}
 .endcell .who2{flex:1 1 150px;font-size:13px;color:var(--ink-soft);min-width:0}
