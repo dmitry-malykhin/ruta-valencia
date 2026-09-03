@@ -260,6 +260,15 @@ border-radius:10px;padding:10px 12px;font-size:16.5px;color:var(--ink)}
 .stem u{text-decoration:none;color:var(--naranja)}
 .endcell .hintbtn{width:34px;height:34px;font-weight:700;flex:0 0 auto}
 .endcell .mini{flex:0 0 auto}
+/* четыре шага в строку, на узком экране два на два */
+.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 14px}
+@media(max-width:760px){.modes{grid-template-columns:repeat(2,1fr)}}
+.md{border:1.5px solid var(--line);background:var(--surface-2);border-radius:11px;
+padding:10px 8px;font-size:13px;color:var(--ink-faint);text-align:center;cursor:pointer;
+line-height:1.3}
+.md:hover{border-color:var(--cobalt)}
+.md.on{border-color:var(--naranja);background:var(--naranja-soft);color:var(--naranja);font-weight:600}
+.md.done{border-color:var(--verde);background:var(--verde-soft);color:var(--verde);font-weight:600}
 </style>
 <div class="wrap">
   <p class="eyebrow"><a href="./hoy.html" style="text-decoration:none">← Мой день</a> ·

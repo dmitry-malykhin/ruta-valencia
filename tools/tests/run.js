@@ -81,6 +81,30 @@ async function testReglas() {
        v.f.join(",") !== g.ends.map(e => v.v.slice(0, -2) + e).join(",")).map(v => v.v)).join(","));
 
   ok("окончания: четыре режима", w.MODES.length === 4, w.MODES.map(m => m.t).join(" | "));
+
+  // табы шагов: четыре в строку, цвет по состоянию
+  const styles = fs.readFileSync(path.join(SITE, "reglas.html"), "utf8").split("<style>")[1];
+  const rule = sel => {
+    const all = [...styles.matchAll(new RegExp(sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "[^}]*}", "g"))];
+    return all.length ? all[all.length - 1][0] : "";
+  };
+  const baseModes = (styles.match(/\.modes\{[^}]*\}/) || [""])[0];
+  ok("шаги: выстроены сеткой в четыре колонки",
+     /grid-template-columns:repeat\(4,1fr\)/.test(baseModes), baseModes);
+  ok("шаги: на узком экране два на два",
+     /@media\(max-width:760px\)\{\.modes\{grid-template-columns:repeat\(2,1fr\)/.test(styles));
+  ok("шаги: текущий оранжевый", /--naranja/.test(rule(".md.on{")), rule(".md.on{"));
+  ok("шаги: пройденный зелёный", /--verde/.test(rule(".md.done{")), rule(".md.done{"));
+  ok("шаги: будущий приглушённый",
+     /--ink-faint/.test(rule(".md{")) && /--line/.test(rule(".md{")), rule(".md{"));
+
+  const tabs = () => [...doc.querySelectorAll(".modes .md")];
+  ok("шаги: их ровно четыре", tabs().length === 4, tabs().length + " табов");
+  ok("шаги: текущий помечен", tabs().filter(x => /\bon\b/.test(x.className)).length === 1,
+     tabs().map(x => x.className).join(" | "));
+  ok("шаги: непройденные не выглядят пройденными",
+     tabs().every((x, i) => /done/.test(x.className) === w.modeDone(w.S.g, i)),
+     tabs().map(x => x.className).join(" | "));
   ok("окончания: лица показаны парами",
      w.P[2][0] === "él / ella / usted" && w.P[5][0] === "ellos / ustedes",
      w.P[2][0] + " | " + w.P[5][0]);
