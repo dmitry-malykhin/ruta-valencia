@@ -258,6 +258,8 @@ border-radius:10px;padding:10px 12px;font-size:16.5px;color:var(--ink)}
 .endcell.bad{border-color:var(--naranja)}
 .stem{font-size:clamp(24px,5vw,36px);font-weight:700;text-align:center;margin-bottom:4px}
 .stem u{text-decoration:none;color:var(--naranja)}
+.endcell .hintbtn{width:34px;height:34px;font-weight:700;flex:0 0 auto}
+.endcell .mini{flex:0 0 auto}
 </style>
 <div class="wrap">
   <p class="eyebrow"><a href="./hoy.html" style="text-decoration:none">← Мой день</a> ·
@@ -410,7 +412,9 @@ function rOrder(){
   var rows=P.map(function(p,i){
     return '<div class="endcell" data-i="'+i+'"><div class="who2"><b>'+p[0]+'</b>'+p[1]+'</div>'+
       '<input data-i="'+i+'" autocomplete="off" autocapitalize="off" spellcheck="false" '+
-      'placeholder="'+st+'…"><button class="mini" data-play="'+i+'" disabled>🔊</button></div>'}).join("");
+      'placeholder="'+st+'…">'+
+      '<button class="mini hintbtn" data-hint="'+i+'" title="подсказать окончание для '+p[0]+'">?</button>'+
+      '<button class="mini" data-play="'+i+'" disabled>🔊</button></div>'}).join("");
   el("stage").innerHTML=head()+
     '<div class="panel"><div class="stem">'+st+'<u>'+g.id+'</u></div>'+
     '<p class="hint" style="text-align:center;margin-bottom:6px">'+v.ru+'</p>'+
@@ -429,6 +433,7 @@ function rOrder(){
       inp.value=v.f[i]; inp.readOnly=true;
       var b=el("stage").querySelector('[data-play="'+i+'"]');
       b.disabled=false; b.onclick=function(){speak(v.f[i])};
+      var h=el("stage").querySelector('[data-hint="'+i+'"]'); if(h) h.disabled=true;
       speak(v.f[i]);
       if(!left){ el("done").disabled=false; el("done").focus() }
       else { for(var j=0;j<6;j++) if(!solved[j]){inputs[j].focus();break} }
@@ -441,6 +446,17 @@ function rOrder(){
     inp.onkeydown=function(e){ if(e.key==="Enter"){e.preventDefault();check(i)} };
     inp.onblur=function(){ if(inp.value.trim()) check(i) };
   });
+  el("stage").querySelector(".endrow").onclick=function(e){
+    var b=e.target.closest(".hintbtn"); if(!b) return;
+    var i=+b.dataset.hint;
+    if(solved[i]) return;
+    S.wrong++;
+    var inp=inputs[i];
+    inp.placeholder=st+"-"+g.ends[i];
+    inp.focus();
+    el("stage").querySelector(".tip").innerHTML=
+      'Окончание для <b>'+P[i][0]+'</b> — <b>-'+g.ends[i]+'</b>. Слово наберите целиком.';
+  };
   el("hint").onclick=function(){
     el("stage").querySelector(".tip").innerHTML='<b>'+endingsLine()+'</b>';
   };
@@ -458,8 +474,17 @@ function rMix(){
     '<div class="taskline">Форма для <b>'+P[q.p][0]+'</b> · '+P[q.p][1]+'</div></div>'+
     '<div class="type"><input id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" '+
     'placeholder="слово целиком"><button class="btn" id="ok">Проверить</button></div><div id="v"></div>'+
+    '<div class="acts" style="margin-top:8px">'+
+    '<button class="btn ghost" id="hintend">? Подсказать окончание</button></div>'+
     '<p class="tip">Пишите глагол целиком, не только окончание</p>';
   var inp=el("inp"); inp.focus(); var locked=false, retype=false;
+  el("hintend").onclick=function(){
+    if(locked) return;
+    S.wrong++;
+    el("v").innerHTML='<div class="verdict bad">окончание для <b>'+P[q.p][0]+'</b> — <b>-'+
+      group().ends[q.p]+'</b></div>';
+    inp.placeholder=st+"-"+group().ends[q.p]; inp.focus();
+  };
   function check(){
     if(locked) return; var a=norm(inp.value); if(!a) return;
     if(retype){
