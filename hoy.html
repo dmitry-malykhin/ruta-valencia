@@ -362,6 +362,9 @@ function blocks(){
   if(!kid) out.push({id:"speech",auto:false,min:15,opt:true,t:"Речь по скрипту дня",
     s:"вслух, вдвоём с Юлией · языковой обмен только если захочется",
     href:"./shadow.html?day="+d,go:"Повторять"});
+  if(!kid) out.push({id:"reglas",auto:false,min:10,opt:true,t:"Окончания правильных глаголов",
+    s:"-ar, -er, -ir по правилу: таблица, по порядку, вразброс, на слух",
+    href:"./reglas.html?who="+S.who, go:"Отрабатывать"});
   if(!kid) out.push({id:"banco",auto:false,min:10,opt:true,t:"Банк изученного",
     s:"повтор пройденных слов и глаголов вразброс",
     href:"./banco.html?who="+S.who, go:"Повторять"});
